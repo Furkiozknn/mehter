@@ -37,10 +37,10 @@
   "media": {
     "hero": "docs/assets-after-gameplay-r2.png",
     "screenshots": [
+      "docs/assets-after-gameplay-r2.png",
       "docs/title.png",
       "docs/song-select.png",
       "docs/gameplay.png",
-      "docs/assets-after-gameplay-r2.png",
       "docs/results.png",
       "docs/settings.png",
       "docs/phone.png"
