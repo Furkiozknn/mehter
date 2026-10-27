@@ -1,0 +1,84 @@
+{
+  "schema_version": "1.0.0",
+  "id": "mehter",
+  "owner": "Furkiozknn",
+  "repository": "https://github.com/Furkiozknn/mehter",
+  "homepage": "https://furkiozknn.github.io/mehter/",
+  "releases": null,
+  "status": "active",
+  "category": "game",
+  "platform": [
+    "web"
+  ],
+  "primary_language": "JavaScript",
+  "technologies": [
+    "Three.js r170",
+    "Web Audio API",
+    "Blender"
+  ],
+  "version": null,
+  "license": "MIT",
+  "topics": [
+    "browser-game",
+    "threejs",
+    "rhythm-game",
+    "music-game",
+    "claude-code",
+    "claude-game-arena"
+  ],
+  "summary": "3D rhythm march with an Ottoman mehter band on a parade avenue, built by Claude Haiku 5.5 · Osmanlı alay caddesinde mehter takımıyla 3D ritim yürüyüşü, Claude Haiku 5.5 yaptı",
+  "key_features": [
+    "Four lanes for davul, kös, zurna and zil on D F J K or touch; long zurna notes are held to the end",
+    "Six songs from 96 to 176 BPM, each in Easy, Normal and Hard, generated from usul rhythm patterns",
+    "Music scheduled on the audio clock, hits judged against it, with an input-offset calibration screen",
+    "The ?auto bot hit all 907 notes of the last song perfectly for an S grade, with and without assets",
+    "61 fps (display cap) on an Intel UHD GPU at 1280x720 with 29 draw calls; one index.html, optional CC0 asset pass"
+  ],
+  "media": {
+    "hero": "docs/assets-after-gameplay-r2.png",
+    "screenshots": [
+      "docs/title.png",
+      "docs/song-select.png",
+      "docs/gameplay.png",
+      "docs/assets-after-gameplay-r2.png",
+      "docs/results.png",
+      "docs/settings.png",
+      "docs/phone.png"
+    ],
+    "gifs": [
+      "docs/gameplay.gif"
+    ],
+    "videos": [
+      "docs/gameplay.mp4",
+      "https://github.com/Furkiozknn/social-videos/releases/download/promo-2026-10/2026-10-28-mehter-en.mp4",
+      "https://github.com/Furkiozknn/social-videos/releases/download/promo-2026-10/2026-10-28-mehter-tr.mp4"
+    ]
+  },
+  "tests": null,
+  "ci": {
+    "workflows": [],
+    "badge": null
+  },
+  "docs": {
+    "readme": "README.md",
+    "changelog": null,
+    "version_history": null,
+    "roadmap": null,
+    "security": null,
+    "contributing": null,
+    "license_file": "LICENSE"
+  },
+  "social": {
+    "headline": "March with the Ottoman mehter band: hit the davul, kös, zurna and zil on the beat · Mehter takımıyla yürü: davul, kös, zurna ve zili tam vuruşta çal",
+    "hashtags": [
+      "claudecode",
+      "indiegame"
+    ],
+    "primary_link": "https://furkiozknn.github.io/mehter/"
+  },
+  "provenance": {
+    "generated_at": "2026-10-27",
+    "generator": "hand-written",
+    "rule": "mechanical fields read from the repository; editorial fields hand-written from the README, index.html, docs/assets.md and the video-studio analiz.md; no field is generated from a guess"
+  }
+}
