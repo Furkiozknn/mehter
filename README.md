@@ -2,6 +2,8 @@
 
 **Play online:** https://furkiozknn.github.io/mehter/ (desktop and phone, no install)
 
+![Mehter gameplay: hitting the drum notes as the band marches](docs/gameplay.gif)
+
 A 3D rhythm march through an old Ottoman parade avenue. The band (kös and davul drummers, zurna players, a çevgen bearer and the mehterbaşı) walks towards you while notes roll down four lanes. Hit them on the beat, hold the zurna notes, and keep the band's spirit above zero.
 
 Everything is one `index.html`: the world, the band, the songs and the music are generated in code. A few CC0 assets (band models, a cobblestone texture, two short sounds) are loaded on top; the game works without them. See [Assets](#assets).
