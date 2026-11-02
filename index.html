@@ -682,7 +682,7 @@ function onHit(n, grade) {
   judgeShow(grade);
   sndHit(perfect);
   G.flash[n.lane] = 1; G.instFlash[FAM[n.lane]] = 1;
-  sparks(LANE_X[n.lane], 0.3, HIT_Z, perfect ? 10 : 5, n.lane === 3 ? 0xf2e6c9 : 0xffd76a);
+  sparks(LANE_X[n.lane], 0.3, HIT_Z, perfect ? 12 : 6, n.lane === 3 ? 0xf1e3c6 : 0xF3D27A);
   if (n.dur > 0) { n.state = 1; n.tick = G.gt + 0.25; G.holds[n.lane] = n; } else n.state = 2;
   if (G.combo >= 10 && G.combo % 10 === 0) { petals(lowQ() ? 18 : 36); sndCheer(); }
 }
@@ -898,7 +898,7 @@ function emit(pool, x, y, z, vx, vy, vz, life, hex) {
 }
 function sparks(x, y, z, n, hex) { for (let i = 0; i < n; i++) emit(PTS.spark, x, y, z, (Math.random() - 0.5) * 3, 2 + Math.random() * 3, (Math.random() - 0.5) * 2, 0.5, hex); }
 function petals(n) {
-  const pal = [0xf6b6c0, 0xe85d6a, 0xffd76a, 0xffffff];
+  const pal = [0xD4AF37, 0xA4161A, 0xF1E3C6, 0xF3D27A];   // gold and crimson confetti on a combo of 10
   for (let i = 0; i < n; i++) {
     const side = Math.random() < 0.5 ? -1 : 1;
     emit(PTS.petal, side * (8 + Math.random() * 4), 5.5 + Math.random() * 2, -22 + Math.random() * 26, (Math.random() - 0.5) * 1.2, -0.8 - Math.random(), (Math.random() - 0.5) * 1.2, 4 + Math.random() * 2, pal[i % pal.length]);
@@ -1149,7 +1149,7 @@ function buildNotes() {
   C.glow.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   for (let l = 0; l < 4; l++) put(C.glow, l, LANE_X[l], 0.1, HIT_Z - 0.3);
   C.glow.instanceMatrix.needsUpdate = true;
-  C.hit = new THREE.Mesh(new THREE.BoxGeometry(4.3, 0.07, 0.12), new THREE.MeshLambertMaterial({ color: 0xD4A017, emissive: 0x3a2600 }));
+  C.hit = new THREE.Mesh(new THREE.BoxGeometry(4.3, 0.07, 0.12), new THREE.MeshLambertMaterial({ color: 0xD4AF37, emissive: 0x3a2600 }));
   C.hit.position.set(0, 0.13, HIT_Z);
   scene.add(C.notes, C.holds, C.glow, C.hit);
 }
@@ -1400,6 +1400,9 @@ function updateWorld(dt, t, beat) {
     }
     p.needsUpdate = true;
   }
+  // the gilded hit line glows on every beat and flares when a note lands on it
+  const hitGlow = 0.12 + 0.5 * BEAT_PULSE + 0.6 * Math.max(G.flash[0], G.flash[1], G.flash[2], G.flash[3]);
+  C.hit.material.emissive.setRGB(0.22 * hitGlow + 0.1, 0.16 * hitGlow + 0.06, 0.02 * hitGlow);
   tickPool(PTS.petal, dt, 1.4);
   tickPool(PTS.spark, dt, 6);
 }
