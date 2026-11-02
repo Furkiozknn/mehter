@@ -107,6 +107,31 @@ In the browser console, `window.mehter.state()` returns the live state (includin
   </tr>
 </table>
 
+## Redesign (2026-11)
+
+**Art direction:** an Ottoman square at dusk, in crimson, gold and deep green on parchment stone, with torches that
+swell on every beat.
+
+<p align="center"><img src="docs/redesign-before-after.png" width="100%" alt="The same avenue before and after the redesign"><br><sub>Same camera, before (left) and after (right)</sub></p>
+
+- **Environment:** arcaded houses with gold cornices and striped awnings, a mosaic floor drawn on a canvas (replaced
+  by the cobblestone asset when it loads), canvas-painted banners with a crescent and star, a mosque dome and minarets
+  closing the far end, green gardens beside the carpet.
+- **Band:** the drum stick strikes on davul notes, the zil ring flashes gold on every zil hit, the zurna sways more
+  while a note is held.
+- **Look:** a gilded hit line that glows on the beat, gold and crimson sparks and confetti, crimson panels with a gold
+  frame, gilded buttons, tuğra-style flourish dividers, Georgia headings (system font, nothing to download).
+- **Language:** a first visit follows the browser (Turkish for `tr` browsers, English otherwise).
+
+Measured in headless Chrome on the Intel UHD 620 laptop at 1280x720 with `?debug`, on the first song about 13 s in:
+before 60 fps, 29 draw calls, 60,058 triangles; after 60 fps, 31 draw calls, 65,832 triangles. The `?auto` bot
+finishes all six songs with 0 JS errors, both with the assets and with `?noassets`; on the last song it hits all 907
+notes perfectly (S grade).
+
+Not checked: a real phone (the 500x900 layout was checked in a desktop emulation only), a Turkish-locale browser, and
+the drum, zil and zurna motion, which was checked in code and in still frames only. On the 500x900 layout the HUD
+wraps the accuracy to a second row.
+
 <details>
 <summary><b>Phone layout and the asset pass, before and after</b></summary>
 
