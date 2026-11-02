@@ -20,6 +20,10 @@
 
 <p align="center"><b>Play online: <a href="https://furkiozknn.github.io/mehter/">https://furkiozknn.github.io/mehter/</a></b> (desktop and phone, no install)</p>
 
+<!-- portals:start -->
+<p align="center">Also on: <a href="https://furkiozknn.itch.io/mehter">itch.io</a></p>
+<!-- portals:end -->
+
 ## Highlights
 
 - **A whole band in front of you.** Kös and davul drummers, zurna players, a çevgen bearer and the mehterbaşı march
@@ -206,3 +210,5 @@ Haiku 5.5 tarafından Claude Code ile tek bir prompt'tan yapıldı.
 ## License
 
 MIT, see [LICENSE](LICENSE). Third-party assets are CC0, see [CREDITS.md](CREDITS.md).
+
+Like the game? You can support new rounds on [Buy Me a Coffee](https://buymeacoffee.com/furkiozkann). The game stays free.
