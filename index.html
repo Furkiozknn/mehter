@@ -7,7 +7,7 @@
 <meta name="description" content="Mehter: a 3D rhythm march through an Ottoman parade avenue. Built with Three.js and Web Audio.">
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
 <style>
-:root{--gold:#D4A017;--gold-hi:#ffd76a;--red:#9b1c1c;--blue:#13224a;--cream:#f2e6c9;--glass:rgba(12,16,34,.76);--line:rgba(212,160,23,.38);--focus:#ffd76a}
+:root{--gold:#D4AF37;--gold-hi:#F3D27A;--red:#A4161A;--green:#1B4332;--night:#0B132B;--parch:#F1E3C6;--cream:#F1E3C6;--crimson-panel:rgba(74,10,14,.9);--glass:rgba(58,8,12,.86);--line:rgba(212,175,55,.55);--focus:#F3D27A}
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;background:#0b0d1a;overflow:hidden}
 body{font:15px/1.4 system-ui,"Segoe UI",Roboto,sans-serif;color:var(--cream);user-select:none;-webkit-user-select:none}
@@ -250,7 +250,8 @@ const $$ = (s) => [...document.querySelectorAll(s)];
 const Q = new URLSearchParams(location.search);
 const FLAG = { auto: Q.has('auto'), debug: Q.has('debug'), low: Q.has('low'), noassets: Q.has('noassets') };
 const PHONE = matchMedia('(pointer: coarse)').matches;
-const DEF = { master: 0.8, music: 0.6, sfx: 0.8, musicOn: true, sfxOn: true, lang: 'tr', quality: PHONE ? 'low' : 'high', keys: ['d', 'f', 'j', 'k'], calib: 0 };
+const DEF_LANG = /^tr/i.test(navigator.language || '') ? 'tr' : 'en';
+const DEF = { master: 0.8, music: 0.6, sfx: 0.8, musicOn: true, sfxOn: true, lang: DEF_LANG, quality: PHONE ? 'low' : 'high', keys: ['d', 'f', 'j', 'k'], calib: 0 };
 
 function store(key, fallback) {
   try { const raw = localStorage.getItem(key); return raw ? { ...fallback, ...JSON.parse(raw) } : { ...fallback }; }
@@ -259,7 +260,7 @@ function store(key, fallback) {
 function persist(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* private mode */ } }
 
 const S = store('arena.mehter.settings', DEF);
-let LANG = Q.get('lang') === 'en' ? 'en' : Q.get('lang') === 'tr' ? 'tr' : (S.lang === 'en' ? 'en' : 'tr');
+let LANG = Q.get('lang') === 'en' ? 'en' : Q.get('lang') === 'tr' ? 'tr' : S.lang;   // S.lang defaults to the browser language
 const lowQ = () => FLAG.low || S.quality === 'low';
 const saveSettings = () => persist('arena.mehter.settings', S);
 const loadBest = () => store('arena.mehter.best', {});
@@ -816,7 +817,7 @@ function calibTick() {
 }
 
 // ----- three.js world (built in code) --------------------------------------
-let R = null, scene = null, cam = null, sun = null, hemi = null;
+let R = null, scene = null, cam = null, sun = null, hemi = null, BEAT_PULSE = 0;
 const C = {};
 const BAND = [];
 const CROWD = [];
@@ -919,11 +920,11 @@ function tickPool(pool, dt, g) {
 
 function buildWorld() {
   const m = new Mesh3();
-  m.box(-40, 40, -0.3, 0, -50, 22, 0x463d52);
-  m.box(-6, 6, 0, 0.02, -50, 22, 0x3a3347);
-  m.box(-7.5, -6, 0, 0.25, -50, 22, 0x857660);
-  m.box(6, 7.5, 0, 0.25, -50, 22, 0x857660);
-  m.box(-2.5, 2.5, 0.02, 0.05, -50, 8, 0x7a1414);
+  m.box(-40, 40, -0.3, 0, -50, 22, 0x1b4332);
+  m.box(-6, 6, 0, 0.02, -50, 22, 0xb89d6e);
+  m.box(-7.5, -6, 0, 0.25, -50, 22, 0xd8c79a);
+  m.box(6, 7.5, 0, 0.25, -50, 22, 0xd8c79a);
+  m.box(-2.5, 2.5, 0.02, 0.05, -50, 8, 0xA4161A);
   for (let i = 0; i < 4; i++) m.box(LANE_X[i] - 0.47, LANE_X[i] + 0.47, 0.05, 0.08, -12.6, 2.6, i % 2 ? 0x2a4080 : 0x1b2b5e);
   for (const x of [-2, -1, 0, 1, 2]) m.box(x - 0.035, x + 0.035, 0.05, 0.1, -12.6, 2.6, 0xD4A017);
   // buildings behind the crowd, seeded so every load looks the same
@@ -951,7 +952,7 @@ function buildWorld() {
 }
 
 function buildBanners() {
-  const cols = [0xa51d1d, 0x1f3d7a, 0xa51d1d, 0x1f3d7a, 0xa51d1d, 0x1f3d7a];
+  const cols = [0xA4161A, 0x1B4332, 0xA4161A, 0x1B4332, 0xA4161A, 0x1B4332];
   let k = 0;
   for (const side of [-1, 1]) {
     for (const z of [-18, -6, 6]) {
@@ -1089,14 +1090,14 @@ function buildThree() {
   R.shadowMap.enabled = !lowQ();
   R.shadowMap.type = THREE.PCFShadowMap;
   scene = new THREE.Scene();
-  TMP.c = new THREE.Color(); TMP.dusk = new THREE.Color(0xe9a25f); TMP.night = new THREE.Color(0x0d1433);
+  TMP.c = new THREE.Color(); TMP.dusk = new THREE.Color(0xd9864a); TMP.night = new THREE.Color(0x0b132b);
   TMP.m = new THREE.Matrix4(); TMP.p = new THREE.Vector3(); TMP.s = new THREE.Vector3(); TMP.q = new THREE.Quaternion(); TMP.e = new THREE.Euler(); TMP.col = new THREE.Color();
   scene.background = new THREE.Color().copy(TMP.dusk);
   scene.fog = new THREE.Fog(TMP.dusk.getHex(), 30, 80);
   cam = new THREE.PerspectiveCamera(50, 1, 0.1, 200);
   cam.position.set(0, 6.2, 13);
   cam.lookAt(0, 0.4, -4);
-  hemi = new THREE.HemisphereLight(0xffe6b8, 0x3a2a4a, 0.9);
+  hemi = new THREE.HemisphereLight(0xfff0d0, 0x1b4332, 0.95);   // warm sky, green garden bounce
   sun = new THREE.DirectionalLight(0xffd9a0, 1.2);
   sun.position.set(-7, 14, 8);
   sun.target.position.set(0, 0, -8);
@@ -1162,7 +1163,7 @@ async function loadCobble() {
     tex.anisotropy = 4;
     const geo = new THREE.PlaneGeometry(12, 72);
     geo.rotateX(-Math.PI / 2);
-    const mesh = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ map: tex, color: 0xb9a8c8 }));
+    const mesh = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ map: tex, color: 0xd8c7a0 }));
     mesh.position.set(0, 0.03, -14);   // covers the purple avenue slab (x -6..6, z -50..22), under the red carpet
     mesh.receiveShadow = !lowQ();
     scene.add(mesh);
@@ -1290,8 +1291,9 @@ function updateSky(dt, target) {
   TMP.c.lerpColors(TMP.dusk, TMP.night, G.dark);
   scene.background.copy(TMP.c);
   scene.fog.color.copy(TMP.c);
-  sun.intensity = 1.25 - 0.6 * G.dark;
-  hemi.intensity = 0.95 - 0.45 * G.dark;
+  // the sun and the hemisphere light swell on every beat (BEAT_PULSE is 0..1, set each frame)
+  sun.intensity = 1.25 - 0.6 * G.dark + 0.22 * BEAT_PULSE * (1 - G.dark * 0.5);
+  hemi.intensity = 0.95 - 0.45 * G.dark + 0.08 * BEAT_PULSE;
   if (G.assets.sky) scene.environmentIntensity = 0.55 - 0.4 * G.dark;   // the HDRI fades with the dusk, like the sun
   C.flameMat.emissiveIntensity = 0.25 + 1.4 * G.dark;
   C.glowMat.opacity = 0.05 + 0.35 * G.dark;
@@ -1530,6 +1532,7 @@ function frame(now) {
 }
 function updateVisuals(dt) {
   const vb = visualBeat();
+  BEAT_PULSE = Math.pow(1 - (vb.beat - Math.floor(vb.beat)), 3);   // 1 on the beat, decays to 0 before the next
   updateSky(dt, visualDark());
   updateBand(vb.beat, dt);
   G.cheer += ((G.combo >= 10 ? Math.min(1, G.combo / 40) : 0.15) - G.cheer) * Math.min(1, dt * 2);
