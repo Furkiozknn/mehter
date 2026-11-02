@@ -13,7 +13,7 @@
 <p align="center"><b>A 3D rhythm march down an old Ottoman parade avenue: the mehter band walks towards you while notes roll down four lanes for the davul, kös, zurna and zil. Hit them on the beat and keep the band's spirit up.</b></p>
 
 <p align="center">
-  <img src="docs/gameplay.gif" width="640" alt="Mehter gameplay: hitting the drum notes as the band marches">
+  <img src="docs/gameplay.gif" width="640" alt="Mehter gameplay after the redesign: Perfect hits on the gilded hit line as the band marches down the crimson carpet between arcaded houses and banners">
   <br>
   <sub>Watch the promo: <a href="https://github.com/Furkiozknn/social-videos/releases/download/promo-2026-10/2026-10-28-mehter-en.mp4">EN</a> · <a href="https://github.com/Furkiozknn/social-videos/releases/download/promo-2026-10/2026-10-28-mehter-tr.mp4">TR</a></sub>
 </p>
