@@ -7,7 +7,7 @@
 <meta name="description" content="Mehter: a 3D rhythm march through an Ottoman parade avenue. Built with Three.js and Web Audio.">
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
 <style>
-:root{--gold:#D4A017;--gold-hi:#ffd76a;--red:#9b1c1c;--blue:#13224a;--cream:#f2e6c9;--glass:rgba(12,16,34,.76);--line:rgba(212,160,23,.38);--focus:#ffd76a}
+:root{--gold:#D4AF37;--gold-hi:#F3D27A;--red:#A4161A;--green:#1B4332;--night:#0B132B;--parch:#F1E3C6;--cream:#F1E3C6;--crimson-panel:rgba(74,10,14,.9);--glass:rgba(58,8,12,.86);--line:rgba(212,175,55,.55);--focus:#F3D27A}
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;background:#0b0d1a;overflow:hidden}
 body{font:15px/1.4 system-ui,"Segoe UI",Roboto,sans-serif;color:var(--cream);user-select:none;-webkit-user-select:none}
@@ -15,8 +15,8 @@ body{font:15px/1.4 system-ui,"Segoe UI",Roboto,sans-serif;color:var(--cream);use
 button{font:inherit;color:inherit;min-height:44px;min-width:44px;padding:8px 14px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.06);cursor:pointer;touch-action:manipulation}
 button:hover{background:rgba(255,255,255,.14)}
 button:disabled{opacity:.45;cursor:default}
-button.primary{background:var(--gold);border-color:transparent;color:#1a1205;font-weight:700}
-button.on{background:rgba(212,160,23,.3);border-color:var(--gold)}
+button.primary{background:linear-gradient(180deg,var(--gold-hi),var(--gold));border-color:transparent;color:#2a1604;font-weight:700;box-shadow:0 2px 0 #7a5a0c}
+button.on{background:rgba(212,175,55,.3);border-color:var(--gold)}
 button:focus-visible,input:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 input[type=range]{width:100%;min-height:44px;accent-color:var(--gold)}
 .hidden{display:none!important}
@@ -24,13 +24,14 @@ input[type=range]{width:100%;min-height:44px;accent-color:var(--gold)}
 .screen{position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(5,8,20,.55);overflow:auto}
 #scr-title{background:linear-gradient(180deg,rgba(5,8,20,.12),rgba(5,8,20,.85))}
 #scr-pause{background:rgba(5,8,20,.62);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
-.panel{width:100%;max-width:640px;padding:20px;display:flex;flex-direction:column;gap:14px;max-height:100%;overflow:auto;background:var(--glass);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.panel{width:100%;max-width:640px;padding:20px;display:flex;flex-direction:column;gap:14px;max-height:100%;overflow:auto;background:var(--glass);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.4),inset 0 0 0 1px rgba(0,0,0,.35);outline:1px solid rgba(212,175,55,.3);outline-offset:-7px}
 .panel>*{flex-shrink:0}
 #scr-title .panel{background:none;border:0;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
 .panel.wide{max-width:900px}
-h1,h2{margin:0;font-weight:800;letter-spacing:.05em}
-h1{font-size:clamp(38px,9vw,68px);color:var(--gold);text-shadow:0 2px 0 #5a3a00,0 0 26px rgba(212,160,23,.4)}
-h2{font-size:22px;color:var(--gold)}
+h1,h2{margin:0;font-weight:800;letter-spacing:.05em;font-family:Georgia,"Times New Roman",serif}
+h1{font-size:clamp(38px,9vw,68px);color:var(--gold-hi);text-shadow:0 2px 0 #5a0b0d,0 0 26px rgba(212,175,55,.45)}
+h2{font-size:22px;color:var(--gold-hi)}
+.orn{width:min(220px,70vw);height:26px;display:block;margin:0 auto;flex:none}
 .center{text-align:center;align-items:center}
 .logo{width:96px;height:96px;margin:0 auto}
 .brand-svg{width:30px;height:30px;flex:none}
@@ -48,7 +49,7 @@ h2{font-size:22px;color:var(--gold)}
 #best-line,#title-best{font-size:14px;opacity:.9;margin:0}
 .songs{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
 .card{display:flex;flex-direction:column;gap:6px;text-align:left;padding:12px;border-radius:14px;min-height:44px}
-.card.sel{border-color:var(--gold);background:rgba(212,160,23,.18)}
+.card.sel{border-color:var(--gold-hi);background:rgba(212,175,55,.2)}
 .card b{font-size:16px}
 .card small{opacity:.78;font-size:12px}
 .card .tail{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px}
@@ -57,9 +58,9 @@ h2{font-size:22px;color:var(--gold)}
 .stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 16px;font-variant-numeric:tabular-nums}
 .stats-grid div{display:flex;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.1);padding:4px 0}
 .hist{display:flex;align-items:flex-end;gap:4px;height:110px;width:100%;flex:none}
-.hist i{flex:1;background:linear-gradient(to top,#2e5ba8,var(--gold));border-radius:4px 4px 0 0;min-height:2px}
+.hist i{flex:1;background:linear-gradient(to top,var(--red),var(--gold));border-radius:4px 4px 0 0;min-height:2px}
 .hist-l{display:flex;justify-content:space-between;width:100%;font-size:11px;opacity:.75}
-.grade{font-size:84px;font-weight:900;color:var(--gold);line-height:1;text-align:center;text-shadow:0 0 30px rgba(212,160,23,.5)}
+.grade{font-size:84px;font-weight:900;color:var(--gold);line-height:1;text-align:center;text-shadow:0 0 30px rgba(212,175,55,.5)}
 #dot{width:72px;height:72px;border-radius:50%;margin:8px auto;background:var(--gold);opacity:.35;transform:scale(1)}
 #res-main{font-size:30px;font-weight:800;color:var(--gold-hi);text-align:center;margin:6px 0}
 /* HUD */
@@ -79,7 +80,7 @@ h2{font-size:22px;color:var(--gold)}
 #spirit span{font-size:10px;opacity:.8;writing-mode:vertical-rl;transform:rotate(180deg)}
 #touch{position:fixed;left:0;right:0;bottom:0;height:40vh;z-index:6;display:flex;touch-action:none}
 #touch .tz{flex:1 1 0;min-width:0;width:0;border-left:1px solid rgba(255,255,255,.07);background:linear-gradient(to top,rgba(255,255,255,.035),transparent);display:flex;align-items:flex-end;justify-content:center;padding-bottom:10px;font-weight:800;font-size:18px;opacity:.5}
-#touch .tz:active{background:rgba(212,160,23,.2)}
+#touch .tz:active{background:rgba(212,175,55,.2)}
 #judge{position:fixed;left:50%;top:44%;transform:translate(-50%,-50%);font-weight:900;font-size:clamp(26px,5.5vw,52px);pointer-events:none;z-index:9;opacity:0;text-shadow:0 3px 12px rgba(0,0,0,.6);white-space:nowrap}
 #judge.show{animation:pop .6s ease-out forwards}
 #judge.perfect{color:var(--gold-hi)}
@@ -113,7 +114,7 @@ body.playing #hud,body.playing #spirit{display:flex}
 
 <header id="hud" class="glass" aria-label="HUD">
   <div class="brand">
-    <svg class="brand-svg" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="56" fill="#13224a" stroke="#D4A017" stroke-width="5"/><path d="M72 20a42 42 0 1 0 0 80a34 34 0 1 1 0-80z" fill="#D4A017"/><path d="M86 46l3.5 8.5 9 1-6.8 5.8 2.2 8.9-8-4.9-8 4.9 2.2-8.9-6.8-5.8 9-1z" fill="#f2e6c9"/></svg>
+    <svg class="brand-svg" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="56" fill="#A4161A" stroke="#D4AF37" stroke-width="5"/><path d="M72 20a42 42 0 1 0 0 80a34 34 0 1 1 0-80z" fill="#D4AF37"/><path d="M86 46l3.5 8.5 9 1-6.8 5.8 2.2 8.9-8-4.9-8 4.9 2.2-8.9-6.8-5.8 9-1z" fill="#F1E3C6"/></svg>
     <span class="nm">MEHTER</span>
   </div>
   <div class="stats">
@@ -138,7 +139,8 @@ body.playing #hud,body.playing #spirit{display:flex}
 <!-- TITLE -->
 <section id="scr-title" class="screen" role="dialog" aria-labelledby="t-name">
   <div class="panel center">
-    <svg class="logo" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="56" fill="#13224a" stroke="#D4A017" stroke-width="5"/><path d="M72 20a42 42 0 1 0 0 80a34 34 0 1 1 0-80z" fill="#D4A017"/><path d="M86 46l3.5 8.5 9 1-6.8 5.8 2.2 8.9-8-4.9-8 4.9 2.2-8.9-6.8-5.8 9-1z" fill="#f2e6c9"/></svg>
+    <svg class="logo" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="56" fill="#A4161A" stroke="#D4AF37" stroke-width="5"/><circle cx="60" cy="60" r="46" fill="none" stroke="#D4AF37" stroke-width="1.5" stroke-dasharray="2 4"/><path d="M72 20a42 42 0 1 0 0 80a34 34 0 1 1 0-80z" fill="#D4AF37"/><path d="M86 46l3.5 8.5 9 1-6.8 5.8 2.2 8.9-8-4.9-8 4.9 2.2-8.9-6.8-5.8 9-1z" fill="#F1E3C6"/></svg>
+    <svg class="orn" viewBox="0 0 220 26" aria-hidden="true"><path d="M4 13H78M142 13H216" stroke="#D4AF37" stroke-width="1.5"/><path d="M110 3C101 3 97 8 97 13C97 18 101 23 110 23C119 23 123 18 123 13C123 8 119 3 110 3Z" fill="none" stroke="#D4AF37" stroke-width="1.6"/><path d="M97 13C89 7 80 7 75 13C80 19 89 19 97 13ZM123 13C131 7 140 7 145 13C140 19 131 19 123 13Z" fill="#D4AF37"/><circle cx="110" cy="13" r="2.6" fill="#F1E3C6"/></svg>
     <h1 id="t-name">MEHTER</h1>
     <p class="muted" data-i18n="subtitle">Davul, kös, zurna ve zil bu caddede sizin ritminizle yürür.</p>
     <ol class="howto">
@@ -210,6 +212,7 @@ body.playing #hud,body.playing #spirit{display:flex}
 <!-- PAUSE -->
 <section id="scr-pause" class="screen hidden" role="dialog" aria-labelledby="pause-title">
   <div class="panel center">
+    <svg class="orn" viewBox="0 0 220 26" aria-hidden="true"><path d="M4 13H78M142 13H216" stroke="#D4AF37" stroke-width="1.5"/><path d="M110 3C101 3 97 8 97 13C97 18 101 23 110 23C119 23 123 18 123 13C123 8 119 3 110 3Z" fill="none" stroke="#D4AF37" stroke-width="1.6"/><circle cx="110" cy="13" r="2.6" fill="#F1E3C6"/></svg>
     <h2 id="pause-title" data-i18n="pause">Duraklat</h2>
     <div class="btns" style="flex-direction:column">
       <button id="b-resume" class="primary" data-i18n="resume">Devam</button>
@@ -250,7 +253,8 @@ const $$ = (s) => [...document.querySelectorAll(s)];
 const Q = new URLSearchParams(location.search);
 const FLAG = { auto: Q.has('auto'), debug: Q.has('debug'), low: Q.has('low'), noassets: Q.has('noassets') };
 const PHONE = matchMedia('(pointer: coarse)').matches;
-const DEF = { master: 0.8, music: 0.6, sfx: 0.8, musicOn: true, sfxOn: true, lang: 'tr', quality: PHONE ? 'low' : 'high', keys: ['d', 'f', 'j', 'k'], calib: 0 };
+const DEF_LANG = /^tr/i.test(navigator.language || '') ? 'tr' : 'en';
+const DEF = { master: 0.8, music: 0.6, sfx: 0.8, musicOn: true, sfxOn: true, lang: DEF_LANG, quality: PHONE ? 'low' : 'high', keys: ['d', 'f', 'j', 'k'], calib: 0 };
 
 function store(key, fallback) {
   try { const raw = localStorage.getItem(key); return raw ? { ...fallback, ...JSON.parse(raw) } : { ...fallback }; }
@@ -259,7 +263,7 @@ function store(key, fallback) {
 function persist(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* private mode */ } }
 
 const S = store('arena.mehter.settings', DEF);
-let LANG = Q.get('lang') === 'en' ? 'en' : Q.get('lang') === 'tr' ? 'tr' : (S.lang === 'en' ? 'en' : 'tr');
+let LANG = Q.get('lang') === 'en' ? 'en' : Q.get('lang') === 'tr' ? 'tr' : S.lang;   // S.lang defaults to the browser language
 const lowQ = () => FLAG.low || S.quality === 'low';
 const saveSettings = () => persist('arena.mehter.settings', S);
 const loadBest = () => store('arena.mehter.best', {});
@@ -330,7 +334,7 @@ const setText = (el, v) => { if (el && el.textContent !== v) el.textContent = v;
 // ----- song model (generated in code) -------------------------------------
 const LEAD = 2.0;                       // seconds before the first bar
 const LANE_X = [-1.5, -0.5, 0.5, 1.5];  // lane centres on the highway
-const LANE_HEX = [0xc0392b, 0xd4a017, 0x2e7bd6, 0xf2e6c9];
+const LANE_HEX = [0xc0392b, 0xD4AF37, 0x3fae7e, 0xf1e3c6];
 const FAM = ['davul', 'kos', 'zurna', 'cevgen'];
 const WIN_PERFECT = 0.045, WIN_GOOD = 0.11;
 const HIT_Z = 2.2, SPAWN_Z = -12.5, SPEED = 8.0;
@@ -681,7 +685,7 @@ function onHit(n, grade) {
   judgeShow(grade);
   sndHit(perfect);
   G.flash[n.lane] = 1; G.instFlash[FAM[n.lane]] = 1;
-  sparks(LANE_X[n.lane], 0.3, HIT_Z, perfect ? 10 : 5, n.lane === 3 ? 0xf2e6c9 : 0xffd76a);
+  sparks(LANE_X[n.lane], 0.3, HIT_Z, perfect ? 12 : 6, n.lane === 3 ? 0xf1e3c6 : 0xF3D27A);
   if (n.dur > 0) { n.state = 1; n.tick = G.gt + 0.25; G.holds[n.lane] = n; } else n.state = 2;
   if (G.combo >= 10 && G.combo % 10 === 0) { petals(lowQ() ? 18 : 36); sndCheer(); }
 }
@@ -816,7 +820,7 @@ function calibTick() {
 }
 
 // ----- three.js world (built in code) --------------------------------------
-let R = null, scene = null, cam = null, sun = null, hemi = null;
+let R = null, scene = null, cam = null, sun = null, hemi = null, BEAT_PULSE = 0;
 const C = {};
 const BAND = [];
 const CROWD = [];
@@ -897,7 +901,7 @@ function emit(pool, x, y, z, vx, vy, vz, life, hex) {
 }
 function sparks(x, y, z, n, hex) { for (let i = 0; i < n; i++) emit(PTS.spark, x, y, z, (Math.random() - 0.5) * 3, 2 + Math.random() * 3, (Math.random() - 0.5) * 2, 0.5, hex); }
 function petals(n) {
-  const pal = [0xf6b6c0, 0xe85d6a, 0xffd76a, 0xffffff];
+  const pal = [0xD4AF37, 0xA4161A, 0xF1E3C6, 0xF3D27A];   // gold and crimson confetti on a combo of 10
   for (let i = 0; i < n; i++) {
     const side = Math.random() < 0.5 ? -1 : 1;
     emit(PTS.petal, side * (8 + Math.random() * 4), 5.5 + Math.random() * 2, -22 + Math.random() * 26, (Math.random() - 0.5) * 1.2, -0.8 - Math.random(), (Math.random() - 0.5) * 1.2, 4 + Math.random() * 2, pal[i % pal.length]);
@@ -917,26 +921,72 @@ function tickPool(pool, dt, g) {
   pool.p.geometry.attributes.color.needsUpdate = true;
 }
 
+// one house on the square: plastered wall, gold cornice, a row of arches with striped awnings, crenellated roof
+function arcadeHouse(m, side, xa, w, z, d, h, wall) {
+  const fx = side < 0 ? xa + w : xa;      // street-facing wall
+  const dir = -side;                      // towards the avenue
+  const at = (depth) => [Math.min(fx, fx + dir * depth), Math.max(fx, fx + dir * depth)];
+  m.box(xa, xa + w, 0, h, z, z + d, wall);
+  const [c0, c1] = at(0.3);
+  m.box(c0, c1, h - 0.4, h + 0.2, z - 0.05, z + d + 0.05, 0xD4AF37);
+  let k = 0;
+  for (let zz = z + 0.6; zz + 1.3 < z + d; zz += 2.4, k++) {
+    const [a0, a1] = at(0.12);
+    m.box(a0, a1, 0, 2.3, zz, zz + 1.1, 0x2a1d12);                       // doorway
+    m.box(a0, a1, 2.3, 2.5, zz + 0.1, zz + 1.0, 0xF1E3C6);               // arch courses, narrowing to the crown
+    m.box(a0, a1, 2.5, 2.7, zz + 0.25, zz + 0.85, 0xF1E3C6);
+    m.box(a0, a1, 2.7, 2.85, zz + 0.4, zz + 0.7, 0xF1E3C6);
+    m.box(a0, a1, 0, 2.3, zz - 0.12, zz, 0xd8c79a);                      // pillars
+    m.box(a0, a1, 0, 2.3, zz + 1.1, zz + 1.22, 0xd8c79a);
+    const [w0, w1] = at(0.7);
+    m.box(w0, w1, 2.95, 3.05, zz - 0.2, zz + 1.3, k % 2 ? 0x1B4332 : 0xA4161A);   // striped awning
+  }
+  for (let zz = z + 0.3; zz < z + d - 0.5; zz += 1.1) {
+    if (Math.floor(zz * 3) % 3 !== 0) m.box(xa + 0.2, xa + w - 0.2, h + 0.2, h + 0.7, zz, zz + 0.5, wall);   // roof battlements
+  }
+}
+
+// mosaic floor of the square: a star-and-diamond tile drawn on a canvas, laid over the plain slab
+function mosaicTexture() {
+  const cv = document.createElement('canvas');
+  cv.width = cv.height = 128;
+  const g = cv.getContext('2d');
+  g.fillStyle = '#cbb68a';
+  g.fillRect(0, 0, 128, 128);
+  g.fillStyle = '#A4161A';
+  g.beginPath(); g.moveTo(64, 14); g.lineTo(90, 64); g.lineTo(64, 114); g.lineTo(38, 64); g.closePath(); g.fill();
+  g.fillStyle = '#1B4332';
+  g.beginPath(); g.moveTo(64, 36); g.lineTo(78, 64); g.lineTo(64, 92); g.lineTo(50, 64); g.closePath(); g.fill();
+  g.fillStyle = '#D4AF37';
+  g.beginPath(); g.arc(64, 64, 6, 0, Math.PI * 2); g.fill();
+  g.strokeStyle = '#6b5a3a'; g.lineWidth = 3; g.strokeRect(1, 1, 126, 126);
+  const tex = new THREE.CanvasTexture(cv);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.repeat.set(2, 12);
+  tex.anisotropy = 4;
+  return tex;
+}
+
 function buildWorld() {
   const m = new Mesh3();
-  m.box(-40, 40, -0.3, 0, -50, 22, 0x463d52);
-  m.box(-6, 6, 0, 0.02, -50, 22, 0x3a3347);
-  m.box(-7.5, -6, 0, 0.25, -50, 22, 0x857660);
-  m.box(6, 7.5, 0, 0.25, -50, 22, 0x857660);
-  m.box(-2.5, 2.5, 0.02, 0.05, -50, 8, 0x7a1414);
-  for (let i = 0; i < 4; i++) m.box(LANE_X[i] - 0.47, LANE_X[i] + 0.47, 0.05, 0.08, -12.6, 2.6, i % 2 ? 0x2a4080 : 0x1b2b5e);
-  for (const x of [-2, -1, 0, 1, 2]) m.box(x - 0.035, x + 0.035, 0.05, 0.1, -12.6, 2.6, 0xD4A017);
-  // buildings behind the crowd, seeded so every load looks the same
+  m.box(-40, 40, -0.3, 0, -50, 22, 0x1b4332);
+  m.box(-6, 6, 0, 0.02, -50, 22, 0xb89d6e);
+  m.box(-7.5, -6, 0, 0.25, -50, 22, 0xd8c79a);
+  m.box(6, 7.5, 0, 0.25, -50, 22, 0xd8c79a);
+  m.box(-2.5, 2.5, 0.02, 0.05, -50, 8, 0xA4161A);
+  for (let i = 0; i < 4; i++) m.box(LANE_X[i] - 0.47, LANE_X[i] + 0.47, 0.05, 0.08, -12.6, 2.6, i % 2 ? 0x2b5c46 : 0x1b4332);
+  for (const x of [-2, -1, 0, 1, 2]) m.box(x - 0.035, x + 0.035, 0.05, 0.1, -12.6, 2.6, 0xD4AF37);
+  // arcaded houses around the square, seeded so every load looks the same
   let seed = 7;
   const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
-  const BCOL = [0xe6d3a3, 0xc9a25f, 0x2b3f73, 0x8e2b2b, 0x5d4a3a, 0xd9c08a];
+  const WALL = [0xe9dcc0, 0xd9c08a, 0x9b3a2a, 0xc9b58a];
   for (const side of [-1, 1]) {
     for (let z = -50; z < 20;) {
-      const w = rnd() * 3 + 4, h = rnd() * 8 + 5, d = rnd() * 4 + 4;
+      const w = rnd() * 2 + 4, h = rnd() * 3 + 6, d = rnd() * 2 + 6;
       const xa = side < 0 ? -14 - w : 14;
-      m.box(xa, xa + w, 0, h, z, z + d, BCOL[Math.floor(rnd() * BCOL.length)]);
-      m.box(xa - 0.1, xa + w + 0.1, h, h + 0.4, z, z + d, 0x3a2a24);
-      z += d + 0.5;
+      arcadeHouse(m, side, xa, w, z, d, h, WALL[Math.floor(rnd() * WALL.length)]);
+      z += d + 0.4;
     }
   }
   // poles for torches and banners
@@ -945,18 +995,63 @@ function buildWorld() {
     for (let z = -30; z <= 8; z += 7) m.box(x - 0.07, x + 0.07, 0.25, 3.4, z - 0.07, z + 0.07, 0x3b2a1a);
     for (const z of [-18, -6, 6]) m.box(x - 0.06, x + 0.06, 0.25, 4.9, z - 0.06, z + 0.06, 0x3b2a1a);
   }
+  // a mosque dome closing the far end of the square, and two minarets either side of the houses
+  m.box(-5, 5, 0, 3, -56, -49, 0xF1E3C6);
+  m.box(-4, 4, 3, 4.2, -55.6, -49.4, 0x5d7266);
+  m.box(-3, 3, 4.2, 5.2, -55.2, -49.8, 0x5d7266);
+  m.box(-1.8, 1.8, 5.2, 6, -54.8, -50.2, 0x5d7266);
+  m.box(-0.12, 0.12, 6, 7.2, -52.6, -52.4, 0xD4AF37);
+  for (const side of [-1, 1]) {
+    const x = side * 24, z = -38;
+    m.box(x - 1.1, x + 1.1, 0, 3, z - 1.1, z + 1.1, 0xF1E3C6);
+    m.box(x - 0.7, x + 0.7, 3, 11, z - 0.7, z + 0.7, 0xF1E3C6);
+    m.box(x - 0.95, x + 0.95, 7.4, 7.8, z - 0.95, z + 0.95, 0xD4AF37);
+    m.box(x - 0.5, x + 0.5, 11, 12.4, z - 0.5, z + 0.5, 0xF1E3C6);
+    m.box(x - 0.55, x + 0.55, 12.4, 12.8, z - 0.55, z + 0.55, 0xD4AF37);
+    m.box(x - 0.1, x + 0.1, 12.8, 14.6, z - 0.1, z + 0.1, 0xD4AF37);
+  }
   C.world = new THREE.Mesh(m.geo(), new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true, side: THREE.DoubleSide }));
   C.world.receiveShadow = !lowQ();
   scene.add(C.world);
+  const tiles = new THREE.Mesh(new THREE.PlaneGeometry(12, 72), new THREE.MeshLambertMaterial({ map: mosaicTexture() }));
+  tiles.rotation.x = -Math.PI / 2;
+  tiles.position.set(0, 0.025, -14);
+  tiles.receiveShadow = !lowQ();
+  scene.add(tiles);
+}
+
+// a banner cloth: field colour, gold border, crescent and star (drawn on a canvas, so no image file is needed)
+function bannerTexture(field) {
+  const cv = document.createElement('canvas');
+  cv.width = 128; cv.height = 256;
+  const g = cv.getContext('2d');
+  g.fillStyle = field; g.fillRect(0, 0, 128, 256);
+  g.strokeStyle = '#D4AF37'; g.lineWidth = 8; g.strokeRect(10, 10, 108, 236);
+  g.fillStyle = '#D4AF37'; g.fillRect(14, 186, 100, 6); g.fillRect(14, 200, 100, 6);
+  g.fillStyle = '#D4AF37';
+  g.beginPath(); g.arc(64, 96, 24, 0, Math.PI * 2); g.fill();          // crescent: gold disc with a field-coloured bite
+  g.fillStyle = field;
+  g.beginPath(); g.arc(73, 90, 20, 0, Math.PI * 2); g.fill();
+  g.fillStyle = '#D4AF37';
+  g.beginPath();
+  for (let i = 0; i < 10; i++) {                                         // five-point star
+    const r = i % 2 ? 6 : 14, a = -Math.PI / 2 + i * Math.PI / 5;
+    g.lineTo(96 + Math.cos(a) * r, 74 + Math.sin(a) * r);
+  }
+  g.closePath(); g.fill();
+  const tex = new THREE.CanvasTexture(cv);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 4;
+  return tex;
 }
 
 function buildBanners() {
-  const cols = [0xa51d1d, 0x1f3d7a, 0xa51d1d, 0x1f3d7a, 0xa51d1d, 0x1f3d7a];
+  const fields = ['#A4161A', '#1B4332', '#A4161A', '#1B4332', '#A4161A', '#1B4332'];
   let k = 0;
   for (const side of [-1, 1]) {
     for (const z of [-18, -6, 6]) {
       const geo = new THREE.PlaneGeometry(1.2, 2.6, 2, 8);
-      const mesh = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ color: cols[k], side: THREE.DoubleSide }));
+      const mesh = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ map: bannerTexture(fields[k]), side: THREE.DoubleSide }));
       mesh.position.set(side * 6.72, 2.9, z);
       mesh.rotation.y = side < 0 ? Math.PI / 2 : -Math.PI / 2;
       scene.add(mesh);
@@ -1002,7 +1097,7 @@ function buildTorches() {
 function buildCrowd() {
   let seed = 99;
   const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
-  const PAL = [0x9b1c1c, 0x13224a, 0xd4a017, 0xf2e6c9, 0x3a2a1a, 0x2e7bd6, 0x7a1414, 0x5d4a3a];
+  const PAL = [0xA4161A, 0x1B4332, 0xD4AF37, 0xF1E3C6, 0x3a2a1a, 0x2b4a7a, 0x7a1414, 0x5d4a3a];
   for (const side of [-1, 1]) for (let row = 0; row < 3; row++) for (let z = -30; z < 10; z += 0.9) {
     CROWD.push({ x: side * (9.3 + row * 1.05) + (rnd() - 0.5) * 0.2, z: z + (rnd() - 0.5) * 0.3, h: 0.9 + rnd() * 0.25, ph: rnd() * 6.28, c: PAL[Math.floor(rnd() * PAL.length)] });
   }
@@ -1025,8 +1120,8 @@ function buildBand() {
     ['cevgen', 'cevgen', 'cevgen', 'cevgen', 'cevgen', 'cevgen'],
   ];
   BAND.length = 0;
-  rows.forEach((kinds, r) => kinds.forEach((kind, c) => BAND.push({ kind, x: (c - 2.5) * 1.35, z: -15.2 - r * 1.7, row: r, lead: false, coat: (c + r) % 2 ? 0x9b1c1c : 0x1f3d7a })));
-  BAND.push({ kind: 'cevgen', x: 0, z: -13.4, row: -1, lead: true, coat: 0x13224a });
+  rows.forEach((kinds, r) => kinds.forEach((kind, c) => BAND.push({ kind, x: (c - 2.5) * 1.35, z: -15.2 - r * 1.7, row: r, lead: false, coat: (c + r) % 2 ? 0xA4161A : 0x1B4332 })));
+  BAND.push({ kind: 'cevgen', x: 0, z: -13.4, row: -1, lead: true, coat: 0xF1E3C6 });
   const cnt = {};
   for (const m of BAND) { m.ki = cnt[m.kind] || 0; cnt[m.kind] = m.ki + 1; }
   const N = BAND.length;
@@ -1034,26 +1129,28 @@ function buildBand() {
   C.head = inst(new THREE.SphereGeometry(0.16, 10, 8), lamb(0xd8a57c), N);
   C.fez = inst(new THREE.CylinderGeometry(0.13, 0.16, 0.22, 8), lamb(0xb3261e), N);
   C.davul = inst(new THREE.CylinderGeometry(0.26, 0.26, 0.36, 10), lamb(0x9b5a2b), cnt.davul);
-  C.kos = inst(new THREE.CylinderGeometry(0.42, 0.42, 0.36, 12), lamb(0xd4a017), cnt.kos);
+  C.kos = inst(new THREE.CylinderGeometry(0.42, 0.42, 0.36, 12), lamb(0xd4af37), cnt.kos);
   C.zurna = inst(new THREE.CylinderGeometry(0.03, 0.07, 0.7, 6), lamb(0xe0b84a), cnt.zurna);
   C.staff = inst(new THREE.CylinderGeometry(0.035, 0.035, 2.1, 6), lamb(0x5a3a1a), cnt.cevgen);
-  C.ring = inst(new THREE.CylinderGeometry(0.16, 0.16, 0.05, 10), lamb(0xd4a017), cnt.cevgen);
+  C.ring = inst(new THREE.CylinderGeometry(0.16, 0.16, 0.05, 10), lamb(0xD4AF37), cnt.cevgen);   // the zil (cymbal) flashes on lane-3 hits
+  C.stick = inst(new THREE.CylinderGeometry(0.02, 0.028, 0.5, 5), lamb(0x5a3a1a), cnt.davul, false);   // drum sticks
   // sash: procedural fallback; models/band_figure.glb replaces the geometry when it loads
   C.sash = inst(new THREE.CylinderGeometry(0.225, 0.225, 0.1, 8).scale(1, 1, 0.66), lamb(0xffffff), N, false);
   BAND.forEach((m, i) => {
     paint(C.body, i, m.coat);
     paint(C.head, i, 0xd8a57c);
-    paint(C.fez, i, m.lead ? 0xD4A017 : 0xb3261e);
-    paint(C.sash, i, m.lead ? 0xf2e6c9 : 0xd4a017);
-    if (m.kind === 'davul') paint(C.davul, m.ki, 0x9b5a2b);
-    if (m.kind === 'kos') paint(C.kos, m.ki, 0xd4a017);
-    if (m.kind === 'zurna') paint(C.zurna, m.ki, 0xe0b84a);
-    if (m.kind === 'cevgen') { paint(C.staff, m.ki, 0x5a3a1a); paint(C.ring, m.ki, 0xd4a017); }
+    paint(C.fez, i, m.lead ? 0xD4AF37 : 0xF1E3C6);
+    paint(C.sash, i, m.lead ? 0xF1E3C6 : 0xD4AF37);
+    if (m.kind === 'davul') { paint(C.davul, m.ki, 0x9b5a2b); paint(C.stick, m.ki, 0x5a3a1a); }
+    if (m.kind === 'kos') paint(C.kos, m.ki, 0xD4AF37);
+    if (m.kind === 'zurna') paint(C.zurna, m.ki, 0xE0B84A);
+    if (m.kind === 'cevgen') { paint(C.staff, m.ki, 0x5a3a1a); paint(C.ring, m.ki, 0xD4AF37); }
   });
-  for (const k of ['body', 'head', 'fez', 'sash', 'davul', 'kos', 'zurna', 'staff', 'ring']) C[k].instanceColor.needsUpdate = true;
+  const BAND_PARTS = ['body', 'head', 'fez', 'sash', 'davul', 'kos', 'zurna', 'staff', 'ring', 'stick'];
+  for (const k of BAND_PARTS) C[k].instanceColor.needsUpdate = true;
   // bring the band closer to the camera: scale every band mesh about its centre (z = -15), so the rows
   // keep their place on the avenue and the note highway in front is not covered
-  for (const k of ['body', 'head', 'fez', 'sash', 'davul', 'kos', 'zurna', 'staff', 'ring']) {
+  for (const k of BAND_PARTS) {
     C[k].scale.setScalar(BAND_SCALE);
     C[k].position.set(0, 0, -BAND_Z * (1 - BAND_SCALE));
   }
@@ -1070,7 +1167,7 @@ function buildNotes() {
   C.glow.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   for (let l = 0; l < 4; l++) put(C.glow, l, LANE_X[l], 0.1, HIT_Z - 0.3);
   C.glow.instanceMatrix.needsUpdate = true;
-  C.hit = new THREE.Mesh(new THREE.BoxGeometry(4.3, 0.07, 0.12), new THREE.MeshLambertMaterial({ color: 0xD4A017, emissive: 0x3a2600 }));
+  C.hit = new THREE.Mesh(new THREE.BoxGeometry(4.3, 0.07, 0.12), new THREE.MeshLambertMaterial({ color: 0xD4AF37, emissive: 0x3a2600 }));
   C.hit.position.set(0, 0.13, HIT_Z);
   scene.add(C.notes, C.holds, C.glow, C.hit);
 }
@@ -1089,14 +1186,14 @@ function buildThree() {
   R.shadowMap.enabled = !lowQ();
   R.shadowMap.type = THREE.PCFShadowMap;
   scene = new THREE.Scene();
-  TMP.c = new THREE.Color(); TMP.dusk = new THREE.Color(0xe9a25f); TMP.night = new THREE.Color(0x0d1433);
+  TMP.c = new THREE.Color(); TMP.dusk = new THREE.Color(0xd9864a); TMP.night = new THREE.Color(0x0b132b);
   TMP.m = new THREE.Matrix4(); TMP.p = new THREE.Vector3(); TMP.s = new THREE.Vector3(); TMP.q = new THREE.Quaternion(); TMP.e = new THREE.Euler(); TMP.col = new THREE.Color();
   scene.background = new THREE.Color().copy(TMP.dusk);
   scene.fog = new THREE.Fog(TMP.dusk.getHex(), 30, 80);
   cam = new THREE.PerspectiveCamera(50, 1, 0.1, 200);
   cam.position.set(0, 6.2, 13);
   cam.lookAt(0, 0.4, -4);
-  hemi = new THREE.HemisphereLight(0xffe6b8, 0x3a2a4a, 0.9);
+  hemi = new THREE.HemisphereLight(0xfff0d0, 0x1b4332, 0.95);   // warm sky, green garden bounce
   sun = new THREE.DirectionalLight(0xffd9a0, 1.2);
   sun.position.set(-7, 14, 8);
   sun.target.position.set(0, 0, -8);
@@ -1162,7 +1259,7 @@ async function loadCobble() {
     tex.anisotropy = 4;
     const geo = new THREE.PlaneGeometry(12, 72);
     geo.rotateX(-Math.PI / 2);
-    const mesh = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ map: tex, color: 0xb9a8c8 }));
+    const mesh = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ map: tex, color: 0xd8c7a0 }));
     mesh.position.set(0, 0.03, -14);   // covers the purple avenue slab (x -6..6, z -50..22), under the red carpet
     mesh.receiveShadow = !lowQ();
     scene.add(mesh);
@@ -1216,18 +1313,25 @@ function updateBand(beat, dt) {
     if (m.kind === 'davul') {
       const f = G.instFlash.davul;
       put(C.davul, m.ki, m.x - 0.05, 0.6 + hop, m.z + 0.22, 1 + f * 0.2, 1, 1 + f * 0.2, 0, Math.PI / 2);
+      // the drum arm: raised between the beats, striking the head on a davul note (f = 1 at the hit)
+      put(C.stick, m.ki, m.x + 0.1, 0.9 + hop, m.z + 0.42, 1, 1, 1, 0, -1.0 + 0.9 * f);
     } else if (m.kind === 'kos') {
       const f = G.instFlash.kos;
       put(C.kos, m.ki, m.x + 0.3, 0.55 + hop, m.z + 0.2, 1 + f * 0.15, 1, 1 + f * 0.15, 0, Math.PI / 2);
     } else if (m.kind === 'zurna') {
-      put(C.zurna, m.ki, m.x, 1.05 + hop, m.z + 0.42, 1, 1, 1, 0, Math.PI / 2);
+      // the zurna sways more while the player holds a zurna note
+      const swing = (0.18 + 0.22 * (G.holds[2] ? 1 : 0)) * Math.sin(beat * Math.PI + m.row * 0.8);
+      put(C.zurna, m.ki, m.x, 1.05 + hop, m.z + 0.42, 1, 1, 1, swing, Math.PI / 2);
     } else {
       const f = G.instFlash.cevgen;
       put(C.staff, m.ki, m.x + 0.42, 1.05 + hop, m.z, 1, 1, 1);
       put(C.ring, m.ki, m.x + 0.42, 1.9 + hop + f * 0.08, m.z, 1 + f * 0.3, 1, 1 + f * 0.3, 0, Math.PI / 2);
+      // the zil (cymbal) flashes bright gold on every lane-3 hit
+      C.ring.setColorAt(m.ki, TMP.col.setHex(0xD4AF37).multiplyScalar(0.75 + 1.25 * f));
     }
   }
-  for (const k of ['body', 'head', 'fez', 'sash', 'davul', 'kos', 'zurna', 'staff', 'ring']) C[k].instanceMatrix.needsUpdate = true;
+  for (const k of ['body', 'head', 'fez', 'sash', 'davul', 'kos', 'zurna', 'staff', 'ring', 'stick']) C[k].instanceMatrix.needsUpdate = true;
+  C.ring.instanceColor.needsUpdate = true;
   for (let j = 0; j < CROWD.length; j++) {
     const c = CROWD[j];
     const jump = G.cheer * Math.max(0, Math.sin(beat * Math.PI * 2 + c.ph)) * 0.32;
@@ -1290,10 +1394,11 @@ function updateSky(dt, target) {
   TMP.c.lerpColors(TMP.dusk, TMP.night, G.dark);
   scene.background.copy(TMP.c);
   scene.fog.color.copy(TMP.c);
-  sun.intensity = 1.25 - 0.6 * G.dark;
-  hemi.intensity = 0.95 - 0.45 * G.dark;
+  // the sun and the hemisphere light swell on every beat (BEAT_PULSE is 0..1, set each frame)
+  sun.intensity = 1.25 - 0.6 * G.dark + 0.22 * BEAT_PULSE * (1 - G.dark * 0.5);
+  hemi.intensity = 0.95 - 0.45 * G.dark + 0.08 * BEAT_PULSE;
   if (G.assets.sky) scene.environmentIntensity = 0.55 - 0.4 * G.dark;   // the HDRI fades with the dusk, like the sun
-  C.flameMat.emissiveIntensity = 0.25 + 1.4 * G.dark;
+  C.flameMat.emissiveIntensity = 0.25 + 1.4 * G.dark + 0.6 * BEAT_PULSE;
   C.glowMat.opacity = 0.05 + 0.35 * G.dark;
 }
 function updateWorld(dt, t, beat) {
@@ -1313,6 +1418,9 @@ function updateWorld(dt, t, beat) {
     }
     p.needsUpdate = true;
   }
+  // the gilded hit line glows on every beat and flares when a note lands on it
+  const hitGlow = 0.12 + 0.5 * BEAT_PULSE + 0.6 * Math.max(G.flash[0], G.flash[1], G.flash[2], G.flash[3]);
+  C.hit.material.emissive.setRGB(0.22 * hitGlow + 0.1, 0.16 * hitGlow + 0.06, 0.02 * hitGlow);
   tickPool(PTS.petal, dt, 1.4);
   tickPool(PTS.spark, dt, 6);
 }
@@ -1530,6 +1638,7 @@ function frame(now) {
 }
 function updateVisuals(dt) {
   const vb = visualBeat();
+  BEAT_PULSE = Math.pow(1 - (vb.beat - Math.floor(vb.beat)), 3);   // 1 on the beat, decays to 0 before the next
   updateSky(dt, visualDark());
   updateBand(vb.beat, dt);
   G.cheer += ((G.combo >= 10 ? Math.min(1, G.combo / 40) : 0.15) - G.cheer) * Math.min(1, dt * 2);
