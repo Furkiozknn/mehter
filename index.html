@@ -15,8 +15,8 @@ body{font:15px/1.4 system-ui,"Segoe UI",Roboto,sans-serif;color:var(--cream);use
 button{font:inherit;color:inherit;min-height:44px;min-width:44px;padding:8px 14px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.06);cursor:pointer;touch-action:manipulation}
 button:hover{background:rgba(255,255,255,.14)}
 button:disabled{opacity:.45;cursor:default}
-button.primary{background:var(--gold);border-color:transparent;color:#1a1205;font-weight:700}
-button.on{background:rgba(212,160,23,.3);border-color:var(--gold)}
+button.primary{background:linear-gradient(180deg,var(--gold-hi),var(--gold));border-color:transparent;color:#2a1604;font-weight:700;box-shadow:0 2px 0 #7a5a0c}
+button.on{background:rgba(212,175,55,.3);border-color:var(--gold)}
 button:focus-visible,input:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 input[type=range]{width:100%;min-height:44px;accent-color:var(--gold)}
 .hidden{display:none!important}
@@ -24,13 +24,14 @@ input[type=range]{width:100%;min-height:44px;accent-color:var(--gold)}
 .screen{position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(5,8,20,.55);overflow:auto}
 #scr-title{background:linear-gradient(180deg,rgba(5,8,20,.12),rgba(5,8,20,.85))}
 #scr-pause{background:rgba(5,8,20,.62);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
-.panel{width:100%;max-width:640px;padding:20px;display:flex;flex-direction:column;gap:14px;max-height:100%;overflow:auto;background:var(--glass);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.panel{width:100%;max-width:640px;padding:20px;display:flex;flex-direction:column;gap:14px;max-height:100%;overflow:auto;background:var(--glass);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.4),inset 0 0 0 1px rgba(0,0,0,.35);outline:1px solid rgba(212,175,55,.3);outline-offset:-7px}
 .panel>*{flex-shrink:0}
 #scr-title .panel{background:none;border:0;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
 .panel.wide{max-width:900px}
-h1,h2{margin:0;font-weight:800;letter-spacing:.05em}
-h1{font-size:clamp(38px,9vw,68px);color:var(--gold);text-shadow:0 2px 0 #5a3a00,0 0 26px rgba(212,160,23,.4)}
-h2{font-size:22px;color:var(--gold)}
+h1,h2{margin:0;font-weight:800;letter-spacing:.05em;font-family:Georgia,"Times New Roman",serif}
+h1{font-size:clamp(38px,9vw,68px);color:var(--gold-hi);text-shadow:0 2px 0 #5a0b0d,0 0 26px rgba(212,175,55,.45)}
+h2{font-size:22px;color:var(--gold-hi)}
+.orn{width:min(220px,70vw);height:26px;display:block;margin:0 auto;flex:none}
 .center{text-align:center;align-items:center}
 .logo{width:96px;height:96px;margin:0 auto}
 .brand-svg{width:30px;height:30px;flex:none}
@@ -48,7 +49,7 @@ h2{font-size:22px;color:var(--gold)}
 #best-line,#title-best{font-size:14px;opacity:.9;margin:0}
 .songs{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
 .card{display:flex;flex-direction:column;gap:6px;text-align:left;padding:12px;border-radius:14px;min-height:44px}
-.card.sel{border-color:var(--gold);background:rgba(212,160,23,.18)}
+.card.sel{border-color:var(--gold-hi);background:rgba(212,175,55,.2)}
 .card b{font-size:16px}
 .card small{opacity:.78;font-size:12px}
 .card .tail{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px}
@@ -59,7 +60,7 @@ h2{font-size:22px;color:var(--gold)}
 .hist{display:flex;align-items:flex-end;gap:4px;height:110px;width:100%;flex:none}
 .hist i{flex:1;background:linear-gradient(to top,#2e5ba8,var(--gold));border-radius:4px 4px 0 0;min-height:2px}
 .hist-l{display:flex;justify-content:space-between;width:100%;font-size:11px;opacity:.75}
-.grade{font-size:84px;font-weight:900;color:var(--gold);line-height:1;text-align:center;text-shadow:0 0 30px rgba(212,160,23,.5)}
+.grade{font-size:84px;font-weight:900;color:var(--gold);line-height:1;text-align:center;text-shadow:0 0 30px rgba(212,175,55,.5)}
 #dot{width:72px;height:72px;border-radius:50%;margin:8px auto;background:var(--gold);opacity:.35;transform:scale(1)}
 #res-main{font-size:30px;font-weight:800;color:var(--gold-hi);text-align:center;margin:6px 0}
 /* HUD */
@@ -79,7 +80,7 @@ h2{font-size:22px;color:var(--gold)}
 #spirit span{font-size:10px;opacity:.8;writing-mode:vertical-rl;transform:rotate(180deg)}
 #touch{position:fixed;left:0;right:0;bottom:0;height:40vh;z-index:6;display:flex;touch-action:none}
 #touch .tz{flex:1 1 0;min-width:0;width:0;border-left:1px solid rgba(255,255,255,.07);background:linear-gradient(to top,rgba(255,255,255,.035),transparent);display:flex;align-items:flex-end;justify-content:center;padding-bottom:10px;font-weight:800;font-size:18px;opacity:.5}
-#touch .tz:active{background:rgba(212,160,23,.2)}
+#touch .tz:active{background:rgba(212,175,55,.2)}
 #judge{position:fixed;left:50%;top:44%;transform:translate(-50%,-50%);font-weight:900;font-size:clamp(26px,5.5vw,52px);pointer-events:none;z-index:9;opacity:0;text-shadow:0 3px 12px rgba(0,0,0,.6);white-space:nowrap}
 #judge.show{animation:pop .6s ease-out forwards}
 #judge.perfect{color:var(--gold-hi)}
@@ -113,7 +114,7 @@ body.playing #hud,body.playing #spirit{display:flex}
 
 <header id="hud" class="glass" aria-label="HUD">
   <div class="brand">
-    <svg class="brand-svg" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="56" fill="#13224a" stroke="#D4A017" stroke-width="5"/><path d="M72 20a42 42 0 1 0 0 80a34 34 0 1 1 0-80z" fill="#D4A017"/><path d="M86 46l3.5 8.5 9 1-6.8 5.8 2.2 8.9-8-4.9-8 4.9 2.2-8.9-6.8-5.8 9-1z" fill="#f2e6c9"/></svg>
+    <svg class="brand-svg" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="56" fill="#A4161A" stroke="#D4AF37" stroke-width="5"/><path d="M72 20a42 42 0 1 0 0 80a34 34 0 1 1 0-80z" fill="#D4AF37"/><path d="M86 46l3.5 8.5 9 1-6.8 5.8 2.2 8.9-8-4.9-8 4.9 2.2-8.9-6.8-5.8 9-1z" fill="#F1E3C6"/></svg>
     <span class="nm">MEHTER</span>
   </div>
   <div class="stats">
@@ -138,7 +139,8 @@ body.playing #hud,body.playing #spirit{display:flex}
 <!-- TITLE -->
 <section id="scr-title" class="screen" role="dialog" aria-labelledby="t-name">
   <div class="panel center">
-    <svg class="logo" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="56" fill="#13224a" stroke="#D4A017" stroke-width="5"/><path d="M72 20a42 42 0 1 0 0 80a34 34 0 1 1 0-80z" fill="#D4A017"/><path d="M86 46l3.5 8.5 9 1-6.8 5.8 2.2 8.9-8-4.9-8 4.9 2.2-8.9-6.8-5.8 9-1z" fill="#f2e6c9"/></svg>
+    <svg class="logo" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="56" fill="#A4161A" stroke="#D4AF37" stroke-width="5"/><circle cx="60" cy="60" r="46" fill="none" stroke="#D4AF37" stroke-width="1.5" stroke-dasharray="2 4"/><path d="M72 20a42 42 0 1 0 0 80a34 34 0 1 1 0-80z" fill="#D4AF37"/><path d="M86 46l3.5 8.5 9 1-6.8 5.8 2.2 8.9-8-4.9-8 4.9 2.2-8.9-6.8-5.8 9-1z" fill="#F1E3C6"/></svg>
+    <svg class="orn" viewBox="0 0 220 26" aria-hidden="true"><path d="M4 13H78M142 13H216" stroke="#D4AF37" stroke-width="1.5"/><path d="M110 3C101 3 97 8 97 13C97 18 101 23 110 23C119 23 123 18 123 13C123 8 119 3 110 3Z" fill="none" stroke="#D4AF37" stroke-width="1.6"/><path d="M97 13C89 7 80 7 75 13C80 19 89 19 97 13ZM123 13C131 7 140 7 145 13C140 19 131 19 123 13Z" fill="#D4AF37"/><circle cx="110" cy="13" r="2.6" fill="#F1E3C6"/></svg>
     <h1 id="t-name">MEHTER</h1>
     <p class="muted" data-i18n="subtitle">Davul, kös, zurna ve zil bu caddede sizin ritminizle yürür.</p>
     <ol class="howto">
@@ -210,6 +212,7 @@ body.playing #hud,body.playing #spirit{display:flex}
 <!-- PAUSE -->
 <section id="scr-pause" class="screen hidden" role="dialog" aria-labelledby="pause-title">
   <div class="panel center">
+    <svg class="orn" viewBox="0 0 220 26" aria-hidden="true"><path d="M4 13H78M142 13H216" stroke="#D4AF37" stroke-width="1.5"/><path d="M110 3C101 3 97 8 97 13C97 18 101 23 110 23C119 23 123 18 123 13C123 8 119 3 110 3Z" fill="none" stroke="#D4AF37" stroke-width="1.6"/><circle cx="110" cy="13" r="2.6" fill="#F1E3C6"/></svg>
     <h2 id="pause-title" data-i18n="pause">Duraklat</h2>
     <div class="btns" style="flex-direction:column">
       <button id="b-resume" class="primary" data-i18n="resume">Devam</button>
@@ -973,7 +976,7 @@ function buildWorld() {
   m.box(6, 7.5, 0, 0.25, -50, 22, 0xd8c79a);
   m.box(-2.5, 2.5, 0.02, 0.05, -50, 8, 0xA4161A);
   for (let i = 0; i < 4; i++) m.box(LANE_X[i] - 0.47, LANE_X[i] + 0.47, 0.05, 0.08, -12.6, 2.6, i % 2 ? 0x2b5c46 : 0x1b4332);
-  for (const x of [-2, -1, 0, 1, 2]) m.box(x - 0.035, x + 0.035, 0.05, 0.1, -12.6, 2.6, 0xD4A017);
+  for (const x of [-2, -1, 0, 1, 2]) m.box(x - 0.035, x + 0.035, 0.05, 0.1, -12.6, 2.6, 0xD4AF37);
   // arcaded houses around the square, seeded so every load looks the same
   let seed = 7;
   const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
@@ -1111,7 +1114,7 @@ function buildBand() {
   C.head = inst(new THREE.SphereGeometry(0.16, 10, 8), lamb(0xd8a57c), N);
   C.fez = inst(new THREE.CylinderGeometry(0.13, 0.16, 0.22, 8), lamb(0xb3261e), N);
   C.davul = inst(new THREE.CylinderGeometry(0.26, 0.26, 0.36, 10), lamb(0x9b5a2b), cnt.davul);
-  C.kos = inst(new THREE.CylinderGeometry(0.42, 0.42, 0.36, 12), lamb(0xd4a017), cnt.kos);
+  C.kos = inst(new THREE.CylinderGeometry(0.42, 0.42, 0.36, 12), lamb(0xd4af37), cnt.kos);
   C.zurna = inst(new THREE.CylinderGeometry(0.03, 0.07, 0.7, 6), lamb(0xe0b84a), cnt.zurna);
   C.staff = inst(new THREE.CylinderGeometry(0.035, 0.035, 2.1, 6), lamb(0x5a3a1a), cnt.cevgen);
   C.ring = inst(new THREE.CylinderGeometry(0.16, 0.16, 0.05, 10), lamb(0xD4AF37), cnt.cevgen);   // the zil (cymbal) flashes on lane-3 hits
