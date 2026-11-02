@@ -331,7 +331,7 @@ const setText = (el, v) => { if (el && el.textContent !== v) el.textContent = v;
 // ----- song model (generated in code) -------------------------------------
 const LEAD = 2.0;                       // seconds before the first bar
 const LANE_X = [-1.5, -0.5, 0.5, 1.5];  // lane centres on the highway
-const LANE_HEX = [0xc0392b, 0xd4a017, 0x2e7bd6, 0xf2e6c9];
+const LANE_HEX = [0xc0392b, 0xD4AF37, 0x3fae7e, 0xf1e3c6];
 const FAM = ['davul', 'kos', 'zurna', 'cevgen'];
 const WIN_PERFECT = 0.045, WIN_GOOD = 0.11;
 const HIT_Z = 2.2, SPAWN_Z = -12.5, SPEED = 8.0;
@@ -972,7 +972,7 @@ function buildWorld() {
   m.box(-7.5, -6, 0, 0.25, -50, 22, 0xd8c79a);
   m.box(6, 7.5, 0, 0.25, -50, 22, 0xd8c79a);
   m.box(-2.5, 2.5, 0.02, 0.05, -50, 8, 0xA4161A);
-  for (let i = 0; i < 4; i++) m.box(LANE_X[i] - 0.47, LANE_X[i] + 0.47, 0.05, 0.08, -12.6, 2.6, i % 2 ? 0x2a4080 : 0x1b2b5e);
+  for (let i = 0; i < 4; i++) m.box(LANE_X[i] - 0.47, LANE_X[i] + 0.47, 0.05, 0.08, -12.6, 2.6, i % 2 ? 0x2b5c46 : 0x1b4332);
   for (const x of [-2, -1, 0, 1, 2]) m.box(x - 0.035, x + 0.035, 0.05, 0.1, -12.6, 2.6, 0xD4A017);
   // arcaded houses around the square, seeded so every load looks the same
   let seed = 7;
@@ -1079,7 +1079,7 @@ function buildTorches() {
 function buildCrowd() {
   let seed = 99;
   const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
-  const PAL = [0x9b1c1c, 0x13224a, 0xd4a017, 0xf2e6c9, 0x3a2a1a, 0x2e7bd6, 0x7a1414, 0x5d4a3a];
+  const PAL = [0xA4161A, 0x1B4332, 0xD4AF37, 0xF1E3C6, 0x3a2a1a, 0x2b4a7a, 0x7a1414, 0x5d4a3a];
   for (const side of [-1, 1]) for (let row = 0; row < 3; row++) for (let z = -30; z < 10; z += 0.9) {
     CROWD.push({ x: side * (9.3 + row * 1.05) + (rnd() - 0.5) * 0.2, z: z + (rnd() - 0.5) * 0.3, h: 0.9 + rnd() * 0.25, ph: rnd() * 6.28, c: PAL[Math.floor(rnd() * PAL.length)] });
   }
@@ -1102,8 +1102,8 @@ function buildBand() {
     ['cevgen', 'cevgen', 'cevgen', 'cevgen', 'cevgen', 'cevgen'],
   ];
   BAND.length = 0;
-  rows.forEach((kinds, r) => kinds.forEach((kind, c) => BAND.push({ kind, x: (c - 2.5) * 1.35, z: -15.2 - r * 1.7, row: r, lead: false, coat: (c + r) % 2 ? 0x9b1c1c : 0x1f3d7a })));
-  BAND.push({ kind: 'cevgen', x: 0, z: -13.4, row: -1, lead: true, coat: 0x13224a });
+  rows.forEach((kinds, r) => kinds.forEach((kind, c) => BAND.push({ kind, x: (c - 2.5) * 1.35, z: -15.2 - r * 1.7, row: r, lead: false, coat: (c + r) % 2 ? 0xA4161A : 0x1B4332 })));
+  BAND.push({ kind: 'cevgen', x: 0, z: -13.4, row: -1, lead: true, coat: 0xF1E3C6 });
   const cnt = {};
   for (const m of BAND) { m.ki = cnt[m.kind] || 0; cnt[m.kind] = m.ki + 1; }
   const N = BAND.length;
@@ -1114,23 +1114,25 @@ function buildBand() {
   C.kos = inst(new THREE.CylinderGeometry(0.42, 0.42, 0.36, 12), lamb(0xd4a017), cnt.kos);
   C.zurna = inst(new THREE.CylinderGeometry(0.03, 0.07, 0.7, 6), lamb(0xe0b84a), cnt.zurna);
   C.staff = inst(new THREE.CylinderGeometry(0.035, 0.035, 2.1, 6), lamb(0x5a3a1a), cnt.cevgen);
-  C.ring = inst(new THREE.CylinderGeometry(0.16, 0.16, 0.05, 10), lamb(0xd4a017), cnt.cevgen);
+  C.ring = inst(new THREE.CylinderGeometry(0.16, 0.16, 0.05, 10), lamb(0xD4AF37), cnt.cevgen);   // the zil (cymbal) flashes on lane-3 hits
+  C.stick = inst(new THREE.CylinderGeometry(0.02, 0.028, 0.5, 5), lamb(0x5a3a1a), cnt.davul, false);   // drum sticks
   // sash: procedural fallback; models/band_figure.glb replaces the geometry when it loads
   C.sash = inst(new THREE.CylinderGeometry(0.225, 0.225, 0.1, 8).scale(1, 1, 0.66), lamb(0xffffff), N, false);
   BAND.forEach((m, i) => {
     paint(C.body, i, m.coat);
     paint(C.head, i, 0xd8a57c);
-    paint(C.fez, i, m.lead ? 0xD4A017 : 0xb3261e);
-    paint(C.sash, i, m.lead ? 0xf2e6c9 : 0xd4a017);
-    if (m.kind === 'davul') paint(C.davul, m.ki, 0x9b5a2b);
-    if (m.kind === 'kos') paint(C.kos, m.ki, 0xd4a017);
-    if (m.kind === 'zurna') paint(C.zurna, m.ki, 0xe0b84a);
-    if (m.kind === 'cevgen') { paint(C.staff, m.ki, 0x5a3a1a); paint(C.ring, m.ki, 0xd4a017); }
+    paint(C.fez, i, m.lead ? 0xD4AF37 : 0xF1E3C6);
+    paint(C.sash, i, m.lead ? 0xF1E3C6 : 0xD4AF37);
+    if (m.kind === 'davul') { paint(C.davul, m.ki, 0x9b5a2b); paint(C.stick, m.ki, 0x5a3a1a); }
+    if (m.kind === 'kos') paint(C.kos, m.ki, 0xD4AF37);
+    if (m.kind === 'zurna') paint(C.zurna, m.ki, 0xE0B84A);
+    if (m.kind === 'cevgen') { paint(C.staff, m.ki, 0x5a3a1a); paint(C.ring, m.ki, 0xD4AF37); }
   });
-  for (const k of ['body', 'head', 'fez', 'sash', 'davul', 'kos', 'zurna', 'staff', 'ring']) C[k].instanceColor.needsUpdate = true;
+  const BAND_PARTS = ['body', 'head', 'fez', 'sash', 'davul', 'kos', 'zurna', 'staff', 'ring', 'stick'];
+  for (const k of BAND_PARTS) C[k].instanceColor.needsUpdate = true;
   // bring the band closer to the camera: scale every band mesh about its centre (z = -15), so the rows
   // keep their place on the avenue and the note highway in front is not covered
-  for (const k of ['body', 'head', 'fez', 'sash', 'davul', 'kos', 'zurna', 'staff', 'ring']) {
+  for (const k of BAND_PARTS) {
     C[k].scale.setScalar(BAND_SCALE);
     C[k].position.set(0, 0, -BAND_Z * (1 - BAND_SCALE));
   }
@@ -1293,18 +1295,25 @@ function updateBand(beat, dt) {
     if (m.kind === 'davul') {
       const f = G.instFlash.davul;
       put(C.davul, m.ki, m.x - 0.05, 0.6 + hop, m.z + 0.22, 1 + f * 0.2, 1, 1 + f * 0.2, 0, Math.PI / 2);
+      // the drum arm: raised between the beats, striking the head on a davul note (f = 1 at the hit)
+      put(C.stick, m.ki, m.x + 0.1, 0.9 + hop, m.z + 0.42, 1, 1, 1, 0, -1.0 + 0.9 * f);
     } else if (m.kind === 'kos') {
       const f = G.instFlash.kos;
       put(C.kos, m.ki, m.x + 0.3, 0.55 + hop, m.z + 0.2, 1 + f * 0.15, 1, 1 + f * 0.15, 0, Math.PI / 2);
     } else if (m.kind === 'zurna') {
-      put(C.zurna, m.ki, m.x, 1.05 + hop, m.z + 0.42, 1, 1, 1, 0, Math.PI / 2);
+      // the zurna sways more while the player holds a zurna note
+      const swing = (0.18 + 0.22 * (G.holds[2] ? 1 : 0)) * Math.sin(beat * Math.PI + m.row * 0.8);
+      put(C.zurna, m.ki, m.x, 1.05 + hop, m.z + 0.42, 1, 1, 1, swing, Math.PI / 2);
     } else {
       const f = G.instFlash.cevgen;
       put(C.staff, m.ki, m.x + 0.42, 1.05 + hop, m.z, 1, 1, 1);
       put(C.ring, m.ki, m.x + 0.42, 1.9 + hop + f * 0.08, m.z, 1 + f * 0.3, 1, 1 + f * 0.3, 0, Math.PI / 2);
+      // the zil (cymbal) flashes bright gold on every lane-3 hit
+      C.ring.setColorAt(m.ki, TMP.col.setHex(0xD4AF37).multiplyScalar(0.75 + 1.25 * f));
     }
   }
-  for (const k of ['body', 'head', 'fez', 'sash', 'davul', 'kos', 'zurna', 'staff', 'ring']) C[k].instanceMatrix.needsUpdate = true;
+  for (const k of ['body', 'head', 'fez', 'sash', 'davul', 'kos', 'zurna', 'staff', 'ring', 'stick']) C[k].instanceMatrix.needsUpdate = true;
+  C.ring.instanceColor.needsUpdate = true;
   for (let j = 0; j < CROWD.length; j++) {
     const c = CROWD[j];
     const jump = G.cheer * Math.max(0, Math.sin(beat * Math.PI * 2 + c.ph)) * 0.32;
@@ -1371,7 +1380,7 @@ function updateSky(dt, target) {
   sun.intensity = 1.25 - 0.6 * G.dark + 0.22 * BEAT_PULSE * (1 - G.dark * 0.5);
   hemi.intensity = 0.95 - 0.45 * G.dark + 0.08 * BEAT_PULSE;
   if (G.assets.sky) scene.environmentIntensity = 0.55 - 0.4 * G.dark;   // the HDRI fades with the dusk, like the sun
-  C.flameMat.emissiveIntensity = 0.25 + 1.4 * G.dark;
+  C.flameMat.emissiveIntensity = 0.25 + 1.4 * G.dark + 0.6 * BEAT_PULSE;
   C.glowMat.opacity = 0.05 + 0.35 * G.dark;
 }
 function updateWorld(dt, t, beat) {
