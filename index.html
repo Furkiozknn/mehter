@@ -107,7 +107,7 @@ body:not(.playing) #judge{display:none}
 body.playing #hud,body.playing #spirit{display:flex}
 #spirit{display:none}
 @media (max-width:640px){.brand .nm{display:none}.stats{gap:10px}.stat span{font-size:9px}.stat b{font-size:15px}#hud{gap:6px;padding:6px}}
-@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 <script data-goatcounter="https://furkiozknn.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </head>
@@ -115,10 +115,10 @@ body.playing #hud,body.playing #spirit{display:flex}
 <canvas id="gl" aria-hidden="true"></canvas>
 
 <div id="touch" aria-label="lanes">
-  <div class="tz" data-lane="0">D</div>
-  <div class="tz" data-lane="1">F</div>
-  <div class="tz" data-lane="2">J</div>
-  <div class="tz" data-lane="3">K</div>
+  <div class="tz" role="button" aria-label="Lane 1 (D)" data-lane="0">D</div>
+  <div class="tz" role="button" aria-label="Lane 2 (F)" data-lane="1">F</div>
+  <div class="tz" role="button" aria-label="Lane 3 (J)" data-lane="2">J</div>
+  <div class="tz" role="button" aria-label="Lane 4 (K)" data-lane="3">K</div>
 </div>
 
 <header id="hud" class="glass" aria-label="HUD">
@@ -146,7 +146,7 @@ body.playing #hud,body.playing #spirit{display:flex}
 <pre id="dbg" class="hidden"></pre>
 
 <!-- TITLE -->
-<section id="scr-title" class="screen" role="dialog" aria-labelledby="t-name">
+<section id="scr-title" class="screen" role="dialog" aria-modal="true" aria-labelledby="t-name">
   <div class="panel center">
     <svg class="logo" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="56" fill="#A4161A" stroke="#D4AF37" stroke-width="5"/><circle cx="60" cy="60" r="46" fill="none" stroke="#D4AF37" stroke-width="1.5" stroke-dasharray="2 4"/><path d="M72 20a42 42 0 1 0 0 80a34 34 0 1 1 0-80z" fill="#D4AF37"/><path d="M86 46l3.5 8.5 9 1-6.8 5.8 2.2 8.9-8-4.9-8 4.9 2.2-8.9-6.8-5.8 9-1z" fill="#F1E3C6"/></svg>
     <svg class="orn" viewBox="0 0 220 26" aria-hidden="true"><path d="M4 13H78M142 13H216" stroke="#D4AF37" stroke-width="1.5"/><path d="M110 3C101 3 97 8 97 13C97 18 101 23 110 23C119 23 123 18 123 13C123 8 119 3 110 3Z" fill="none" stroke="#D4AF37" stroke-width="1.6"/><path d="M97 13C89 7 80 7 75 13C80 19 89 19 97 13ZM123 13C131 7 140 7 145 13C140 19 131 19 123 13Z" fill="#D4AF37"/><circle cx="110" cy="13" r="2.6" fill="#F1E3C6"/></svg>
@@ -170,7 +170,7 @@ body.playing #hud,body.playing #spirit{display:flex}
 </section>
 
 <!-- SONG SELECT -->
-<section id="scr-select" class="screen hidden" role="dialog" aria-labelledby="sel-title">
+<section id="scr-select" class="screen hidden" role="dialog" aria-modal="true" aria-labelledby="sel-title">
   <div class="panel wide">
     <h2 id="sel-title" data-i18n="selectSong">Şarkı seç</h2>
     <div class="seg" id="diffs" role="radiogroup">
@@ -187,12 +187,12 @@ body.playing #hud,body.playing #spirit{display:flex}
 </section>
 
 <!-- SETTINGS -->
-<section id="scr-settings" class="screen hidden" role="dialog" aria-labelledby="set-title">
+<section id="scr-settings" class="screen hidden" role="dialog" aria-modal="true" aria-labelledby="set-title">
   <div class="panel">
     <h2 id="set-title" data-i18n="settings">Ayarlar</h2>
-    <div class="row"><label for="s-master" data-i18n="master">Ana ses</label><input id="s-master" type="range" min="0" max="1" step="0.01"></div>
-    <div class="row"><label for="s-music" data-i18n="music">Müzik</label><input id="s-music" type="range" min="0" max="1" step="0.01"></div>
-    <div class="row"><label for="s-sfx" data-i18n="sfx">Efektler</label><input id="s-sfx" type="range" min="0" max="1" step="0.01"></div>
+    <div class="row"><label for="s-master" data-i18n="master">Ana ses</label><input id="s-master" type="range" min="0" max="1" step="0.01" data-i18n-aria="master" aria-label="Ana ses"></div>
+    <div class="row"><label for="s-music" data-i18n="music">Müzik</label><input id="s-music" type="range" min="0" max="1" step="0.01" data-i18n-aria="music" aria-label="Müzik"></div>
+    <div class="row"><label for="s-sfx" data-i18n="sfx">Efektler</label><input id="s-sfx" type="range" min="0" max="1" step="0.01" data-i18n-aria="sfx" aria-label="Efektler"></div>
     <div class="row"><span data-i18n="language">Dil</span><div class="seg" style="flex:1"><button data-lang="tr">Türkçe</button><button data-lang="en">English</button></div></div>
     <div class="row"><span data-i18n="quality">Kalite</span><div class="seg" style="flex:1"><button data-q="low" data-i18n="low">Düşük</button><button data-q="high" data-i18n="high">Yüksek</button></div></div>
     <div class="row"><button id="b-fs" data-i18n="fullscreen">Tam ekran</button></div>
@@ -202,7 +202,7 @@ body.playing #hud,body.playing #spirit{display:flex}
 </section>
 
 <!-- CALIBRATION -->
-<section id="scr-calib" class="screen hidden" role="dialog" aria-labelledby="cal-title">
+<section id="scr-calib" class="screen hidden" role="dialog" aria-modal="true" aria-labelledby="cal-title">
   <div class="panel center">
     <h2 id="cal-title" data-i18n="calibTitle">Gecikme kalibrasyonu</h2>
     <p class="muted" data-i18n="calibHelp">Metronomun her vuruşuna bir tuş basın (Boşluk, D F J K veya düğme).</p>
@@ -219,7 +219,7 @@ body.playing #hud,body.playing #spirit{display:flex}
 </section>
 
 <!-- PAUSE -->
-<section id="scr-pause" class="screen hidden" role="dialog" aria-labelledby="pause-title">
+<section id="scr-pause" class="screen hidden" role="dialog" aria-modal="true" aria-labelledby="pause-title">
   <div class="panel center">
     <svg class="orn" viewBox="0 0 220 26" aria-hidden="true"><path d="M4 13H78M142 13H216" stroke="#D4AF37" stroke-width="1.5"/><path d="M110 3C101 3 97 8 97 13C97 18 101 23 110 23C119 23 123 18 123 13C123 8 119 3 110 3Z" fill="none" stroke="#D4AF37" stroke-width="1.6"/><circle cx="110" cy="13" r="2.6" fill="#F1E3C6"/></svg>
     <h2 id="pause-title" data-i18n="pause">Duraklat</h2>
@@ -233,7 +233,7 @@ body.playing #hud,body.playing #spirit{display:flex}
 </section>
 
 <!-- RESULTS -->
-<section id="scr-results" class="screen hidden" role="dialog" aria-labelledby="r-title">
+<section id="scr-results" class="screen hidden" role="dialog" aria-modal="true" aria-labelledby="r-title">
   <div class="panel center">
     <div class="grade" id="r-grade">–</div>
     <div id="res-main"></div>
@@ -302,6 +302,7 @@ const I18N = {
     noAudio: 'Ses bu tarayıcıda kullanılamıyor; oyun sessiz çalışır.',
     sound: 'Ses', pauseHint: 'Devam etmek için Devam’a basın',
     tk: 'Tuşlar: D F J K · Duraklat: P / Esc · Ses: M / X · Dil: L',
+    laneTouch: 'Şerit',
     bpm: 'BPM', best: 'En iyi', none: 'Henüz yok', preview: 'Dinle', stop: 'Durdur',
     tabHidden: 'Sekme gizlenince duraklatıldı', resetDone: 'Kalibrasyon sıfırlandı', fsErr: 'Tam ekran açılamadı',
     diffBest: 'Zorluk', completeAuto: 'Otomatik oynatma bitti',
@@ -330,6 +331,7 @@ const I18N = {
     noAudio: 'Audio is not available in this browser; the game runs silent.',
     sound: 'Sound', pauseHint: 'Press Resume to continue',
     tk: 'Keys: D F J K · Pause: P / Esc · Sound: M / X · Language: L',
+    laneTouch: 'Lane',
     bpm: 'BPM', best: 'Best', none: 'None yet', preview: 'Listen', stop: 'Stop',
     tabHidden: 'Paused when the tab was hidden', resetDone: 'Calibration reset', fsErr: 'Fullscreen is not available',
     diffBest: 'Difficulty', completeAuto: 'Auto play finished',
@@ -552,7 +554,14 @@ const CAL = { t0: 0, taps: [], end: 0, n: 12, beat: 0.6, on: false };
 const SCREENS = ['title', 'select', 'settings', 'calib', 'pause', 'results'];
 function show(name) {
   G.screen = name;
-  for (const s of SCREENS) { const el = $('#scr-' + s); if (el) el.classList.toggle('hidden', s !== name); }
+  for (const s of SCREENS) {
+    const el = $('#scr-' + s);
+    if (el) {
+      const active = s === name;
+      el.classList.toggle('hidden', !active);
+      el.inert = !active;
+    }
+  }
   document.body.classList.toggle('playing', name === 'play' || name === 'pause');
 }
 function judgeShow(kind) {
@@ -1507,7 +1516,12 @@ function refreshKeys() {
     const l = Number(b.dataset.lane);
     b.textContent = G.rebind === l ? '…' : S.keys[l].toUpperCase();
   }
-  for (const b of $$('#touch .tz')) b.textContent = S.keys[Number(b.dataset.lane)].toUpperCase();
+  for (const b of $$('#touch .tz')) {
+    const l = Number(b.dataset.lane);
+    const keyName = S.keys[l].toUpperCase();
+    b.textContent = keyName;
+    b.setAttribute('aria-label', `${T('laneTouch')} ${l + 1} (${keyName})`);
+  }
 }
 function openSettings() {
   G.returnTo = G.screen === 'pause' ? 'pause' : 'title';
