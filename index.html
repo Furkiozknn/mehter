@@ -14,216 +14,1622 @@
 <meta property="og:image:height" content="540">
 <meta name="twitter:card" content="summary_large_image">
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Nunito+Sans:ital,opsz,wght@0,6..12,400;0,6..12,600;0,6..12,700;0,6..12,800;1,6..12,400&display=swap" rel="stylesheet">
 <style>
-:root{--gold:#D4AF37;--gold-hi:#F3D27A;--red:#A4161A;--green:#1B4332;--night:#0B132B;--parch:#F1E3C6;--cream:#F1E3C6;--crimson-panel:rgba(74,10,14,.9);--glass:rgba(58,8,12,.86);--line:rgba(212,175,55,.55);--focus:#F3D27A}
-*{box-sizing:border-box}
-html,body{margin:0;height:100%;background:#0b0d1a;overflow:hidden}
-body{font:15px/1.4 system-ui,"Segoe UI",Roboto,sans-serif;color:var(--cream);user-select:none;-webkit-user-select:none}
-#gl{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
-button{font:inherit;color:inherit;min-height:44px;min-width:44px;padding:8px 14px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.06);cursor:pointer;touch-action:manipulation}
-button:hover{background:rgba(255,255,255,.14)}
-button:disabled{opacity:.45;cursor:default}
-button.primary{background:linear-gradient(180deg,var(--gold-hi),var(--gold));border-color:transparent;color:#2a1604;font-weight:700;box-shadow:0 2px 0 #7a5a0c}
-button.on{background:rgba(212,175,55,.3);border-color:var(--gold)}
-button:focus-visible,input:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
-input[type=range]{width:100%;min-height:44px;accent-color:var(--gold)}
-.hidden{display:none!important}
-.glass{background:var(--glass);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.4)}
-.screen{position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(5,8,20,.55);overflow:auto}
-#scr-title{background:linear-gradient(180deg,rgba(5,8,20,.12),rgba(5,8,20,.85))}
-#scr-pause{background:rgba(5,8,20,.62);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
-.panel{width:100%;max-width:640px;padding:20px;display:flex;flex-direction:column;gap:14px;max-height:100%;overflow:auto;background:var(--glass);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.4),inset 0 0 0 1px rgba(0,0,0,.35);outline:1px solid rgba(212,175,55,.3);outline-offset:-7px}
-.panel>*{flex-shrink:0}
-#scr-title .panel{background:none;border:0;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
-.panel.wide{max-width:900px}
-h1,h2{margin:0;font-weight:800;letter-spacing:.05em;font-family:Georgia,"Times New Roman",serif}
-h1{font-size:clamp(38px,9vw,68px);color:var(--gold-hi);text-shadow:0 2px 0 #5a0b0d,0 0 26px rgba(212,175,55,.45)}
-h2{font-size:22px;color:var(--gold-hi)}
-.orn{width:min(220px,70vw);height:26px;display:block;margin:0 auto;flex:none}
-.center{text-align:center;align-items:center}
-.logo{width:96px;height:96px;margin:0 auto}
-.brand-svg{width:30px;height:30px;flex:none}
-.muted{opacity:.78;font-size:14px;margin:0}
-.btns{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
-.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
-.row>label{min-width:110px}
-.seg{display:flex;gap:6px}
-.seg button{flex:1}
-.howto{margin:0;padding-left:20px;text-align:left;font-size:14px;display:flex;flex-direction:column;gap:6px}
-.foot{position:fixed;left:0;right:0;bottom:8px;text-align:center;font-size:12px;opacity:.7;z-index:21;pointer-events:none}
-.foot a{pointer-events:auto;color:var(--gold-hi)}
-#scr-title .foot{pointer-events:auto}
-.loading{color:var(--gold-hi);font-size:14px;margin:0}
-#best-line,#title-best{font-size:14px;opacity:.9;margin:0}
-.songs{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
-.card{display:flex;flex-direction:column;gap:6px;text-align:left;padding:12px;border-radius:14px;min-height:44px}
-.card.sel{border-color:var(--gold-hi);background:rgba(212,175,55,.2)}
-.card b{font-size:16px}
-.card small{opacity:.78;font-size:12px}
-.card .tail{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px}
-.tiny{min-width:44px;min-height:44px;padding:4px 10px}
-.keys button{min-width:64px;font-weight:800;font-size:18px;text-transform:uppercase}
-.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 16px;font-variant-numeric:tabular-nums}
-.stats-grid div{display:flex;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.1);padding:4px 0}
-.hist{display:flex;align-items:flex-end;gap:4px;height:110px;width:100%;flex:none}
-.hist i{flex:1;background:linear-gradient(to top,var(--red),var(--gold));border-radius:4px 4px 0 0;min-height:2px}
-.hist-l{display:flex;justify-content:space-between;width:100%;font-size:11px;opacity:.75}
-.grade{font-size:84px;font-weight:900;color:var(--gold);line-height:1;text-align:center;text-shadow:0 0 30px rgba(212,175,55,.5)}
-#dot{width:72px;height:72px;border-radius:50%;margin:8px auto;background:var(--gold);opacity:.35;transform:scale(1)}
-#res-main{font-size:30px;font-weight:800;color:var(--gold-hi);text-align:center;margin:6px 0}
-/* HUD */
-#hud{position:fixed;left:10px;right:10px;top:10px;z-index:8;display:flex;align-items:center;gap:12px;padding:6px 10px}
-.brand{display:flex;align-items:center;gap:8px;font-weight:800;color:var(--gold);white-space:nowrap}
-.stats{display:flex;gap:18px;flex:1;justify-content:center;flex-wrap:wrap}
-.stat{display:flex;flex-direction:column;align-items:center;line-height:1.15}
-.stat span{font-size:11px;opacity:.72;text-transform:uppercase;letter-spacing:.08em}
-.stat b{font-size:18px;font-variant-numeric:tabular-nums}
-.tools{display:flex;gap:6px}
-.ibtn{min-width:44px;min-height:44px;padding:6px;display:grid;place-items:center;border-radius:12px}
-.ibtn svg{width:22px;height:22px;fill:currentColor}
-.ibtn.txt{font-weight:800;font-size:13px}
-#spirit{position:fixed;left:12px;top:50%;transform:translateY(-50%);width:16px;height:38vh;z-index:7;display:flex;flex-direction:column;align-items:center;gap:4px}
-#spirit .bar{position:relative;flex:1;width:100%;border-radius:8px;background:rgba(0,0,0,.45);border:1px solid var(--line);overflow:hidden}
-#spirit .fill{position:absolute;left:0;right:0;bottom:0;height:100%;background:linear-gradient(to top,#7a0c0c,var(--gold));transform-origin:bottom;transform:scaleY(1)}
-#spirit span{font-size:10px;opacity:.8;writing-mode:vertical-rl;transform:rotate(180deg)}
-#touch{position:fixed;left:0;right:0;bottom:0;height:40vh;z-index:6;display:flex;touch-action:none}
-#touch .tz{flex:1 1 0;min-width:0;width:0;border-left:1px solid rgba(255,255,255,.07);background:linear-gradient(to top,rgba(255,255,255,.035),transparent);display:flex;align-items:flex-end;justify-content:center;padding-bottom:10px;font-weight:800;font-size:18px;opacity:.5}
-#touch .tz:active{background:rgba(212,175,55,.2)}
-#judge{position:fixed;left:50%;top:44%;transform:translate(-50%,-50%);font-weight:900;font-size:clamp(26px,5.5vw,52px);pointer-events:none;z-index:9;opacity:0;text-shadow:0 3px 12px rgba(0,0,0,.6);white-space:nowrap}
-#judge.show{animation:pop .6s ease-out forwards}
-#judge.perfect{color:var(--gold-hi)}
-#judge.good{color:#8fd3ff}
-#judge.miss{color:#ff6b6b}
-#judge.brk{color:#ff9f43}
-@keyframes pop{0%{opacity:1;transform:translate(-50%,-50%) scale(1.35)}100%{opacity:0;transform:translate(-50%,-70%) scale(1)}}
-#toasts{position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:30;display:flex;flex-direction:column;gap:6px;pointer-events:none;width:min(92vw,420px)}
-#toasts div{padding:8px 12px;border-radius:12px;background:var(--glass);border:1px solid var(--line);text-align:center;font-size:14px}
-#toasts .bad{border-color:#ff6b6b}
-#dbg{position:fixed;right:6px;bottom:6px;z-index:40;margin:0;max-width:60vw;max-height:45vh;overflow:auto;background:rgba(0,0,0,.72);color:#9ff;font:11px/1.35 Consolas,monospace;padding:6px;border-radius:6px;white-space:pre-wrap}
-body.playing #touch{display:flex}
-body:not(.playing) #touch{display:none}
-body:not(.playing) #hud,body:not(.playing) #spirit{display:none}
-body:not(.playing) #judge{display:none}
-body.playing #hud,body.playing #spirit{display:flex}
-#spirit{display:none}
-@media (max-width:640px){.brand .nm{display:none}.stats{gap:10px}.stat span{font-size:9px}.stat b{font-size:15px}#hud{gap:6px;padding:6px}}
-@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* --------------------------------------------------------------------------
+   Mehter: Nevbet-i Zeref (Gilded Nevbet) Design System
+   Ottoman miniature meets illuminated manuscript & night parade
+   -------------------------------------------------------------------------- */
+:root {
+  /* Core 8-color palette */
+  --ink-night: #120B1E;
+  --aubergine: #231438;
+  --aubergine-deep: #170C25;
+  --crimson: #8C1D2F;
+  --crimson-hi: #B52A42;
+  --gold: #E8B23A;
+  --gold-hi: #F7D47C;
+  --gold-dark: #9E7418;
+  --parchment: #F5E6C4;
+  --parchment-dim: rgba(245, 230, 196, 0.76);
+  --iznik-green: #2E6B4F;
+  --iznik-green-hi: #3F8F6A;
+  --iznik-cobalt: #3E7EA6;
+  --iznik-cobalt-hi: #55A2D1;
+  --torch-ember: #D96C2C;
+  --torch-ember-hi: #F28544;
+
+  /* Instrument semantic lane colors */
+  --lane-davul: #D96C2C;
+  --lane-kos: #8C1D2F;
+  --lane-zurna: #3E7EA6;
+  --lane-zil: #2E6B4F;
+
+  /* UI tokens */
+  --bg-panel: rgba(35, 20, 56, 0.94);
+  --bg-scrim: rgba(18, 11, 30, 0.78);
+  --line-gold: rgba(232, 178, 58, 0.45);
+  --line-gold-bright: rgba(247, 212, 124, 0.85);
+  --focus-ring: #F7D47C;
+  --font-display: 'Amiri', Georgia, 'Times New Roman', serif;
+  --font-body: 'Nunito Sans', system-ui, -apple-system, sans-serif;
+  --radius-panel: 18px;
+  --radius-card: 14px;
+  --radius-btn: 12px;
+}
+
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--ink-night);
+  overflow: hidden;
+}
+body {
+  font: 15px/1.5 var(--font-body);
+  color: var(--parchment);
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom themed scrollbars & selection */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: rgba(18, 11, 30, 0.7); border-radius: 4px; }
+::-webkit-scrollbar-thumb { background: rgba(232, 178, 58, 0.35); border-radius: 4px; border: 1px solid rgba(232, 178, 58, 0.2); }
+::-webkit-scrollbar-thumb:hover { background: rgba(232, 178, 58, 0.65); }
+::selection { background: var(--gold); color: var(--ink-night); }
+
+#gl {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+}
+
+/* Base button styles */
+button {
+  font: inherit;
+  color: inherit;
+  min-height: 48px;
+  min-width: 48px;
+  padding: 10px 18px;
+  border-radius: var(--radius-btn);
+  border: 1.5px solid var(--line-gold);
+  background: rgba(35, 20, 56, 0.82);
+  cursor: pointer;
+  touch-action: manipulation;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.12s ease, box-shadow 0.18s ease;
+}
+button:hover {
+  background: rgba(55, 31, 88, 0.95);
+  border-color: var(--gold-hi);
+  box-shadow: 0 4px 16px rgba(232, 178, 58, 0.25);
+  transform: translateY(-1px);
+}
+button:active {
+  transform: scale(0.97) translateY(1px);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+button:disabled {
+  opacity: 0.45;
+  cursor: default;
+  pointer-events: none;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Primary gilded button */
+button.primary {
+  background: linear-gradient(180deg, var(--gold-hi) 0%, var(--gold) 100%);
+  border-color: var(--gold-hi);
+  color: #170C25;
+  font-weight: 800;
+  box-shadow: 0 3px 0 var(--gold-dark), 0 6px 20px rgba(232, 178, 58, 0.45);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+button.primary:hover {
+  background: linear-gradient(180deg, #FFF0B8 0%, #F0B93E 100%);
+  box-shadow: 0 4px 0 var(--gold-dark), 0 8px 24px rgba(232, 178, 58, 0.6);
+}
+button.primary:active {
+  box-shadow: 0 1px 0 var(--gold-dark), inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+button.on {
+  background: linear-gradient(180deg, rgba(232, 178, 58, 0.4) 0%, rgba(232, 178, 58, 0.2) 100%);
+  border-color: var(--gold-hi);
+  color: #FFFFFF;
+  box-shadow: 0 0 12px rgba(232, 178, 58, 0.35);
+}
+button:focus-visible, input:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+/* Custom Range Sliders */
+input[type=range] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  min-height: 44px;
+  background: transparent;
+  cursor: pointer;
+}
+input[type=range]:focus { outline: none; }
+input[type=range]::-webkit-slider-runnable-track {
+  height: 8px;
+  background: rgba(18, 11, 30, 0.85);
+  border: 1px solid var(--line-gold);
+  border-radius: 4px;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, var(--gold-hi), var(--gold) 70%, var(--gold-dark) 100%);
+  border: 2px solid var(--parchment);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.6), 0 0 8px rgba(232,178,58,0.5);
+  margin-top: -8px;
+  transition: transform 0.1s ease;
+}
+input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+input[type=range]::-moz-range-track {
+  height: 8px;
+  background: rgba(18, 11, 30, 0.85);
+  border: 1px solid var(--line-gold);
+  border-radius: 4px;
+}
+input[type=range]::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--gold-hi), var(--gold));
+  border: 2px solid var(--parchment);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.6);
+}
+
+.hidden { display: none !important; }
+
+/* Backdrop scrim & screens */
+.screen {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: radial-gradient(circle at 50% 30%, rgba(35, 20, 56, 0.45) 0%, rgba(18, 11, 30, 0.82) 100%);
+  overflow-y: auto;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: opacity 0.25s ease;
+}
+#scr-title {
+  background: radial-gradient(ellipse at 50% 90%, rgba(217, 108, 44, 0.12) 0%, transparent 60%),
+              radial-gradient(ellipse at 50% 20%, rgba(35, 20, 56, 0.5) 0%, rgba(18, 11, 30, 0.85) 100%);
+}
+#scr-pause {
+  background: rgba(18, 11, 30, 0.76);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Panel ("Murakka" Album Page) */
+.panel {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  padding: 30px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: 92vh;
+  overflow-y: auto;
+  background: var(--bg-panel);
+  border: 1.5px solid var(--gold);
+  border-radius: var(--radius-panel);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8),
+              0 0 0 1px rgba(247, 212, 124, 0.3),
+              inset 0 0 40px rgba(18, 11, 30, 0.6);
+}
+/* Inner ornamental hairline */
+.panel::before {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  border: 1px solid rgba(232, 178, 58, 0.35);
+  border-radius: calc(var(--radius-panel) - 5px);
+  pointer-events: none;
+}
+/* Corner Seljuk 8-point stars */
+.panel::after {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  background-image: 
+    radial-gradient(circle at 10px 10px, var(--gold) 2px, transparent 2.5px),
+    radial-gradient(circle at calc(100% - 10px) 10px, var(--gold) 2px, transparent 2.5px),
+    radial-gradient(circle at 10px calc(100% - 10px), var(--gold) 2px, transparent 2.5px),
+    radial-gradient(circle at calc(100% - 10px) calc(100% - 10px), var(--gold) 2px, transparent 2.5px);
+  pointer-events: none;
+}
+.panel > * { flex-shrink: 0; }
+.panel.wide { max-width: 860px; }
+
+#scr-title .panel {
+  background: rgba(26, 13, 42, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1.5px solid rgba(232, 178, 58, 0.6);
+  padding: 32px 26px;
+  max-width: 580px;
+}
+
+/* Typography */
+h1, h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--gold-hi);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8), 0 0 20px rgba(232, 178, 58, 0.4);
+}
+h1 {
+  font-size: clamp(44px, 8.5vw, 68px);
+  line-height: 1.05;
+  text-align: center;
+}
+h2 {
+  font-size: 24px;
+  text-align: center;
+}
+.tagline {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.24em;
+  color: var(--torch-ember-hi);
+  text-transform: uppercase;
+  margin: 4px 0 2px 0;
+  text-align: center;
+}
+.muted {
+  opacity: 0.82;
+  font-size: 14px;
+  margin: 0;
+  color: var(--parchment);
+  text-align: center;
+}
+.center {
+  text-align: center;
+  align-items: center;
+}
+
+/* Ornaments & Crests */
+.orn {
+  width: min(240px, 75vw);
+  height: 24px;
+  display: block;
+  margin: 0 auto;
+  flex: none;
+}
+.logo {
+  width: 104px;
+  height: 104px;
+  margin: 0 auto;
+  display: block;
+  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.6));
+}
+.brand-svg {
+  width: 32px;
+  height: 32px;
+  flex: none;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
+}
+
+/* Layout helpers */
+.btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  width: 100%;
+}
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+.row > label, .row > span:first-child {
+  min-width: 100px;
+  font-weight: 700;
+  color: var(--parchment);
+}
+.seg {
+  display: flex;
+  gap: 6px;
+  background: rgba(18, 11, 30, 0.6);
+  padding: 4px;
+  border-radius: 12px;
+  border: 1px solid rgba(232, 178, 58, 0.25);
+}
+.seg button {
+  flex: 1;
+  min-height: 42px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  font-size: 14px;
+}
+.seg button.on {
+  background: linear-gradient(180deg, var(--gold-hi), var(--gold));
+  color: #170C25;
+  font-weight: 800;
+  border-color: var(--gold-hi);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* How to play Bento Cards on Title Screen */
+.howto-bento {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  margin: 4px 0;
+}
+.howto-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: rgba(18, 11, 30, 0.55);
+  border: 1px solid rgba(232, 178, 58, 0.25);
+  border-radius: 10px;
+  text-align: left;
+  font-size: 13.5px;
+  line-height: 1.4;
+  color: var(--parchment);
+}
+.howto-card .ht-num {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 17px;
+  color: var(--gold-hi);
+  min-width: 22px;
+  text-align: center;
+}
+
+/* Title Actions */
+.title-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  align-items: center;
+}
+.play-btn {
+  width: 100%;
+  max-width: 280px;
+  min-height: 52px;
+  font-size: 18px;
+  letter-spacing: 0.06em;
+}
+.sub-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+}
+.sub-actions button {
+  flex: 1;
+  min-width: 100px;
+  font-size: 14px;
+}
+.title-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+.best-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background: rgba(232, 178, 58, 0.12);
+  border: 1px solid var(--line-gold);
+  border-radius: 20px;
+  font-size: 13px;
+  color: var(--parchment);
+}
+.best-ribbon {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--gold-hi);
+}
+.ribbon-grade {
+  display: inline-block;
+  padding: 1px 7px;
+  background: var(--gold);
+  color: #170C25;
+  border-radius: 6px;
+  font-weight: 800;
+}
+.loading {
+  color: var(--gold-hi);
+  font-size: 13px;
+  margin: 0;
+  letter-spacing: 0.04em;
+}
+
+/* Footer */
+.foot {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 10px;
+  text-align: center;
+  font-size: 12px;
+  opacity: 0.85;
+  z-index: 21;
+  pointer-events: none;
+}
+.foot a {
+  pointer-events: auto;
+  color: var(--gold-hi);
+  text-decoration: none;
+  border-bottom: 1px dotted rgba(232, 178, 58, 0.5);
+}
+.foot a:hover {
+  color: #FFF;
+  border-bottom-style: solid;
+}
+#scr-title .foot { pointer-events: auto; }
+
+/* Song Select Screen: Imperial Defter Cards */
+.select-panel { max-width: 880px; }
+.panel-header { text-align: center; }
+.panel-orn { width: 140px; height: 16px; margin: 0 auto 4px auto; display: block; }
+.ledger-desc { font-size: 13px; opacity: 0.8; margin: 4px 0 0 0; }
+.diff-seg { max-width: 360px; margin: 0 auto; width: 100%; }
+
+.songs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 12px;
+  width: 100%;
+}
+.card {
+  position: relative;
+  display: flex;
+  gap: 10px;
+  padding: 14px;
+  border-radius: var(--radius-card);
+  border: 1.5px solid rgba(232, 178, 58, 0.3);
+  background: rgba(26, 14, 40, 0.85);
+  cursor: pointer;
+  transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+  min-height: 48px;
+  outline: none;
+}
+.card:hover {
+  border-color: var(--gold-hi);
+  background: rgba(45, 24, 70, 0.95);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5), 0 0 12px rgba(232, 178, 58, 0.2);
+}
+.card.sel {
+  border-color: var(--gold-hi);
+  background: linear-gradient(135deg, rgba(55, 29, 86, 0.95), rgba(35, 18, 58, 0.95));
+  box-shadow: 0 0 0 1px var(--gold-hi), 0 8px 24px rgba(232, 178, 58, 0.35);
+}
+.card-spine {
+  width: 4px;
+  border-radius: 2px;
+  background: var(--gold);
+  flex-shrink: 0;
+  opacity: 0.5;
+  transition: opacity 0.16s ease;
+}
+.card.sel .card-spine {
+  opacity: 1;
+  background: linear-gradient(to bottom, var(--torch-ember), var(--gold-hi));
+}
+.card-main {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+.card-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--parchment);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.card.sel .card-title { color: var(--gold-hi); }
+.card-bpm {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 0.05em;
+  background: rgba(18, 11, 30, 0.6);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.card-desc {
+  font-size: 12px;
+  opacity: 0.78;
+  line-height: 1.35;
+}
+.card-usul {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+}
+.usul-dots {
+  color: var(--gold-hi);
+  letter-spacing: 2px;
+  font-size: 10px;
+}
+.usul-name {
+  color: var(--torch-ember-hi);
+  text-transform: capitalize;
+  font-weight: 600;
+}
+.card .tail {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(232, 178, 58, 0.18);
+}
+.best-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+}
+.best-lbl { opacity: 0.75; font-size: 10.5px; text-transform: uppercase; }
+.best-val { font-variant-numeric: tabular-nums; color: var(--parchment); }
+.grade-tag {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-weight: 800;
+  font-size: 11px;
+  background: var(--gold);
+  color: #170C25;
+}
+.grade-tag.grade-S { background: #E8B23A; color: #170C25; box-shadow: 0 0 8px rgba(232, 178, 58, 0.6); }
+.grade-tag.grade-A { background: #3E7EA6; color: #FFF; }
+.grade-tag.grade-B { background: #2E6B4F; color: #FFF; }
+.grade-tag.grade-C { background: #8C1D2F; color: #FFF; }
+
+.preview-btn {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 6px;
+  border-radius: 10px;
+  background: rgba(232, 178, 58, 0.15);
+  border-color: rgba(232, 178, 58, 0.4);
+  color: var(--gold-hi);
+}
+.preview-btn:hover {
+  background: var(--gold);
+  color: #170C25;
+}
+.panel-footer { margin-top: 6px; }
+.start-btn { min-width: 140px; }
+
+/* Settings Screen */
+.settings-panel { max-width: 580px; gap: 18px; }
+.setting-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: rgba(18, 11, 30, 0.5);
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(232, 178, 58, 0.2);
+}
+.range-wrap { flex: 1; min-width: 160px; display: flex; align-items: center; }
+.full-btn { width: 100%; }
+.keys-header { display: flex; justify-content: space-between; align-items: baseline; }
+.keys-header span { font-weight: 700; }
+.keys { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; width: 100%; }
+.keys button {
+  min-height: 54px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 6px;
+  border-color: var(--line-gold);
+}
+.k-inst { font-size: 9.5px; opacity: 0.72; letter-spacing: 0.08em; text-transform: uppercase; }
+.key-label { font-size: 18px; font-weight: 800; color: var(--gold-hi); }
+#rebind-msg { color: var(--torch-ember-hi); font-weight: 700; font-size: 13px; }
+
+/* Calibration Screen */
+.calib-panel { max-width: 500px; gap: 16px; }
+.calib-drum-stage {
+  position: relative;
+  width: 110px;
+  height: 110px;
+  margin: 10px auto;
+  display: grid;
+  place-items: center;
+}
+.calib-drum {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 40%, var(--parchment), #CDBB94 70%, #8C754A 100%);
+  border: 4px solid var(--gold);
+  box-shadow: 0 0 0 3px #170C25, 0 8px 24px rgba(0, 0, 0, 0.7), 0 0 20px rgba(232, 178, 58, 0.4);
+  position: relative;
+  display: grid;
+  place-items: center;
+  transition: transform 0.08s ease-out;
+}
+.calib-drum .drum-center {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--crimson);
+  border: 2px solid var(--gold);
+}
+.calib-result {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--gold-hi);
+  margin: 0;
+  min-height: 34px;
+}
+.calib-btns { margin-top: 4px; }
+.tap-btn {
+  min-height: 52px;
+  min-width: 110px;
+  font-size: 16px;
+  background: linear-gradient(180deg, rgba(232, 178, 58, 0.3), rgba(232, 178, 58, 0.15));
+  border-color: var(--gold-hi);
+}
+
+/* Pause Screen */
+.pause-panel { max-width: 440px; padding: 32px 28px; }
+.pause-crest svg { width: 54px; height: 54px; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.6)); }
+.pause-btn-col { flex-direction: column; width: 100%; gap: 10px; margin-top: 8px; }
+.pause-btn-col button { width: 100%; min-height: 50px; font-size: 16px; }
+
+/* Results Screen: Royal Ferman */
+.results-panel { max-width: 580px; padding: 28px 22px; gap: 14px; }
+.results-crest {
+  position: relative;
+  width: 140px;
+  height: 130px;
+  margin: 0 auto;
+  display: grid;
+  place-items: center;
+}
+.results-rays {
+  position: absolute;
+  inset: -20px;
+  width: calc(100% + 40px);
+  height: calc(100% + 40px);
+  animation: slow-rotate 40s linear infinite;
+  pointer-events: none;
+}
+@keyframes slow-rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+.grade {
+  font-family: var(--font-display);
+  font-size: 100px;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  color: var(--gold-hi);
+  text-shadow: 0 4px 0 var(--gold-dark), 0 0 40px rgba(232, 178, 58, 0.7);
+  z-index: 2;
+}
+.grade.grade-S { color: var(--gold-hi); text-shadow: 0 0 35px rgba(232, 178, 58, 0.9), 0 4px 0 #7A570C; }
+.grade.grade-A { color: #8FD5FF; text-shadow: 0 0 35px rgba(62, 126, 166, 0.8), 0 4px 0 #184A6E; }
+.grade.grade-B { color: #8FF0B8; text-shadow: 0 0 30px rgba(46, 107, 79, 0.8), 0 4px 0 #13452E; }
+.grade.grade-C { color: #FFA0A0; text-shadow: 0 0 30px rgba(140, 29, 47, 0.8), 0 4px 0 #5E0E1B; }
+
+#res-main {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--gold-hi);
+  margin: -6px 0 0 0;
+}
+.results-subtitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--parchment);
+  opacity: 0.88;
+  margin: 0;
+}
+.seal-record { min-height: 28px; display: grid; place-items: center; }
+.wax-seal-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  background: radial-gradient(circle, var(--crimson-hi), var(--crimson));
+  border: 1.5px solid var(--gold-hi);
+  border-radius: 20px;
+  color: var(--parchment);
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  box-shadow: 0 4px 14px rgba(140, 29, 47, 0.6), inset 0 1px 0 rgba(255,255,255,0.3);
+  animation: seal-pop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+@keyframes seal-pop {
+  0% { transform: scale(0.6) rotate(-8deg); opacity: 0; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px 16px;
+  width: 100%;
+  background: rgba(18, 11, 30, 0.55);
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(232, 178, 58, 0.25);
+  font-variant-numeric: tabular-nums;
+}
+.stats-grid div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  border-bottom: 1px solid rgba(232, 178, 58, 0.15);
+  padding: 5px 0;
+  font-size: 13.5px;
+}
+.stats-grid span { opacity: 0.78; }
+.stats-grid b { font-weight: 800; color: var(--gold-hi); font-size: 15px; }
+
+.hist-box {
+  width: 100%;
+  background: rgba(18, 11, 30, 0.55);
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(232, 178, 58, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.hist-header {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--parchment);
+  opacity: 0.75;
+  text-align: left;
+}
+.hist {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 90px;
+  width: 100%;
+}
+.hist i {
+  flex: 1;
+  background: linear-gradient(to top, var(--crimson), var(--torch-ember));
+  border-radius: 3px 3px 0 0;
+  min-height: 3px;
+  transition: height 0.3s ease;
+}
+.hist i.hist-center {
+  background: linear-gradient(to top, var(--gold-dark), var(--gold-hi));
+  box-shadow: 0 0 8px rgba(232, 178, 58, 0.5);
+}
+.hist-l {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 11px;
+  opacity: 0.75;
+}
+
+/* ==========================================================================
+   IN-GAME HUD (Nevbet-i Zeref Rebalanced 3-part layout)
+   ========================================================================== */
+#hud {
+  position: fixed;
+  left: 14px;
+  right: 14px;
+  top: 12px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 16px;
+  background: rgba(35, 20, 56, 0.88);
+  border: 1.5px solid var(--gold);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(247, 212, 124, 0.25);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+.brand .nm {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--gold-hi);
+}
+.brand .sub-nm {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  color: var(--torch-ember-hi);
+  text-transform: uppercase;
+}
+
+.song-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(18, 11, 30, 0.6);
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(232, 178, 58, 0.25);
+}
+#h-song {
+  font-family: var(--font-display);
+  font-size: 16px;
+  color: var(--parchment);
+  white-space: nowrap;
+}
+.diff-badge {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--gold);
+  color: #170C25;
+}
+.diff-badge[data-diff="easy"] { background: var(--iznik-green-hi); color: #FFF; }
+.diff-badge[data-diff="normal"] { background: var(--gold); color: #170C25; }
+.diff-badge[data-diff="hard"] { background: var(--crimson-hi); color: #FFF; }
+
+.stats {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.15;
+}
+.stat span {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  opacity: 0.72;
+}
+.stat b {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-variant-numeric: tabular-nums;
+  color: var(--parchment);
+}
+.score-stat b {
+  font-size: 26px;
+  color: var(--gold-hi);
+  text-shadow: 0 0 12px rgba(232, 178, 58, 0.4);
+}
+.combo-stat b {
+  color: var(--torch-ember-hi);
+}
+
+.tools {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.ibtn {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 8px;
+  border-radius: 10px;
+  border: 1px solid var(--line-gold);
+  background: rgba(18, 11, 30, 0.65);
+  color: var(--parchment);
+  display: grid;
+  place-items: center;
+}
+.ibtn:hover {
+  background: rgba(55, 31, 88, 0.95);
+  border-color: var(--gold-hi);
+  color: #FFF;
+}
+.ibtn svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+.ibtn.txt {
+  font-weight: 800;
+  font-size: 13px;
+  color: var(--gold-hi);
+}
+
+/* Spirit Meter: Çevgen Standard */
+#spirit {
+  position: fixed;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 26px;
+  height: 40vh;
+  z-index: 9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.spirit-crown {
+  width: 20px;
+  height: 14px;
+  display: grid;
+  place-items: center;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+}
+.spirit-crown svg { width: 18px; height: 12px; }
+#spirit .bar {
+  position: relative;
+  flex: 1;
+  width: 16px;
+  border-radius: 8px;
+  background: rgba(18, 11, 30, 0.85);
+  border: 1.5px solid var(--gold);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.7), inset 0 0 6px rgba(0, 0, 0, 0.8);
+  overflow: hidden;
+}
+#spirit .fill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 100%;
+  background: linear-gradient(to top, var(--crimson) 0%, var(--torch-ember) 35%, var(--gold) 70%, var(--iznik-green-hi) 100%);
+  transform-origin: bottom;
+  transform: scaleY(1);
+  transition: transform 0.1s ease-out;
+}
+.spirit-lines {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  pointer-events: none;
+}
+.spirit-lines i {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.25);
+  width: 100%;
+}
+.spirit-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.spirit-label span {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--gold-hi);
+}
+.spirit-pct {
+  font-size: 10px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.85;
+}
+#spirit.spirit-low .bar {
+  border-color: #FF5E74;
+  box-shadow: 0 0 16px rgba(255, 94, 116, 0.8);
+  animation: pulse-danger 0.6s infinite alternate;
+}
+@keyframes pulse-danger {
+  from { border-color: #FF5E74; box-shadow: 0 0 10px rgba(255, 94, 116, 0.4); }
+  to { border-color: #FF1A38; box-shadow: 0 0 22px rgba(255, 26, 56, 0.9); }
+}
+
+/* Lane Zones & Touch Docks */
+#touch {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 38vh;
+  z-index: 8;
+  display: flex;
+  touch-action: none;
+  pointer-events: none;
+}
+#touch .tz {
+  pointer-events: auto;
+  flex: 1 1 0;
+  min-width: 0;
+  width: 0;
+  border-left: 1px solid rgba(232, 178, 58, 0.15);
+  background: linear-gradient(to top, rgba(18, 11, 30, 0.4) 0%, transparent 60%);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 14px;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.1s ease;
+}
+#touch .tz:last-child { border-right: 1px solid rgba(232, 178, 58, 0.15); }
+
+/* Instrument color stripes & docks */
+.tz-dock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 14px;
+  background: rgba(26, 14, 40, 0.88);
+  border: 1.5px solid var(--line-gold);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+  min-width: 64px;
+  transition: transform 0.08s ease, border-color 0.1s ease, box-shadow 0.1s ease;
+}
+.tz-icon-box {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--parchment);
+}
+.tz-icon {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+.tz-name {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  opacity: 0.85;
+}
+#touch .tz .key-label {
+  display: inline-block;
+  font-size: 18px;
+  font-weight: 900;
+  color: #170C25;
+  background: linear-gradient(180deg, var(--gold-hi), var(--gold));
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+  text-align: center;
+  border-radius: 8px;
+  box-shadow: 0 2px 0 var(--gold-dark);
+}
+
+/* Instrument-specific styling for lanes */
+.tz[data-lane="0"] .tz-dock { border-top: 3px solid var(--lane-davul); }
+.tz[data-lane="0"] .tz-icon-box { color: var(--torch-ember-hi); }
+.tz[data-lane="1"] .tz-dock { border-top: 3px solid var(--lane-kos); }
+.tz[data-lane="1"] .tz-icon-box { color: var(--crimson-hi); }
+.tz[data-lane="2"] .tz-dock { border-top: 3px solid var(--lane-zurna); }
+.tz[data-lane="2"] .tz-icon-box { color: var(--iznik-cobalt-hi); }
+.tz[data-lane="3"] .tz-dock { border-top: 3px solid var(--lane-zil); }
+.tz[data-lane="3"] .tz-icon-box { color: var(--iznik-green-hi); }
+
+/* Lane active tap aura */
+.tz[data-lane="0"]:active, .tz[data-lane="0"].active {
+  background: radial-gradient(circle at 50% 100%, rgba(217, 108, 44, 0.45) 0%, transparent 70%);
+}
+.tz[data-lane="1"]:active, .tz[data-lane="1"].active {
+  background: radial-gradient(circle at 50% 100%, rgba(140, 29, 47, 0.45) 0%, transparent 70%);
+}
+.tz[data-lane="2"]:active, .tz[data-lane="2"].active {
+  background: radial-gradient(circle at 50% 100%, rgba(62, 126, 166, 0.45) 0%, transparent 70%);
+}
+.tz[data-lane="3"]:active, .tz[data-lane="3"].active {
+  background: radial-gradient(circle at 50% 100%, rgba(46, 107, 79, 0.45) 0%, transparent 70%);
+}
+#touch .tz:active .tz-dock, #touch .tz.active .tz-dock {
+  transform: translateY(3px) scale(0.96);
+  border-color: var(--gold-hi);
+  box-shadow: 0 0 20px rgba(232, 178, 58, 0.6);
+}
+
+/* Judgement Feedback */
+#judge {
+  position: fixed;
+  left: 50%;
+  top: 40%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(34px, 6.5vw, 56px);
+  pointer-events: none;
+  z-index: 12;
+  opacity: 0;
+  white-space: nowrap;
+  letter-spacing: 0.06em;
+}
+#judge.show { animation: judge-pop 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+#judge.perfect {
+  color: var(--gold-hi);
+  text-shadow: 0 0 24px rgba(232, 178, 58, 0.9), 0 3px 6px rgba(0, 0, 0, 0.9);
+}
+#judge.good {
+  color: #8FD5FF;
+  text-shadow: 0 0 24px rgba(62, 126, 166, 0.8), 0 3px 6px rgba(0, 0, 0, 0.9);
+}
+#judge.miss {
+  color: #FF5E74;
+  text-shadow: 0 0 24px rgba(255, 94, 116, 0.8), 0 3px 6px rgba(0, 0, 0, 0.9);
+}
+#judge.brk {
+  color: #FFA534;
+  text-shadow: 0 0 24px rgba(217, 108, 44, 0.8), 0 3px 6px rgba(0, 0, 0, 0.9);
+}
+@keyframes judge-pop {
+  0% { opacity: 1; transform: translate(-50%, -50%) scale(1.3); }
+  60% { opacity: 1; transform: translate(-50%, -58%) scale(1.05); }
+  100% { opacity: 0; transform: translate(-50%, -68%) scale(0.95); }
+}
+
+/* Toast Notifications */
+#toasts {
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+  width: min(92vw, 400px);
+}
+#toasts div {
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: rgba(35, 20, 56, 0.95);
+  border: 1.5px solid var(--gold);
+  color: var(--parchment);
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+  animation: toast-in 0.2s ease-out;
+}
+#toasts .bad { border-color: #FF5E74; color: #FFAAB5; }
+@keyframes toast-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Debug Console */
+#dbg {
+  position: fixed;
+  right: 8px;
+  bottom: 8px;
+  z-index: 40;
+  margin: 0;
+  max-width: 60vw;
+  max-height: 45vh;
+  overflow: auto;
+  background: rgba(18, 11, 30, 0.9);
+  border: 1px solid var(--line-gold);
+  color: #A6E3E9;
+  font: 11px/1.35 Consolas, monospace;
+  padding: 8px 12px;
+  border-radius: 8px;
+  white-space: pre-wrap;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.6);
+}
+
+/* State visibility triggers */
+body.playing #touch { display: flex; }
+body:not(.playing) #touch { display: none; }
+body:not(.playing) #hud, body:not(.playing) #spirit { display: none; }
+body:not(.playing) #judge { display: none; }
+body.playing #hud, body.playing #spirit { display: flex; }
+#spirit { display: none; }
+
+/* Responsive adjustments */
+@media (max-width: 720px) {
+  #hud {
+    padding: 6px 10px;
+    gap: 8px;
+  }
+  .brand .sub-nm { display: none; }
+  .brand .nm { font-size: 16px; }
+  .song-meta { padding: 2px 6px; }
+  #h-song { font-size: 14px; }
+  .stats { gap: 10px; }
+  .stat span { font-size: 9px; }
+  .stat b { font-size: 16px; }
+  .score-stat b { font-size: 20px; }
+  .tools { gap: 4px; }
+  .ibtn { min-width: 40px; min-height: 40px; padding: 6px; }
+  
+  #spirit { left: 8px; width: 20px; }
+  #spirit .bar { width: 12px; }
+  
+  .tz-dock { padding: 6px 8px; min-width: 48px; }
+  .tz-name { display: none; }
+  #touch .tz .key-label { width: 28px; height: 28px; line-height: 28px; font-size: 15px; }
+  
+  .howto-bento { gap: 6px; }
+  .howto-card { font-size: 12.5px; padding: 8px 10px; }
+  
+  .songs { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
 </style>
 <script data-goatcounter="https://furkiozknn.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </head>
 <body>
 <canvas id="gl" aria-hidden="true"></canvas>
 
+<!-- 4 Lanes with authentic instrument docks -->
 <div id="touch" aria-label="lanes">
-  <div class="tz" role="button" aria-label="Lane 1 (D)" data-lane="0">D</div>
-  <div class="tz" role="button" aria-label="Lane 2 (F)" data-lane="1">F</div>
-  <div class="tz" role="button" aria-label="Lane 3 (J)" data-lane="2">J</div>
-  <div class="tz" role="button" aria-label="Lane 4 (K)" data-lane="3">K</div>
+  <div class="tz" role="button" aria-label="Lane 1 (D)" data-lane="0">
+    <div class="tz-dock">
+      <div class="tz-icon-box">
+        <svg class="tz-icon" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="7" rx="8" ry="3.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4 7v9c0 2 3.6 3.5 8 3.5s8-1.5 8-3.5V7" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M6 7l6 9M18 7l-6 9" stroke="currentColor" stroke-width="1.2"/></svg>
+        <span class="tz-name">DAVUL</span>
+      </div>
+      <span class="key-label">D</span>
+    </div>
+  </div>
+  <div class="tz" role="button" aria-label="Lane 2 (F)" data-lane="1">
+    <div class="tz-dock">
+      <div class="tz-icon-box">
+        <svg class="tz-icon" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="8" rx="8.5" ry="3.8" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 8c0 5.5 3.8 11 8.5 11s8.5-5.5 8.5-11" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="8" r="1.8" fill="currentColor"/></svg>
+        <span class="tz-name">KÖS</span>
+      </div>
+      <span class="key-label">F</span>
+    </div>
+  </div>
+  <div class="tz" role="button" aria-label="Lane 3 (J)" data-lane="2">
+    <div class="tz-dock">
+      <div class="tz-icon-box">
+        <svg class="tz-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3l13 13M9 2l13 13" stroke="currentColor" stroke-width="1.5"/><path d="M4 3l4 4-2 2-4-4zM16 15l5 5-2 2-5-5z" fill="currentColor"/><circle cx="11" cy="11" r="1" fill="currentColor"/><circle cx="14" cy="14" r="1" fill="currentColor"/></svg>
+        <span class="tz-name">ZURNA</span>
+      </div>
+      <span class="key-label">J</span>
+    </div>
+  </div>
+  <div class="tz" role="button" aria-label="Lane 4 (K)" data-lane="3">
+    <div class="tz-dock">
+      <div class="tz-icon-box">
+        <svg class="tz-icon" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="12" rx="8.5" ry="5.5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="2.8" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 9v-4M10 5h4" stroke="currentColor" stroke-width="1.5"/></svg>
+        <span class="tz-name">ZİL</span>
+      </div>
+      <span class="key-label">K</span>
+    </div>
+  </div>
 </div>
 
-<header id="hud" class="glass" aria-label="HUD">
+<!-- Reborn HUD: Rebalanced 3-part layout -->
+<header id="hud" aria-label="HUD">
   <div class="brand">
-    <svg class="brand-svg" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="56" fill="#A4161A" stroke="#D4AF37" stroke-width="5"/><path d="M72 20a42 42 0 1 0 0 80a34 34 0 1 1 0-80z" fill="#D4AF37"/><path d="M86 46l3.5 8.5 9 1-6.8 5.8 2.2 8.9-8-4.9-8 4.9 2.2-8.9-6.8-5.8 9-1z" fill="#F1E3C6"/></svg>
-    <span class="nm">MEHTER</span>
+    <svg class="brand-svg" viewBox="0 0 120 120" aria-hidden="true">
+      <circle cx="60" cy="60" r="56" fill="#8C1D2F" stroke="#E8B23A" stroke-width="5"/>
+      <circle cx="60" cy="60" r="46" fill="none" stroke="#E8B23A" stroke-width="1.5" stroke-dasharray="3 3"/>
+      <path d="M72 24a38 38 0 1 0 0 72a30 30 0 1 1 0-72z" fill="#E8B23A"/>
+      <polygon points="82,48 85,56 94,57 87,63 89,72 82,67 75,72 77,63 70,57 79,56" fill="#F5E6C4"/>
+    </svg>
+    <div class="brand-text">
+      <span class="nm">MEHTER</span>
+      <span class="sub-nm">NEVBET-İ ZEREF</span>
+    </div>
   </div>
+
+  <div class="song-meta">
+    <b id="h-song">–</b>
+    <span class="diff-badge" id="h-diff">–</span>
+  </div>
+
   <div class="stats">
-    <div class="stat"><span data-i18n="song">Şarkı</span><b id="h-song">–</b></div>
-    <div class="stat"><span data-i18n="diff">Zorluk</span><b id="h-diff">–</b></div>
-    <div class="stat"><span data-i18n="score">Skor</span><b id="h-score">0</b></div>
-    <div class="stat"><span data-i18n="combo">Kombo</span><b id="h-combo">0 ×1</b></div>
-    <div class="stat"><span data-i18n="acc">İsabet</span><b id="h-acc">100%</b></div>
+    <div class="stat score-stat">
+      <span data-i18n="score">Skor</span>
+      <b id="h-score">0</b>
+    </div>
+    <div class="stat combo-stat">
+      <span data-i18n="combo">Kombo</span>
+      <b id="h-combo">0 ×1</b>
+    </div>
+    <div class="stat acc-stat">
+      <span data-i18n="acc">İsabet</span>
+      <b id="h-acc">100%</b>
+    </div>
   </div>
+
   <div class="tools">
-    <button id="b-pause" class="ibtn" data-i18n-aria="pause" aria-label="Duraklat"><svg viewBox="0 0 24 24"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg></button>
-    <button id="b-sound" class="ibtn" data-i18n-aria="sound" aria-label="Ses"><svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 8.5a5 5 0 0 1 0 7l-1.3-1.3a3.2 3.2 0 0 0 0-4.4z"/></svg></button>
+    <button id="b-pause" class="ibtn" data-i18n-aria="pause" aria-label="Duraklat">
+      <svg viewBox="0 0 24 24"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+    </button>
+    <button id="b-sound" class="ibtn" data-i18n-aria="sound" aria-label="Ses">
+      <svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 8.5a5 5 0 0 1 0 7M19 6a9 9 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
     <button id="b-lang-h" class="ibtn txt" aria-label="Dil">TR</button>
   </div>
 </header>
 
-<div id="spirit" aria-label="spirit"><div class="bar"><div class="fill" id="spirit-fill"></div></div><span data-i18n="spirit">Ruh</span></div>
+<!-- Spirit Meter: Çevgen Standard with finials -->
+<div id="spirit" aria-label="spirit">
+  <div class="spirit-crown">
+    <svg viewBox="0 0 24 16" aria-hidden="true"><path d="M12 2l3 6 6 1-4.5 4.5 1 6.5-5.5-3.5L6.5 20l1-6.5L3 9l6-1z" fill="#E8B23A"/></svg>
+  </div>
+  <div class="bar">
+    <div class="fill" id="spirit-fill"></div>
+    <div class="spirit-lines"><i></i><i></i><i></i></div>
+  </div>
+  <div class="spirit-label">
+    <span data-i18n="spirit">Ruh</span>
+    <b class="spirit-pct" id="spirit-val">100%</b>
+  </div>
+</div>
+
 <div id="judge" aria-live="polite"></div>
 <div id="toasts" aria-live="polite"></div>
 <pre id="dbg" class="hidden"></pre>
 
-<!-- TITLE -->
+<!-- TITLE SCREEN -->
 <section id="scr-title" class="screen" role="dialog" aria-modal="true" aria-labelledby="t-name">
   <div class="panel center">
-    <svg class="logo" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="56" fill="#A4161A" stroke="#D4AF37" stroke-width="5"/><circle cx="60" cy="60" r="46" fill="none" stroke="#D4AF37" stroke-width="1.5" stroke-dasharray="2 4"/><path d="M72 20a42 42 0 1 0 0 80a34 34 0 1 1 0-80z" fill="#D4AF37"/><path d="M86 46l3.5 8.5 9 1-6.8 5.8 2.2 8.9-8-4.9-8 4.9 2.2-8.9-6.8-5.8 9-1z" fill="#F1E3C6"/></svg>
-    <svg class="orn" viewBox="0 0 220 26" aria-hidden="true"><path d="M4 13H78M142 13H216" stroke="#D4AF37" stroke-width="1.5"/><path d="M110 3C101 3 97 8 97 13C97 18 101 23 110 23C119 23 123 18 123 13C123 8 119 3 110 3Z" fill="none" stroke="#D4AF37" stroke-width="1.6"/><path d="M97 13C89 7 80 7 75 13C80 19 89 19 97 13ZM123 13C131 7 140 7 145 13C140 19 131 19 123 13Z" fill="#D4AF37"/><circle cx="110" cy="13" r="2.6" fill="#F1E3C6"/></svg>
-    <h1 id="t-name">MEHTER</h1>
-    <p class="muted" data-i18n="subtitle">Davul, kös, zurna ve zil bu caddede sizin ritminizle yürür.</p>
-    <ol class="howto">
-      <li data-i18n="howto1">Notalar vuruş çizgisine doğru gelir. Tam anda D F J K tuşlarına basın ya da şeritlere dokunun.</li>
-      <li data-i18n="howto2">Zurna uzun notalarında tuşu basılı tutun. Kombo çarpanı artar; ruh sıfıra inerse şarkı biter.</li>
-      <li data-i18n="howto3">Gecikmenizi kalibrasyon ekranında ölçün.</li>
-    </ol>
-    <div class="btns">
-      <button id="b-play" class="primary" disabled data-i18n="play">Oyna</button>
-      <button id="b-title-cal" data-i18n="calib">Kalibrasyon</button>
-      <button id="b-title-set" data-i18n="settings">Ayarlar</button>
-      <button id="b-title-lang" data-i18n-aria="language" aria-label="Dil">TR / EN</button>
+    <div class="crest-box">
+      <svg class="logo" viewBox="0 0 140 140" aria-hidden="true">
+        <defs>
+          <radialGradient id="crest-bg" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#3A184D"/>
+            <stop offset="70%" stop-color="#1A0D2A"/>
+            <stop offset="100%" stop-color="#120B1E"/>
+          </radialGradient>
+        </defs>
+        <circle cx="70" cy="70" r="66" fill="#8C1D2F" stroke="#E8B23A" stroke-width="4"/>
+        <circle cx="70" cy="70" r="58" fill="url(#crest-bg)" stroke="#E8B23A" stroke-width="1.5" stroke-dasharray="3 3"/>
+        <path d="M38 38l64 64M102 38L38 102" stroke="#E8B23A" stroke-width="2.5" stroke-linecap="round" opacity="0.5"/>
+        <circle cx="38" cy="38" r="3" fill="#E8B23A" opacity="0.6"/><circle cx="102" cy="38" r="3" fill="#E8B23A" opacity="0.6"/>
+        <path d="M84 28a42 42 0 1 0 0 84a34 34 0 1 1 0-84z" fill="#E8B23A"/>
+        <polygon points="96,54 99,63 108,64 101,70 103,79 96,74 89,79 91,70 84,64 93,63" fill="#F5E6C4"/>
+        <path d="M70 120c-8-6-16-4-20-10m40 10c8-6 16-4 20-10" fill="none" stroke="#E8B23A" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
     </div>
-    <p class="loading" id="loading">Yükleniyor… 0/1</p>
-    <p id="title-best"></p>
+    
+    <div class="title-head">
+      <svg class="orn" viewBox="0 0 280 28" aria-hidden="true">
+        <path d="M10 14h85M185 14h85" stroke="#E8B23A" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="10" cy="14" r="2.5" fill="#E8B23A"/><circle cx="270" cy="14" r="2.5" fill="#E8B23A"/>
+        <path d="M140 3l3 8 8 3-8 3-3 8-3-8-8-3 8-3z" fill="#E8B23A"/>
+        <circle cx="140" cy="14" r="3" fill="#8C1D2F"/>
+        <path d="M110 14c8-8 18-8 24 0M170 14c-8-8-18-8-24 0" fill="none" stroke="#E8B23A" stroke-width="1.4"/>
+      </svg>
+      <h1 id="t-name">MEHTER</h1>
+      <p class="tagline">NEVBET-İ ZEREF · OSMANLI RİTİM YÜRÜYÜŞÜ</p>
+      <p class="muted" data-i18n="subtitle">Davul, kös, zurna ve zil bu caddede sizin ritminizle yürür.</p>
+    </div>
+
+    <!-- How to play Bento Cards -->
+    <div class="howto-bento">
+      <div class="howto-card">
+        <div class="ht-num">I</div>
+        <div class="ht-text" data-i18n="howto1">Notalar vuruş çizgisine doğru gelir. Tam anda D F J K tuşlarına basın ya da şeritlere dokunun.</div>
+      </div>
+      <div class="howto-card">
+        <div class="ht-num">II</div>
+        <div class="ht-text" data-i18n="howto2">Zurna uzun notalarında tuşu basılı tutun. Kombo çarpanı artar; ruh sıfıra inerse şarkı biter.</div>
+      </div>
+      <div class="howto-card">
+        <div class="ht-num">III</div>
+        <div class="ht-text" data-i18n="howto3">Gecikmenizi kalibrasyon ekranında ölçün.</div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="title-actions">
+      <button id="b-play" class="primary play-btn" disabled data-i18n="play">Oyna</button>
+      <div class="sub-actions">
+        <button id="b-title-cal" data-i18n="calib">Kalibrasyon</button>
+        <button id="b-title-set" data-i18n="settings">Ayarlar</button>
+        <button id="b-title-lang" data-i18n-aria="language" aria-label="Dil">TR / EN</button>
+      </div>
+    </div>
+
+    <div class="title-meta">
+      <p class="loading" id="loading">Yükleniyor… 0/1</p>
+      <div id="title-best"></div>
+    </div>
   </div>
   <div class="foot"><a href="https://furkiozknn.github.io/">Claude Game Arena</a> · built by Claude Haiku 5.5</div>
 </section>
 
-<!-- SONG SELECT -->
+<!-- SONG SELECT SCREEN: Imperial Defter -->
 <section id="scr-select" class="screen hidden" role="dialog" aria-modal="true" aria-labelledby="sel-title">
-  <div class="panel wide">
-    <h2 id="sel-title" data-i18n="selectSong">Şarkı seç</h2>
-    <div class="seg" id="diffs" role="radiogroup">
+  <div class="panel wide select-panel">
+    <div class="panel-header">
+      <svg class="panel-orn" viewBox="0 0 200 20" aria-hidden="true"><path d="M10 10h60M130 10h60" stroke="#E8B23A" stroke-width="1.5"/><circle cx="100" cy="10" r="4" fill="#E8B23A"/><circle cx="90" cy="10" r="2.5" fill="#E8B23A"/><circle cx="110" cy="10" r="2.5" fill="#E8B23A"/></svg>
+      <h2 id="sel-title" data-i18n="selectSong">Şarkı seç</h2>
+      <p class="ledger-desc">Tarihi usul ritimleriyle bestelenmiş 6 mehter marşı</p>
+    </div>
+    
+    <div class="seg diff-seg" id="diffs" role="radiogroup">
       <button data-diff="easy" data-i18n="easy">Kolay</button>
       <button data-diff="normal" data-i18n="normal">Normal</button>
       <button data-diff="hard" data-i18n="hard">Zor</button>
     </div>
+
     <div class="songs" id="song-list"></div>
-    <div class="btns">
+
+    <div class="btns panel-footer">
       <button id="b-sel-back" data-i18n="back">Geri</button>
-      <button id="b-sel-start" class="primary" data-i18n="start">Başla</button>
+      <button id="b-sel-start" class="primary start-btn" data-i18n="start">Başla</button>
     </div>
   </div>
 </section>
 
-<!-- SETTINGS -->
+<!-- SETTINGS SCREEN -->
 <section id="scr-settings" class="screen hidden" role="dialog" aria-modal="true" aria-labelledby="set-title">
-  <div class="panel">
-    <h2 id="set-title" data-i18n="settings">Ayarlar</h2>
-    <div class="row"><label for="s-master" data-i18n="master">Ana ses</label><input id="s-master" type="range" min="0" max="1" step="0.01" data-i18n-aria="master" aria-label="Ana ses"></div>
-    <div class="row"><label for="s-music" data-i18n="music">Müzik</label><input id="s-music" type="range" min="0" max="1" step="0.01" data-i18n-aria="music" aria-label="Müzik"></div>
-    <div class="row"><label for="s-sfx" data-i18n="sfx">Efektler</label><input id="s-sfx" type="range" min="0" max="1" step="0.01" data-i18n-aria="sfx" aria-label="Efektler"></div>
-    <div class="row"><span data-i18n="language">Dil</span><div class="seg" style="flex:1"><button data-lang="tr">Türkçe</button><button data-lang="en">English</button></div></div>
-    <div class="row"><span data-i18n="quality">Kalite</span><div class="seg" style="flex:1"><button data-q="low" data-i18n="low">Düşük</button><button data-q="high" data-i18n="high">Yüksek</button></div></div>
-    <div class="row"><button id="b-fs" data-i18n="fullscreen">Tam ekran</button></div>
-    <div class="row keys"><span data-i18n="keys">Tuşlar</span><button data-lane="0">D</button><button data-lane="1">F</button><button data-lane="2">J</button><button data-lane="3">K</button><span id="rebind-msg" class="muted"></span></div>
-    <div class="btns"><button id="b-set-back" data-i18n="back">Geri</button></div>
+  <div class="panel settings-panel">
+    <div class="panel-header">
+      <h2 id="set-title" data-i18n="settings">Ayarlar</h2>
+    </div>
+
+    <div class="setting-group">
+      <div class="row">
+        <label for="s-master" data-i18n="master">Ana ses</label>
+        <div class="range-wrap"><input id="s-master" type="range" min="0" max="1" step="0.01" data-i18n-aria="master" aria-label="Ana ses"></div>
+      </div>
+      <div class="row">
+        <label for="s-music" data-i18n="music">Müzik</label>
+        <div class="range-wrap"><input id="s-music" type="range" min="0" max="1" step="0.01" data-i18n-aria="music" aria-label="Müzik"></div>
+      </div>
+      <div class="row">
+        <label for="s-sfx" data-i18n="sfx">Efektler</label>
+        <div class="range-wrap"><input id="s-sfx" type="range" min="0" max="1" step="0.01" data-i18n-aria="sfx" aria-label="Efektler"></div>
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <div class="row">
+        <span data-i18n="language">Dil</span>
+        <div class="seg" style="flex:1"><button data-lang="tr">Türkçe</button><button data-lang="en">English</button></div>
+      </div>
+      <div class="row">
+        <span data-i18n="quality">Kalite</span>
+        <div class="seg" style="flex:1"><button data-q="low" data-i18n="low">Düşük</button><button data-q="high" data-i18n="high">Yüksek</button></div>
+      </div>
+      <div class="row">
+        <button id="b-fs" class="full-btn" data-i18n="fullscreen">Tam ekran</button>
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <div class="keys-header">
+        <span data-i18n="keys">Tuşlar</span>
+        <span id="rebind-msg" class="muted"></span>
+      </div>
+      <div class="row keys">
+        <button data-lane="0"><span class="k-inst">DAVUL</span><span class="key-label">D</span></button>
+        <button data-lane="1"><span class="k-inst">KÖS</span><span class="key-label">F</span></button>
+        <button data-lane="2"><span class="k-inst">ZURNA</span><span class="key-label">J</span></button>
+        <button data-lane="3"><span class="k-inst">ZİL</span><span class="key-label">K</span></button>
+      </div>
+    </div>
+
+    <div class="btns">
+      <button id="b-set-back" class="primary" data-i18n="back">Geri</button>
+    </div>
   </div>
 </section>
 
-<!-- CALIBRATION -->
+<!-- CALIBRATION SCREEN -->
 <section id="scr-calib" class="screen hidden" role="dialog" aria-modal="true" aria-labelledby="cal-title">
-  <div class="panel center">
+  <div class="panel center calib-panel">
     <h2 id="cal-title" data-i18n="calibTitle">Gecikme kalibrasyonu</h2>
     <p class="muted" data-i18n="calibHelp">Metronomun her vuruşuna bir tuş basın (Boşluk, D F J K veya düğme).</p>
-    <div id="dot" aria-hidden="true"></div>
+    
+    <div class="calib-drum-stage">
+      <div id="dot" class="calib-drum" aria-hidden="true">
+        <div class="drum-center"></div>
+      </div>
+    </div>
+
     <p id="cal-msg" class="muted"></p>
-    <p id="cal-res" style="font-size:24px;font-weight:800;margin:0"></p>
-    <div class="btns">
+    <p id="cal-res" class="calib-result"></p>
+
+    <div class="btns calib-btns">
       <button id="b-cal-start" class="primary" data-i18n="start">Başla</button>
-      <button id="b-cal-tap" data-i18n="tapBtn">Vur</button>
+      <button id="b-cal-tap" class="tap-btn" data-i18n="tapBtn">Vur</button>
       <button id="b-cal-reset" data-i18n="reset">Sıfırla</button>
       <button id="b-cal-back" data-i18n="back">Geri</button>
     </div>
   </div>
 </section>
 
-<!-- PAUSE -->
+<!-- PAUSE SCREEN -->
 <section id="scr-pause" class="screen hidden" role="dialog" aria-modal="true" aria-labelledby="pause-title">
-  <div class="panel center">
-    <svg class="orn" viewBox="0 0 220 26" aria-hidden="true"><path d="M4 13H78M142 13H216" stroke="#D4AF37" stroke-width="1.5"/><path d="M110 3C101 3 97 8 97 13C97 18 101 23 110 23C119 23 123 18 123 13C123 8 119 3 110 3Z" fill="none" stroke="#D4AF37" stroke-width="1.6"/><circle cx="110" cy="13" r="2.6" fill="#F1E3C6"/></svg>
+  <div class="panel center pause-panel">
+    <div class="pause-crest">
+      <svg viewBox="0 0 60 60" aria-hidden="true">
+        <circle cx="30" cy="30" r="27" fill="#8C1D2F" stroke="#E8B23A" stroke-width="2"/>
+        <path d="M18 18l24 24M42 18L18 42" stroke="#E8B23A" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="18" cy="18" r="2.5" fill="#E8B23A"/><circle cx="42" cy="18" r="2.5" fill="#E8B23A"/>
+      </svg>
+    </div>
     <h2 id="pause-title" data-i18n="pause">Duraklat</h2>
-    <div class="btns" style="flex-direction:column">
+    <p class="muted" data-i18n="pauseHint">Devam etmek için Devam’a basın</p>
+    <div class="btns pause-btn-col">
       <button id="b-resume" class="primary" data-i18n="resume">Devam</button>
       <button id="b-restart" data-i18n="restart">Yeniden başlat</button>
       <button id="b-pause-set" data-i18n="settings">Ayarlar</button>
@@ -232,17 +1638,37 @@ body.playing #hud,body.playing #spirit{display:flex}
   </div>
 </section>
 
-<!-- RESULTS -->
+<!-- RESULTS SCREEN: Royal Ferman -->
 <section id="scr-results" class="screen hidden" role="dialog" aria-modal="true" aria-labelledby="r-title">
-  <div class="panel center">
-    <div class="grade" id="r-grade">–</div>
+  <div class="panel center results-panel">
+    <div class="results-crest">
+      <svg class="results-rays" viewBox="0 0 200 200" aria-hidden="true">
+        <g stroke="#E8B23A" stroke-width="1.5" opacity="0.35">
+          <line x1="100" y1="10" x2="100" y2="35"/><line x1="100" y1="165" x2="100" y2="190"/>
+          <line x1="10" y1="100" x2="35" y2="100"/><line x1="165" y1="100" x2="190" y2="100"/>
+          <line x1="36" y1="36" x2="54" y2="54"/><line x1="146" y1="146" x2="164" y2="164"/>
+          <line x1="36" y1="164" x2="54" y2="146"/><line x1="146" y1="54" x2="164" y2="36"/>
+        </g>
+      </svg>
+      <div class="grade" id="r-grade">–</div>
+    </div>
     <div id="res-main"></div>
-    <h2 id="r-title" style="font-size:18px"></h2>
-    <div class="stats-grid" id="r-stats" style="width:100%"></div>
-    <p id="r-record" class="muted" style="color:var(--gold-hi);margin:0"></p>
-    <div class="hist-l" data-i18n="histogram">Vuruş zamanlaması (ms)</div>
-    <div class="hist" id="r-hist"></div>
-    <div class="hist-l"><span data-i18n="early">erken</span><span>0</span><span data-i18n="late">geç</span></div>
+    <h2 id="r-title" class="results-subtitle"></h2>
+    
+    <div id="r-record" class="seal-record"></div>
+
+    <div class="stats-grid" id="r-stats"></div>
+
+    <div class="hist-box">
+      <div class="hist-header" data-i18n="histogram">Vuruş zamanlaması (ms)</div>
+      <div class="hist" id="r-hist"></div>
+      <div class="hist-l">
+        <span data-i18n="early">erken</span>
+        <span>0 ms</span>
+        <span data-i18n="late">geç</span>
+      </div>
+    </div>
+
     <div class="btns">
       <button id="b-again" class="primary" data-i18n="playAgain">Tekrar oyna</button>
       <button id="b-main2" data-i18n="mainMenu">Ana menü</button>
@@ -345,7 +1771,7 @@ const setText = (el, v) => { if (el && el.textContent !== v) el.textContent = v;
 // ----- song model (generated in code) -------------------------------------
 const LEAD = 2.0;                       // seconds before the first bar
 const LANE_X = [-1.5, -0.5, 0.5, 1.5];  // lane centres on the highway
-const LANE_HEX = [0xc0392b, 0xD4AF37, 0x3fae7e, 0xf1e3c6];
+const LANE_HEX = [0xD96C2C, 0x8C1D2F, 0x3E7EA6, 0x2E6B4F];  // Nevbet-i Zeref: davul(ember), kos(crimson), zurna(cobalt), zil(iznik green)
 const FAM = ['davul', 'kos', 'zurna', 'cevgen'];
 const WIN_PERFECT = 0.045, WIN_GOOD = 0.11;
 const HIT_Z = 2.2, SPAWN_Z = -12.5, SPEED = 8.0;
@@ -583,12 +2009,22 @@ const fmt = (n) => Math.round(n).toLocaleString(LANG === 'tr' ? 'tr-TR' : 'en-US
 function refreshHud() {
   if (!G.song) return;
   setText($('#h-song'), G.song.name[LANG]);
-  setText($('#h-diff'), T(G.diff));
+  const diffEl = $('#h-diff');
+  if (diffEl) {
+    setText(diffEl, T(G.diff));
+    diffEl.dataset.diff = G.diff;
+  }
   setText($('#h-score'), fmt(G.score));
   setText($('#h-combo'), G.combo + ' ×' + mult(G.combo));
   const acc = G.judged ? G.weight / G.judged : 1;
   setText($('#h-acc'), Math.round(acc * 100) + '%');
-  $('#spirit-fill').style.transform = `scaleY(${Math.max(0, Math.min(1, G.spirit / 100))})`;
+  const pct = Math.max(0, Math.min(1, G.spirit / 100));
+  const fill = $('#spirit-fill');
+  if (fill) fill.style.transform = `scaleY(${pct})`;
+  const val = $('#spirit-val');
+  if (val) setText(val, Math.round(G.spirit) + '%');
+  const sp = $('#spirit');
+  if (sp) sp.classList.toggle('spirit-low', G.spirit < 30);
 }
 
 // ----- song flow -----------------------------------------------------------
@@ -747,16 +2183,30 @@ function showResults() {
   if (!r) return;
   show('results');
   if (!r.defeat && !playSample('fanfare', 0.9)) sndCheer();
-  setText($('#r-grade'), r.grade);
+  const gradeEl = $('#r-grade');
+  if (gradeEl) {
+    setText(gradeEl, r.grade);
+    gradeEl.className = 'grade grade-' + r.grade;
+  }
   setText($('#res-main'), r.defeat ? T('defeat') : T('cleared'));
   setText($('#r-title'), r.name + ' · ' + T(G.diff));
-  setText($('#r-record'), r.record ? T('newRecord') : '');
+  const recEl = $('#r-record');
+  if (recEl) {
+    if (r.record) {
+      recEl.innerHTML = `<span class="wax-seal-badge"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2l3 6 6 1-4.5 4.5 1 6.5-5.5-3.5L6.5 20l1-6.5L3 9l6-1z"/></svg> ${T('newRecord')}</span>`;
+    } else {
+      recEl.textContent = '';
+    }
+  }
   const rows = [[T('score'), fmt(r.score)], [T('maxCombo'), r.maxCombo], [T('perfectN'), r.cnt.perfect], [T('goodN'), r.cnt.good], [T('missN'), r.cnt.miss], [T('brkN'), r.cnt.brk], [T('accN'), Math.round(r.acc * 100) + '%'], [T('grade'), r.grade]];
   $('#r-stats').innerHTML = rows.map(([a, b]) => `<div><span>${a}</span><b>${b}</b></div>`).join('');
   const bins = new Array(11).fill(0);
   for (const ms of r.hist) bins[Math.max(0, Math.min(10, Math.floor((ms + 110) / 20)))]++;
   const mx = Math.max(1, ...bins);
-  $('#r-hist').innerHTML = bins.map((b) => `<i style="height:${Math.round((b / mx) * 100)}%"></i>`).join('');
+  $('#r-hist').innerHTML = bins.map((b, idx) => {
+    const isCenter = idx === 5;
+    return `<i class="${isCenter ? 'hist-center' : ''}" style="height:${Math.max(3, Math.round((b / mx) * 100))}%" title="${b}"></i>`;
+  }).join('');
 }
 function goTitle() {
   stopAll();
@@ -783,10 +2233,14 @@ function laneDown(l) {
   if (G.screen !== 'play' || G.paused) return;
   press(l, nowSong() - S.calib);
   G.flash[l] = Math.max(G.flash[l], 0.25);
+  const tz = $(`#touch .tz[data-lane="${l}"]`);
+  if (tz) { tz.classList.add('active'); setTimeout(() => tz.classList.remove('active'), 120); }
 }
 function laneUp(l) {
   if (G.screen !== 'play' || G.paused) return;
   release(l, nowSong() - S.calib);
+  const tz = $(`#touch .tz[data-lane="${l}"]`);
+  if (tz) tz.classList.remove('active');
 }
 
 // ----- preview and calibration --------------------------------------------
@@ -1478,18 +2932,53 @@ function setLang(l) {
 function bestOf(idx, diff) { const b = loadBest(); return b[`${idx}-${diff}`]; }
 function refreshBest() {
   const b = bestOf(G.sel, G.diff);
-  setText($('#title-best'), b ? `${T('best')}: ${fmt(b.score)} · ${b.grade}` : '');
+  const el = $('#title-best');
+  if (el) {
+    if (b) {
+      el.innerHTML = `<span class="best-ribbon"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 6 6 1-4.5 4.5 1 6.5-5.5-3.5L6.5 20l1-6.5L3 9l6-1z"/></svg> ${T('best')}: <b>${fmt(b.score)}</b> · <span class="ribbon-grade">${b.grade}</span></span>`;
+    } else {
+      el.textContent = '';
+    }
+  }
 }
+const USUL_DOTS = {
+  duyek: '● ○ ● ● ○',
+  sofyan: '● ○ ● ○',
+  semai: '● ○ ○ ● ○',
+  nevbet: '● ● ● ●',
+  devr: '● ○ ● ○ ●',
+  zafer: '● ● ○ ● ●',
+};
 function buildSongCards() {
   const list = $('#song-list');
   list.innerHTML = '';
   SONGS.forEach((s, i) => {
     const card = document.createElement('div');
-    card.className = 'card glass' + (i === G.sel ? ' sel' : '');
+    card.className = 'card' + (i === G.sel ? ' sel' : '');
     card.setAttribute('role', 'button');
     card.tabIndex = 0;
     const b = bestOf(i, G.diff);
-    card.innerHTML = `<b>${s.name[LANG]}</b><small>${s.desc[LANG]}</small><small>${T('bpm')}: ${s.bpm}</small><div class="tail"><span>${T('best')}: ${b ? fmt(b.score) + ' · ' + b.grade : T('none')}</span><button class="tiny" data-prev="${i}" aria-label="${T('preview')}"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4 2l10 6-10 6z"/></svg></button></div>`;
+    const dots = USUL_DOTS[s.usul] || '● ● ●';
+    card.innerHTML = `
+      <div class="card-spine"></div>
+      <div class="card-main">
+        <div class="card-top">
+          <b class="card-title">${s.name[LANG]}</b>
+          <span class="card-bpm">${s.bpm} ${T('bpm')}</span>
+        </div>
+        <div class="card-desc">${s.desc[LANG]}</div>
+        <div class="card-usul"><span class="usul-dots">${dots}</span><span class="usul-name">${s.usul}</span></div>
+        <div class="tail">
+          <div class="best-pill">
+            <span class="best-lbl">${T('best')}:</span>
+            <b class="best-val">${b ? fmt(b.score) : T('none')}</b>
+            ${b ? `<span class="grade-tag grade-${b.grade}">${b.grade}</span>` : ''}
+          </div>
+          <button class="tiny preview-btn" data-prev="${i}" aria-label="${T('preview')}">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4 2l10 6-10 6z"/></svg>
+          </button>
+        </div>
+      </div>`;
     const select = () => { G.sel = i; buildSongCards(); visualSelectBpm(); refreshBest(); };
     card.addEventListener('click', (e) => {
       const pv = e.target.closest('[data-prev]');
@@ -1514,12 +3003,15 @@ function refreshSettings() {
 function refreshKeys() {
   for (const b of $$('.keys button[data-lane]')) {
     const l = Number(b.dataset.lane);
-    b.textContent = G.rebind === l ? '…' : S.keys[l].toUpperCase();
+    const keyName = G.rebind === l ? '…' : S.keys[l].toUpperCase();
+    const lbl = b.querySelector('.key-label');
+    if (lbl) setText(lbl, keyName); else setText(b, keyName);
   }
   for (const b of $$('#touch .tz')) {
     const l = Number(b.dataset.lane);
     const keyName = S.keys[l].toUpperCase();
-    b.textContent = keyName;
+    const lbl = b.querySelector('.key-label');
+    if (lbl) setText(lbl, keyName); else setText(b, keyName);
     b.setAttribute('aria-label', `${T('laneTouch')} ${l + 1} (${keyName})`);
   }
 }
