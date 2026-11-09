@@ -1829,6 +1829,7 @@ body.playing #hud, body.playing #spirit, body.playing #layers { display: flex; }
     <button id="b-sound" class="ibtn" data-i18n-aria="sound" aria-label="Ses">
       <svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 8.5a5 5 0 0 1 0 7M19 6a9 9 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
     </button>
+    <button id="b-practice-h" class="ibtn txt" aria-label="Pratik" title="Pratik Modu">PRC</button>
     <button id="b-lang-h" class="ibtn txt" aria-label="Dil">TR</button>
   </div>
 </header>
@@ -1991,6 +1992,10 @@ body.playing #hud, body.playing #spirit, body.playing #layers { display: flex; }
         <div class="seg" style="flex:1"><button data-q="low" data-i18n="low">Düşük</button><button data-q="high" data-i18n="high">Yüksek</button></div>
       </div>
       <div class="row">
+        <span data-i18n="practice">Pratik Modu</span>
+        <div class="seg" style="flex:1"><button data-prac="0">Kapalı</button><button data-prac="1">Açık</button></div>
+      </div>
+      <div class="row">
         <button id="b-fs" class="full-btn" data-i18n="fullscreen">Tam ekran</button>
       </div>
     </div>
@@ -2110,7 +2115,7 @@ const Q = new URLSearchParams(location.search);
 const FLAG = { auto: Q.has('auto'), debug: Q.has('debug'), low: Q.has('low'), noassets: Q.has('noassets') };
 const PHONE = matchMedia('(pointer: coarse)').matches;
 const DEF_LANG = /^tr/i.test(navigator.language || '') ? 'tr' : 'en';
-const DEF = { master: 0.8, music: 0.6, sfx: 0.8, musicOn: true, sfxOn: true, lang: DEF_LANG, quality: PHONE ? 'low' : 'high', keys: ['d', 'f', 'j', 'k'], calib: 0 };
+const DEF = { master: 0.8, music: 0.6, sfx: 0.8, musicOn: true, sfxOn: true, lang: DEF_LANG, quality: PHONE ? 'low' : 'high', keys: ['d', 'f', 'j', 'k'], calib: 0, practice: false };
 
 function store(key, fallback) {
   try { const raw = localStorage.getItem(key); return raw ? { ...fallback, ...JSON.parse(raw) } : { ...fallback }; }
@@ -2156,10 +2161,14 @@ const I18N = {
     layers: 'Katman', lyDavul: 'Davul', lyZurna: 'Zurna', lyBoru: 'Boru', lyZil: 'Zil',
     layerUp: 'katılıyor!', layerDown: 'saftan düştü', maxLayer: 'En çok katman',
     howto4: 'Dört Katman: isabetli seri tuttukça zurna, boru ve zil takımları yürüyüşe katılır; her katman puanı artırır. Çok kaçırırsanız en üst takım saftan düşer.',
+    practice: 'Pratik Modu',
+    practiceBadge: 'Pratik',
     names: ['Düyek Yürüyüşü', 'Sofyan Geçidi', 'Semai Alayı', 'Nevbet Meydanı', 'Devr-i Kebir', 'Zafer Marşı'],
     descs: ['Ağır adım, düyek ölçüsü', 'Sofyan adımı, hızlanan davul', 'Semai ölçüsü, zurna ağırlıklı', 'Nevbet töreni, yoğun kös', 'Devr-i kebir, uzun zurna notaları', 'Zafer yürüyüşü, en hızlı tempo'],
   },
   en: {
+    practice: 'Practice Mode',
+    practiceBadge: 'Practice',
     subtitle: 'Davul, kös, zurna and zil march down this avenue to your rhythm.',
     howto1: 'Notes roll toward the hit line. Press D F J K on the beat, or tap the lanes.',
     howto2: 'Hold long zurna notes. Combos raise the multiplier; if band spirit hits zero the song ends.',
@@ -2535,6 +2544,7 @@ function startSong(idx, diff, opts = {}) {
   G.vis = 0; G.lp = [0, 0, 0, 0]; G.holds = [null, null, null, null]; G.held = [false, false, false, false];
   G.flash = [0, 0, 0, 0];
   G.score = 0; G.combo = 0; G.maxCombo = 0; G.spirit = 100; G.cnt = { perfect: 0, good: 0, miss: 0, brk: 0 };
+  G.isPracticeRun = !!S.practice;
   G.weight = 0; G.judged = 0; G.hist = []; G.mIdx = 0; G.bIdx = 0;
   G.layers = 1; G.lstreak = 0; G.slip = 0; G.maxLayers = 1; G.layerLog = [];
   setLayerGains(1, true);
@@ -2700,11 +2710,14 @@ function showResults() {
   setText($('#r-title'), r.name + ' · ' + T(G.diff));
   const recEl = $('#r-record');
   if (recEl) {
-    if (r.record) {
-      recEl.innerHTML = `<span class="wax-seal-badge"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2l3 6 6 1-4.5 4.5 1 6.5-5.5-3.5L6.5 20l1-6.5L3 9l6-1z"/></svg> ${T('newRecord')}</span>`;
-    } else {
-      recEl.textContent = '';
+    let badgeHtml = '';
+    if (G.isPracticeRun) {
+      badgeHtml += `<span class="wax-seal-badge" style="background:radial-gradient(circle, #3E7EA6, #2E6B4F);margin-right:6px;">${T('practiceBadge')}</span>`;
     }
+    if (r.record) {
+      badgeHtml += `<span class="wax-seal-badge"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2l3 6 6 1-4.5 4.5 1 6.5-5.5-3.5L6.5 20l1-6.5L3 9l6-1z"/></svg> ${T('newRecord')}</span>`;
+    }
+    recEl.innerHTML = badgeHtml;
   }
   const rows = [[T('score'), fmt(r.score)], [T('maxCombo'), r.maxCombo], [T('maxLayer'), r.maxLayers + '/4'], [T('perfectN'), r.cnt.perfect], [T('goodN'), r.cnt.good], [T('missN'), r.cnt.miss], [T('brkN'), r.cnt.brk], [T('accN'), Math.round(r.acc * 100) + '%'], [T('grade'), r.grade]];
   $('#r-stats').innerHTML = rows.map(([a, b]) => `<div><span>${a}</span><b>${b}</b></div>`).join('');
@@ -3541,6 +3554,12 @@ function refreshSettings() {
   $('#s-sfx').value = S.sfx;
   for (const b of $$('[data-lang]')) b.classList.toggle('on', b.dataset.lang === LANG);
   for (const b of $$('[data-q]')) b.classList.toggle('on', b.dataset.q === S.quality);
+  for (const b of $$('[data-prac]')) b.classList.toggle('on', (b.dataset.prac === '1') === !!S.practice);
+  refreshPracticeHud();
+}
+function refreshPracticeHud() {
+  const btn = $('#b-practice-h');
+  if (btn) btn.classList.toggle('on', !!S.practice);
 }
 function refreshKeys() {
   for (const b of $$('.keys button[data-lane]')) {
@@ -3590,6 +3609,8 @@ function wireUI() {
   $('#s-sfx').addEventListener('input', (e) => { S.sfx = Number(e.target.value); applyVolumes(); saveSettings(); });
   for (const b of $$('[data-lang]')) b.addEventListener('click', () => setLang(b.dataset.lang));
   for (const b of $$('[data-q]')) b.addEventListener('click', () => { S.quality = b.dataset.q; saveSettings(); refreshSettings(); toast(T('rebindDone')); });
+  for (const b of $$('[data-prac]')) b.addEventListener('click', () => { S.practice = b.dataset.prac === '1'; saveSettings(); refreshSettings(); toast(T('practice') + ': ' + (S.practice ? (LANG === 'tr' ? 'Açık' : 'On') : (LANG === 'tr' ? 'Kapalı' : 'Off'))); });
+  $('#b-practice-h').addEventListener('click', () => { S.practice = !S.practice; saveSettings(); refreshSettings(); toast(T('practice') + ': ' + (S.practice ? (LANG === 'tr' ? 'Açık' : 'On') : (LANG === 'tr' ? 'Kapalı' : 'Off'))); });
   $('#b-fs').addEventListener('click', toggleFullscreen);
   for (const b of $$('.keys button[data-lane]')) b.addEventListener('click', () => { G.rebind = Number(b.dataset.lane); setText($('#rebind-msg'), T('pressKey')); refreshKeys(); });
   $('#b-cal-start').addEventListener('click', calibStart);
