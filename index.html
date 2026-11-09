@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Mehter · Claude Game Arena</title>
+<meta name="arena-game" content="mehter">
 <meta name="description" content="A 3D rhythm game with an Ottoman mehter band marching down a square at dusk, redesigned in crimson, gold and deep green: hit davul, kös, zurna and zil notes on the beat across six marches. Plays in the browser.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Mehter · Ottoman March Rhythm Game">
@@ -1920,6 +1921,7 @@ body.playing #hud, body.playing #spirit, body.playing #layers { display: flex; }
     <!-- Actions -->
     <div class="title-actions">
       <button id="b-play" class="primary play-btn" disabled data-i18n="play">Oyna</button>
+      <button id="b-daily" disabled data-i18n="daily">Günün Meydan Okuması</button>
       <div class="sub-actions">
         <button id="b-title-cal" data-i18n="calib">Kalibrasyon</button>
         <button id="b-title-set" data-i18n="settings">Ayarlar</button>
@@ -1930,6 +1932,7 @@ body.playing #hud, body.playing #spirit, body.playing #layers { display: flex; }
     <div class="title-meta">
       <p class="loading" id="loading">Yükleniyor… 0/1</p>
       <div id="title-best"></div>
+      <p id="title-daily" class="muted"></p>
     </div>
   </div>
   <div class="foot"><a href="https://github.com/Furkiozknn">Claude Game Arena</a> · built by Claude Haiku 5.5</div>
@@ -1992,6 +1995,9 @@ body.playing #hud, body.playing #spirit, body.playing #layers { display: flex; }
       </div>
       <div class="row">
         <button id="b-fs" class="full-btn" data-i18n="fullscreen">Tam ekran</button>
+      </div>
+      <div class="row">
+        <button id="b-a11y" class="full-btn" data-i18n="a11y">Erişilebilirlik</button>
       </div>
     </div>
 
@@ -2077,6 +2083,7 @@ body.playing #hud, body.playing #spirit, body.playing #layers { display: flex; }
     <h2 id="r-title" class="results-subtitle"></h2>
     
     <div id="r-record" class="seal-record"></div>
+    <p id="r-daily" class="muted"></p>
 
     <div class="stats-grid" id="r-stats"></div>
 
@@ -2093,6 +2100,10 @@ body.playing #hud, body.playing #spirit, body.playing #layers { display: flex; }
     <div class="btns">
       <button id="b-again" class="primary" data-i18n="playAgain">Tekrar oyna</button>
       <button id="b-main2" data-i18n="mainMenu">Ana menü</button>
+    </div>
+    <div class="btns">
+      <button id="b-share" data-i18n="share">Paylaş</button>
+      <button id="b-other" data-i18n="anotherGame">Başka oyun</button>
     </div>
   </div>
 </section>
@@ -2156,6 +2167,9 @@ const I18N = {
     layers: 'Katman', lyDavul: 'Davul', lyZurna: 'Zurna', lyBoru: 'Boru', lyZil: 'Zil',
     layerUp: 'katılıyor!', layerDown: 'saftan düştü', maxLayer: 'En çok katman',
     howto4: 'Dört Katman: isabetli seri tuttukça zurna, boru ve zil takımları yürüyüşe katılır; her katman puanı artırır. Çok kaçırırsanız en üst takım saftan düşer.',
+    a11y: 'Erişilebilirlik', share: 'Paylaş', anotherGame: 'Başka oyun', daily: 'Günün Meydan Okuması',
+    dailySong: 'Günün Marşı', dailyDesc: 'Herkese aynı usul, tempo ve zurna ezgisi', dailyLine: 'seri {s} gün · en iyi {b}', dailyDone: 'bugün tamam',
+    shareLine: '{song} · {diff} · {grade} · {score} puan', awS: 'Mehter: S notu', awLayers: 'Mehter: dört katman', awZafer: 'Mehter: Zafer Marşı',
     names: ['Düyek Yürüyüşü', 'Sofyan Geçidi', 'Semai Alayı', 'Nevbet Meydanı', 'Devr-i Kebir', 'Zafer Marşı'],
     descs: ['Ağır adım, düyek ölçüsü', 'Sofyan adımı, hızlanan davul', 'Semai ölçüsü, zurna ağırlıklı', 'Nevbet töreni, yoğun kös', 'Devr-i kebir, uzun zurna notaları', 'Zafer yürüyüşü, en hızlı tempo'],
   },
@@ -2188,6 +2202,9 @@ const I18N = {
     layers: 'Layers', lyDavul: 'Drum', lyZurna: 'Zurna', lyBoru: 'Horn', lyZil: 'Cymbal',
     layerUp: 'joins the march!', layerDown: 'falls out of step', maxLayer: 'Most layers',
     howto4: 'Four Layers: keep an accurate streak and the zurna, horn and cymbal sections join the march; each layer raises your score. Miss too much and the top section falls out of formation.',
+    a11y: 'Accessibility', share: 'Share', anotherGame: 'Another game', daily: 'Daily challenge',
+    dailySong: 'Today’s March', dailyDesc: 'The same usul, tempo and zurna tune for everyone', dailyLine: 'streak {s} days · best {b}', dailyDone: 'done today',
+    shareLine: '{song} · {diff} · {grade} · {score} points', awS: 'Mehter: grade S', awLayers: 'Mehter: all four layers', awZafer: 'Mehter: March of Victory',
     names: ['Düyek March', 'Sofyan Pass', 'Semai Procession', 'Nevbet Square', 'Grand Cycle', 'March of Victory'],
     descs: ['Slow steps, düyek cycle', 'Sofyan steps, speeding drums', 'Semai cycle, zurna led', 'Nevbet ceremony, dense kös', 'Grand cycle, long zurna notes', 'Victory march, fastest tempo'],
   },
@@ -2284,6 +2301,17 @@ function buildSong(d, idx) {
   return { idx, ...d, name: { tr: I18N.tr.names[idx], en: I18N.en.names[idx] }, desc: { tr: I18N.tr.descs[idx], en: I18N.en.descs[idx] }, full, bass, barDur: bar, end, seed: d.seed };
 }
 const SONGS = SONG_DEFS.map((d, i) => buildSong(d, i));
+// Daily challenge (arena-kit): the day's generator picks the usul, tempo and zurna density, and the day seed
+// writes the zurna tune, so everyone marches the same song today (?d=YYYYMMDD replays another day).
+function dailySong(d) {
+  const r = d.rng, usuls = Object.keys(USUL);
+  const usul = usuls[(r() * usuls.length) | 0], bpm = 104 + ((r() * 49) | 0), density = 2 + ((r() * 3) | 0);
+  const song = buildSong({ usul, bpm, bars: 32, seed: d.seed }, density);
+  song.idx = -1; song.day = d.day;
+  song.name = { tr: I18N.tr.dailySong, en: I18N.en.dailySong };
+  song.desc = { tr: I18N.tr.dailyDesc, en: I18N.en.dailyDesc };
+  return song;
+}
 
 function makeChart(s, diff) {
   const lim = { easy: 1, normal: 2, hard: 3 }[diff];
@@ -2525,9 +2553,10 @@ function refreshHud() {
 
 // ----- song flow -----------------------------------------------------------
 function startSong(idx, diff, opts = {}) {
-  const s = SONGS[idx];
+  const s = opts.song || SONGS[idx];   // opts.song: the daily song (idx -1)
   stopAll();
-  G.song = s; G.visSong = s; G.idx = idx; G.diff = diff; G.sel = idx;
+  G.song = s; G.visSong = s; G.idx = idx; G.diff = diff; if (idx >= 0) G.sel = idx;
+  G.daily = s.idx < 0 ? s.day : 0;
   G.auto = !!opts.auto; G.bot = !!opts.bot; G.autoDone = false;
   G.notes = makeChart(s, diff);
   G.lanes = [[], [], [], []];
@@ -2680,10 +2709,17 @@ function endSong(defeat) {
   const key = `${G.idx}-${G.diff}`;
   const best = loadBest();
   let record = false;
-  if (!defeat && (!best[key] || G.score > best[key].score)) { best[key] = { score: Math.round(G.score), grade }; saveBest(best); record = true; }
+  if (G.idx >= 0 && !defeat && (!best[key] || G.score > best[key].score)) { best[key] = { score: Math.round(G.score), grade }; saveBest(best); record = true; }
   G.result = { defeat, acc, grade, record, score: Math.round(G.score), maxCombo: G.maxCombo, maxLayers: G.maxLayers, cnt: { ...G.cnt }, hist: G.hist.slice(), name: G.song.name[LANG] };
   G.endAt = G.gt + 2.5;
   if (G.auto && G.idx >= SONGS.length - 1) G.autoDone = true;
+  // arena-kit: passport badges and the daily streak (the bot never writes to the player's passport)
+  if (window.Arena && !G.auto && !G.bot) {
+    if (!defeat && grade === 'S') Arena.award('mehter-s', T('awS'));
+    if (G.maxLayers >= 4) Arena.award('mehter-4layers', T('awLayers'));
+    if (!defeat && G.idx === SONGS.length - 1) Arena.award('mehter-zafer', T('awZafer'));
+    if (G.daily) { const d = Arena.daily(); if (d.day === G.daily) G.result.streak = d.complete(G.result.score); }
+  }
   showResults();
 }
 function showResults() {
@@ -2697,6 +2733,7 @@ function showResults() {
     gradeEl.className = 'grade grade-' + r.grade;
   }
   setText($('#res-main'), r.defeat ? T('defeat') : T('cleared'));
+  setText($('#r-daily'), r.streak ? T('daily') + ' · ' + T('dailyLine').replace('{s}', r.streak.streak).replace('{b}', r.streak.best) : '');
   setText($('#r-title'), r.name + ' · ' + T(G.diff));
   const recEl = $('#r-record');
   if (recEl) {
@@ -3178,6 +3215,7 @@ function buildThree() {
   const canvas = $('#gl');
   R = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
   R.setPixelRatio(Math.min(window.devicePixelRatio || 1, lowQ() ? 1 : 1.5));
+  if (window.Arena) Arena.perf.attach(R, { max: Math.min(window.devicePixelRatio || 1, lowQ() ? 1 : 1.5) }); // arena-kit: dynamic pixel ratio, same cap
   R.shadowMap.enabled = !lowQ();
   R.shadowMap.type = THREE.PCFShadowMap;
   scene = new THREE.Scene();
@@ -3450,6 +3488,7 @@ function visualDark() {
 // ----- UI wiring ------------------------------------------------------------
 function applyI18n() {
   document.documentElement.lang = LANG;
+  if (window.Arena) Arena.lang(LANG);
   for (const el of $$('[data-i18n]')) {
     const k = el.dataset.i18n;
     if (I18N[LANG][k] !== undefined) el.textContent = T(k);
@@ -3473,6 +3512,7 @@ function setLang(l) {
 }
 function bestOf(idx, diff) { const b = loadBest(); return b[`${idx}-${diff}`]; }
 function refreshBest() {
+  if (window.Arena) { const d = Arena.daily(); setText($('#title-daily'), T('daily') + ': ' + (d.done ? T('dailyDone') + ' · ' : '') + T('dailyLine').replace('{s}', d.streak).replace('{b}', d.best)); }
   const b = bestOf(G.sel, G.diff);
   const el = $('#title-best');
   if (el) {
@@ -3598,10 +3638,21 @@ function wireUI() {
   $('#b-cal-back').addEventListener('click', () => { CAL.on = false; stopAll(); show('title'); refreshBest(); });
   $('#b-pause').addEventListener('click', pauseGame);
   $('#b-resume').addEventListener('click', resumeGame);
-  $('#b-restart').addEventListener('click', async () => { await readyAudio(); startSong(G.idx, G.diff, { auto: G.auto, bot: G.bot }); });
+  $('#b-restart').addEventListener('click', async () => { await readyAudio(); startSong(G.idx, G.diff, { auto: G.auto, bot: G.bot, song: G.idx < 0 ? G.song : undefined }); });
   $('#b-main').addEventListener('click', goTitle);
   $('#b-main2').addEventListener('click', goTitle);
-  $('#b-again').addEventListener('click', async () => { await readyAudio(); startSong(G.idx, G.diff, {}); });
+  $('#b-again').addEventListener('click', async () => { await readyAudio(); startSong(G.idx, G.diff, { song: G.idx < 0 ? G.song : undefined }); });
+  // arena-kit: daily challenge, accessibility panel (from Settings: a corner button would sit on the zil lane),
+  // share and another game on the results scroll
+  $('#b-daily').addEventListener('click', async () => { if (!window.Arena) return; await readyAudio(); startSong(-1, 'normal', { song: dailySong(Arena.daily()) }); });
+  $('#b-a11y').addEventListener('click', () => { if (window.Arena) Arena.openSettings(); });
+  $('#b-share').addEventListener('click', () => {
+    const r = G.result; if (!r || !window.Arena) return;
+    Arena.share({ title: 'Mehter · ' + (r.defeat ? T('defeat') : T('cleared')), url: 'https://furkiozknn.github.io/mehter/',
+      lines: [T('shareLine').replace('{song}', r.name).replace('{diff}', T(G.diff)).replace('{grade}', r.grade).replace('{score}', fmt(r.score))]
+        .concat(r.streak ? [T('daily') + ' · ' + T('dailyLine').replace('{s}', r.streak.streak).replace('{b}', r.streak.best)] : []) });
+  });
+  $('#b-other').addEventListener('click', () => { if (!window.Arena) return; const g = Arena.games.filter((x) => x !== 'mehter'); window.open('https://furkiozknn.github.io/' + g[(Date.now() / 60000 | 0) % g.length] + '/', '_blank', 'noopener'); });
   for (const z of $$('#touch .tz')) {
     const lane = Number(z.dataset.lane);
     z.addEventListener('pointerdown', (e) => { e.preventDefault(); laneDown(lane); });
@@ -3774,6 +3825,7 @@ if (Q.get('screen') === 'settings') openSettings();
   loadSky();
   fetchSamples();
   $('#b-play').disabled = false;
+  $('#b-daily').disabled = !window.Arena;
   setText($('#loading'), T('loaded'));
   setTimeout(() => { const el = $('#loading'); if (el.textContent === T('loaded')) el.textContent = ''; }, 1200);
   if (FLAG.debug) updateDebug();
