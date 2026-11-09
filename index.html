@@ -1289,12 +1289,62 @@ h2 {
   box-shadow: 0 6px 18px rgba(0,0,0,0.6);
 }
 
+/* Dört Katman: four music layers (davul, zurna, boru, zil) */
+#layers {
+  position: fixed;
+  right: 14px;
+  top: 84px;
+  z-index: 10;
+  display: none;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  background: rgba(35, 20, 56, 0.82);
+  border: 1px solid var(--line-gold);
+  border-radius: 12px;
+  pointer-events: none;
+}
+#layers .ly-title {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--parchment-dim);
+  margin-right: 2px;
+}
+#layers .ly {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  padding: 3px 8px;
+  border-radius: 7px;
+  border: 1px solid rgba(245, 230, 196, 0.22);
+  color: rgba(245, 230, 196, 0.42);
+  background: rgba(18, 11, 30, 0.5);
+  transition: background 0.25s, color 0.25s, transform 0.25s;
+}
+#layers .ly.on { color: #FFF; border-color: var(--gold-hi); transform: translateY(-1px); }
+#layers .ly.on[data-ly="0"] { background: var(--lane-davul); }
+#layers .ly.on[data-ly="1"] { background: var(--lane-zurna); }
+#layers .ly.on[data-ly="2"] { background: var(--gold-dark); }
+#layers .ly.on[data-ly="3"] { background: var(--lane-zil); }
+#layers .ly.next { border-style: dashed; border-color: var(--gold); }
+#layers b {
+  font-family: var(--font-display);
+  font-size: 16px;
+  color: var(--gold-hi);
+  font-variant-numeric: tabular-nums;
+  margin-left: 4px;
+}
+#layers.drop { animation: ly-drop 0.5s ease-out; }
+@keyframes ly-drop { 0%, 40% { border-color: #FF5E74; box-shadow: 0 0 16px rgba(255, 94, 116, 0.7); } }
+
 /* State visibility triggers */
 body.playing #touch { display: flex; }
 body:not(.playing) #touch { display: none; }
 body:not(.playing) #hud, body:not(.playing) #spirit { display: none; }
 body:not(.playing) #judge { display: none; }
-body.playing #hud, body.playing #spirit { display: flex; }
+body.playing #hud, body.playing #spirit, body.playing #layers { display: flex; }
 #spirit { display: none; }
 
 /* Responsive adjustments */
@@ -1315,6 +1365,9 @@ body.playing #hud, body.playing #spirit { display: flex; }
   .ibtn { min-width: 40px; min-height: 40px; padding: 6px; }
   
   #spirit { left: 8px; width: 20px; }
+  #layers { top: 64px; right: 8px; gap: 3px; padding: 4px 6px; }
+  #layers .ly-title { display: none; }
+  #layers .ly { font-size: 10px; padding: 2px 5px; }
   #spirit .bar { width: 12px; }
   
   .tz-dock { padding: 6px 8px; min-width: 48px; }
@@ -1441,6 +1494,16 @@ body.playing #hud, body.playing #spirit { display: flex; }
   </div>
 </div>
 
+<!-- Dört Katman: active music layers and their score multiplier -->
+<div id="layers" aria-live="polite">
+  <span class="ly-title" data-i18n="layers">Katman</span>
+  <span class="ly" data-ly="0" data-i18n="lyDavul">Davul</span>
+  <span class="ly" data-ly="1" data-i18n="lyZurna">Zurna</span>
+  <span class="ly" data-ly="2" data-i18n="lyBoru">Boru</span>
+  <span class="ly" data-ly="3" data-i18n="lyZil">Zil</span>
+  <b id="h-layer">×1</b>
+</div>
+
 <div id="judge" aria-live="polite"></div>
 <div id="toasts" aria-live="polite"></div>
 <pre id="dbg" class="hidden"></pre>
@@ -1493,6 +1556,10 @@ body.playing #hud, body.playing #spirit { display: flex; }
       <div class="howto-card">
         <div class="ht-num">III</div>
         <div class="ht-text" data-i18n="howto3">Gecikmenizi kalibrasyon ekranında ölçün.</div>
+      </div>
+      <div class="howto-card">
+        <div class="ht-num">IV</div>
+        <div class="ht-text" data-i18n="howto4">Dört Katman: isabetli seri tuttukça zurna, boru ve zil takımları yürüyüşe katılır; her katman puanı artırır. Çok kaçırırsanız en üst takım saftan düşer.</div>
       </div>
     </div>
 
@@ -1732,6 +1799,9 @@ const I18N = {
     bpm: 'BPM', best: 'En iyi', none: 'Henüz yok', preview: 'Dinle', stop: 'Durdur',
     tabHidden: 'Sekme gizlenince duraklatıldı', resetDone: 'Kalibrasyon sıfırlandı', fsErr: 'Tam ekran açılamadı',
     diffBest: 'Zorluk', completeAuto: 'Otomatik oynatma bitti',
+    layers: 'Katman', lyDavul: 'Davul', lyZurna: 'Zurna', lyBoru: 'Boru', lyZil: 'Zil',
+    layerUp: 'katılıyor!', layerDown: 'saftan düştü', maxLayer: 'En çok katman',
+    howto4: 'Dört Katman: isabetli seri tuttukça zurna, boru ve zil takımları yürüyüşe katılır; her katman puanı artırır. Çok kaçırırsanız en üst takım saftan düşer.',
     names: ['Düyek Yürüyüşü', 'Sofyan Geçidi', 'Semai Alayı', 'Nevbet Meydanı', 'Devr-i Kebir', 'Zafer Marşı'],
     descs: ['Ağır adım, düyek ölçüsü', 'Sofyan adımı, hızlanan davul', 'Semai ölçüsü, zurna ağırlıklı', 'Nevbet töreni, yoğun kös', 'Devr-i kebir, uzun zurna notaları', 'Zafer yürüyüşü, en hızlı tempo'],
   },
@@ -1761,6 +1831,9 @@ const I18N = {
     bpm: 'BPM', best: 'Best', none: 'None yet', preview: 'Listen', stop: 'Stop',
     tabHidden: 'Paused when the tab was hidden', resetDone: 'Calibration reset', fsErr: 'Fullscreen is not available',
     diffBest: 'Difficulty', completeAuto: 'Auto play finished',
+    layers: 'Layers', lyDavul: 'Drum', lyZurna: 'Zurna', lyBoru: 'Horn', lyZil: 'Cymbal',
+    layerUp: 'joins the march!', layerDown: 'falls out of step', maxLayer: 'Most layers',
+    howto4: 'Four Layers: keep an accurate streak and the zurna, horn and cymbal sections join the march; each layer raises your score. Miss too much and the top section falls out of formation.',
     names: ['Düyek March', 'Sofyan Pass', 'Semai Procession', 'Nevbet Square', 'Grand Cycle', 'March of Victory'],
     descs: ['Slow steps, düyek cycle', 'Sofyan steps, speeding drums', 'Semai cycle, zurna led', 'Nevbet ceremony, dense kös', 'Grand cycle, long zurna notes', 'Victory march, fastest tempo'],
   },
@@ -1774,6 +1847,13 @@ const LANE_X = [-1.5, -0.5, 0.5, 1.5];  // lane centres on the highway
 const LANE_HEX = [0xD96C2C, 0x8C1D2F, 0x3E7EA6, 0x2E6B4F];  // Nevbet-i Zeref: davul(ember), kos(crimson), zurna(cobalt), zil(iznik green)
 const FAM = ['davul', 'kos', 'zurna', 'cevgen'];
 const WIN_PERFECT = 0.045, WIN_GOOD = 0.11;
+// Dört Katman (Four Layers): the band plays in 4 layers. Layer 1 (davul + kös) always marches; every
+// LAYER_STEP hits in a row unlock the next one (zurna, boru, zil). Each miss or broken hold adds 1 slip
+// and resets the climb; each hit takes 1/8 slip away. SLIP_MAX slips drop the top layer.
+const LAYER_KEYS = ['lyDavul', 'lyZurna', 'lyBoru', 'lyZil'];
+const LAYER_STEP = 16, SLIP_MAX = 3, SLIP_HEAL = 1 / 8;
+const LAYER_MULT = [1, 1.5, 2, 2.5];   // score multiplier for 1..4 active layers, on top of the combo multiplier
+const LANE_LAYER = [0, 0, 1, 3];       // davul and kös: layer 1, zurna: layer 2, zil: layer 4 (boru, layer 3, has no lane)
 const HIT_Z = 2.2, SPAWN_Z = -12.5, SPEED = 8.0;
 const LOOK = (HIT_Z - SPAWN_Z) / SPEED + 0.25;
 // 16 sixteenth slots per bar: D strong davul, t light davul, z zil. Kös and zurna are placed by rule.
@@ -1862,7 +1942,7 @@ function makeChart(s, diff) {
 }
 
 // ----- audio (Web Audio clock) ---------------------------------------------
-const AU = { ctx: null, master: null, music: null, sfx: null, noise: null, nodes: [] };
+const AU = { ctx: null, master: null, music: null, sfx: null, noise: null, nodes: [], lay: [] };
 // CC0 one-shots (Kenney): only UI clicks and the results fanfare. Music and hit sounds stay synthesized.
 const SAMPLE_FILES = { click: 'assets/sfx/ui-click.mp3', fanfare: 'assets/sfx/results-fanfare.mp3' };
 const SAMPLE_BYTES = {}, SAMPLES = {};
@@ -1893,6 +1973,7 @@ function audioInit() {
     AU.master = ctx.createGain(); AU.master.connect(ctx.destination);
     AU.music = ctx.createGain(); AU.music.connect(AU.master);
     AU.sfx = ctx.createGain(); AU.sfx.connect(AU.master);
+    AU.lay = [0, 1, 2, 3].map(() => { const g = ctx.createGain(); g.connect(AU.music); return g; });
     const len = Math.floor(ctx.sampleRate * 0.5);
     AU.noise = ctx.createBuffer(1, len, ctx.sampleRate);
     const d = AU.noise.getChannelData(0);
@@ -1948,10 +2029,42 @@ function noiseHit(dest, w, dur, vol, type, f) {
   s.connect(flt); flt.connect(g); g.connect(dest);
   s.start(w, Math.random() * 0.3); s.stop(w + dur + 0.02); track(s);
 }
-function sndDavul(w, acc) { tone(AU.music, w, 'sine', 190, 60, 0.18, acc ? 0.9 : 0.55); noiseHit(AU.music, w, 0.05, acc ? 0.25 : 0.12, 'highpass', 3000); }
-function sndKos(w) { tone(AU.music, w, 'sine', 110, 40, 0.45, 0.9); noiseHit(AU.music, w, 0.1, 0.2, 'lowpass', 600); }
-function sndZurna(w, f, dur) { tone(AU.music, w, 'sawtooth', f, f * 1.01, Math.max(0.2, dur), 0.1, { type: 'lowpass', f: 1600, q: 1.2 }); }
-function sndZil(w) { noiseHit(AU.music, w, 0.25, 0.2, 'bandpass', 6500); tone(AU.music, w, 'square', 2400, 2200, 0.12, 0.025, { type: 'highpass', f: 2000 }); }
+const layOut = (i) => AU.lay[i] || AU.music;   // the music bus of one layer
+function sndDavul(w, acc) { tone(layOut(0), w, 'sine', 190, 60, 0.18, acc ? 0.9 : 0.55); noiseHit(layOut(0), w, 0.05, acc ? 0.25 : 0.12, 'highpass', 3000); }
+function sndKos(w) { tone(layOut(0), w, 'sine', 110, 40, 0.45, 0.9); noiseHit(layOut(0), w, 0.1, 0.2, 'lowpass', 600); }
+function sndZurna(w, f, dur) { tone(layOut(1), w, 'sawtooth', f, f * 1.01, Math.max(0.2, dur), 0.1, { type: 'lowpass', f: 1600, q: 1.2 }); }
+function sndZil(w) { noiseHit(layOut(3), w, 0.25, 0.2, 'bandpass', 6500); tone(layOut(3), w, 'square', 2400, 2200, 0.12, 0.025, { type: 'highpass', f: 2000 }); }
+// boru (natural horn): two detuned saws through a lowpass that opens on the attack, like a brass swell
+function sndBoru(w, f, dur) {
+  if (!AU.ctx) return;
+  const ctx = AU.ctx, out = layOut(2);
+  const flt = ctx.createBiquadFilter(); flt.type = 'lowpass'; flt.Q.value = 2;
+  flt.frequency.setValueAtTime(350, w); flt.frequency.linearRampToValueAtTime(1500, w + 0.08); flt.frequency.exponentialRampToValueAtTime(800, w + dur);
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, w); g.gain.exponentialRampToValueAtTime(0.07, w + 0.05);
+  g.gain.setValueAtTime(0.07, w + dur * 0.7); g.gain.exponentialRampToValueAtTime(0.0001, w + dur);
+  flt.connect(g); g.connect(out);
+  for (const det of [-5, 5]) {
+    const o = ctx.createOscillator(); o.type = 'sawtooth'; o.frequency.value = f; o.detune.value = det;
+    o.connect(flt); o.start(w); o.stop(w + dur + 0.05); track(o);
+  }
+}
+// one bar of boru: two half-note calls on D and A, the second half moves to C and G on odd bars
+function boruBar(w, b, bar) {
+  const half = bar / 2;
+  for (const f of [146.83, 220]) sndBoru(w, f, half * 0.92);
+  for (const f of (b % 2 ? [130.81, 196] : [146.83, 220])) sndBoru(w + half, f, half * 0.92);
+}
+// fade each layer bus to on (layer active) or off; all on outside a song (preview, menus)
+function setLayerGains(n, now) {
+  if (!AU.ctx || !AU.lay.length) return;
+  const t = AU.ctx.currentTime;
+  AU.lay.forEach((g, i) => {
+    const v = i < n ? 1 : 0;
+    g.gain.cancelScheduledValues(t);
+    if (now) g.gain.setValueAtTime(v, t); else g.gain.setTargetAtTime(v, t, 0.06);
+  });
+}
 function sndBass(w, dur) { tone(AU.music, w, 'sine', 55, 50, dur * 0.95, 0.12); }
 function sndCheer() { if (AU.ctx) noiseHit(AU.sfx, AU.ctx.currentTime + 0.001, 1.1, 0.3, 'bandpass', 1400); }
 function sndHit(perfect) { if (AU.ctx) tone(AU.sfx, AU.ctx.currentTime + 0.001, 'sine', perfect ? 1320 : 880, perfect ? 1320 : 880, 0.08, perfect ? 0.22 : 0.16); }
@@ -1973,6 +2086,7 @@ const G = {
   score: 0, combo: 0, maxCombo: 0, spirit: 100, cnt: { perfect: 0, good: 0, miss: 0, brk: 0 }, weight: 0, judged: 0,
   hist: [], mIdx: 0, bIdx: 0, cheer: 0.15, dark: 0.25, errors: [], fps: 0, result: null, rebind: -1, returnTo: 'title',
   preview: -1, calibOn: false, frames: 0, assets: { band: false, cobble: false, sfx: false, sky: false },
+  layers: 1, lstreak: 0, slip: 0, maxLayers: 1, layerLog: [],
 };
 const CAL = { t0: 0, taps: [], end: 0, n: 12, beat: 0.6, on: false };
 
@@ -2005,6 +2119,28 @@ function toast(msg, kind) {
   setTimeout(() => d.remove(), 2400);
 }
 const mult = (c) => (c >= 50 ? 4 : c >= 25 ? 3 : c >= 10 ? 2 : 1);
+const lmult = () => LAYER_MULT[G.layers - 1];
+const scoreMult = () => mult(G.combo) * lmult();
+// Dört Katman: a hit climbs toward the next layer, a miss slips toward losing the top one
+function layerHit() {
+  G.slip = Math.max(0, G.slip - SLIP_HEAL);
+  if (G.layers >= 4) return;
+  if (++G.lstreak >= LAYER_STEP) setLayers(G.layers + 1);
+}
+function layerSlip() {
+  G.lstreak = 0;
+  G.slip += 1;
+  if (G.slip >= SLIP_MAX) { G.slip = 0; if (G.layers > 1) setLayers(G.layers - 1); }
+}
+function setLayers(n) {
+  const up = n > G.layers;
+  const changed = up ? n - 1 : G.layers - 1;   // the layer that joins or drops out
+  G.layers = n; G.lstreak = 0; G.maxLayers = Math.max(G.maxLayers, n);
+  G.layerLog.push({ judged: G.judged, gt: +G.gt.toFixed(3), layers: n });
+  setLayerGains(n, false);
+  toast(T(LAYER_KEYS[changed]) + ' ' + T(up ? 'layerUp' : 'layerDown'), up ? undefined : 'bad');
+  if (up) { petals(lowQ() ? 12 : 24); } else { const el = $('#layers'); if (el) { el.classList.remove('drop'); void el.offsetWidth; el.classList.add('drop'); } }
+}
 const fmt = (n) => Math.round(n).toLocaleString(LANG === 'tr' ? 'tr-TR' : 'en-US');
 function refreshHud() {
   if (!G.song) return;
@@ -2016,6 +2152,12 @@ function refreshHud() {
   }
   setText($('#h-score'), fmt(G.score));
   setText($('#h-combo'), G.combo + ' ×' + mult(G.combo));
+  for (const el of $$('#layers .ly')) {
+    const i = +el.dataset.ly;
+    el.classList.toggle('on', i < G.layers);
+    el.classList.toggle('next', i === G.layers);
+  }
+  setText($('#h-layer'), '×' + lmult());
   const acc = G.judged ? G.weight / G.judged : 1;
   setText($('#h-acc'), Math.round(acc * 100) + '%');
   const pct = Math.max(0, Math.min(1, G.spirit / 100));
@@ -2040,6 +2182,8 @@ function startSong(idx, diff, opts = {}) {
   G.flash = [0, 0, 0, 0];
   G.score = 0; G.combo = 0; G.maxCombo = 0; G.spirit = 100; G.cnt = { perfect: 0, good: 0, miss: 0, brk: 0 };
   G.weight = 0; G.judged = 0; G.hist = []; G.mIdx = 0; G.bIdx = 0;
+  G.layers = 1; G.lstreak = 0; G.slip = 0; G.maxLayers = 1; G.layerLog = [];
+  setLayerGains(1, true);
   G.ended = false; G.endAt = Infinity; G.paused = false; G.result = null; G.cheer = 0.15;
   const ctx = AU.ctx;
   let clock = opts.clock || (ctx && ctx.state === 'running' ? 'audio' : 'wall');
@@ -2074,7 +2218,11 @@ function scheduleAudio() {
   const ev = G.song.full;
   while (G.mIdx < ev.length && ev[G.mIdx].t <= horizon) { playEvent(ev[G.mIdx], G.audioT0 + ev[G.mIdx].t); G.mIdx++; }
   const bs = G.song.bass;
-  while (G.bIdx < bs.length && bs[G.bIdx] <= horizon) { sndBass(G.audioT0 + bs[G.bIdx], G.song.barDur); G.bIdx++; }
+  while (G.bIdx < bs.length && bs[G.bIdx] <= horizon) {
+    sndBass(G.audioT0 + bs[G.bIdx], G.song.barDur);
+    boruBar(G.audioT0 + bs[G.bIdx], G.bIdx, G.song.barDur);
+    G.bIdx++;
+  }
 }
 function logic() {
   const gt = G.gt;
@@ -2083,7 +2231,7 @@ function logic() {
     const h = G.holds[l];
     if (h) {
       if (gt >= h.t + h.dur) completeHold(l, h);
-      else if (gt >= h.tick) { h.tick = gt + 0.25; G.score += 12 * mult(G.combo); G.spirit = Math.min(100, G.spirit + 0.1); }
+      else if (gt >= h.tick) { h.tick = gt + 0.25; G.score += 12 * scoreMult(); G.spirit = Math.min(100, G.spirit + 0.1); }
     }
     const L = G.lanes[l];
     let i = G.lp[l];
@@ -2098,13 +2246,16 @@ function logic() {
   checkFail();
 }
 function botTick() {
+  // press every note that is due, not only the first one, so the bot keeps up when frames are slow
   for (let l = 0; l < 4; l++) {
     const L = G.lanes[l];
     for (let i = G.lp[l]; i < L.length; i++) {
       const n = L[i];
       if (n.state !== 0) continue;
-      if (G.gt >= n.t + n.bj) press(l, n.t + n.bj);
-      break;
+      if (G.gt < n.t + n.bj) break;
+      const h = G.holds[l];
+      if (h && n.t >= h.t + h.dur) completeHold(l, h);
+      press(l, n.t + n.bj);
     }
   }
 }
@@ -2134,7 +2285,8 @@ function onHit(n, grade) {
   const perfect = grade === 'perfect';
   G.judged++; G.combo++; G.maxCombo = Math.max(G.maxCombo, G.combo); G.cnt[grade]++;
   n.w = perfect ? 1 : 0.6; G.weight += n.w;
-  G.score += (perfect ? 100 : 60) * mult(G.combo);
+  layerHit();
+  G.score += (perfect ? 100 : 60) * scoreMult();
   G.spirit = Math.min(100, G.spirit + (perfect ? 1.2 : 0.6));
   judgeShow(grade);
   sndHit(perfect);
@@ -2145,18 +2297,20 @@ function onHit(n, grade) {
 }
 function onMiss(n) {
   G.judged++; G.cnt.miss++; G.combo = 0;
+  layerSlip();
   G.spirit -= 7; n.w = 0; n.state = 2;
   judgeShow('miss'); sndMiss();
   checkFail();
 }
 function completeHold(l, n) {
   n.state = 2; G.holds[l] = null;
-  G.score += 40 * mult(G.combo); G.spirit = Math.min(100, G.spirit + 0.6);
+  G.score += 40 * scoreMult(); G.spirit = Math.min(100, G.spirit + 0.6);
   G.flash[l] = 1;
 }
 function breakHold(l, n) {
   n.state = 2; G.holds[l] = null;
   G.cnt.brk++; G.combo = 0; G.judged += 0;
+  layerSlip();
   G.weight -= n.w * 0.5; n.w *= 0.5;
   G.spirit -= 5;
   judgeShow('brk'); sndMiss();
@@ -2173,7 +2327,7 @@ function endSong(defeat) {
   const best = loadBest();
   let record = false;
   if (!defeat && (!best[key] || G.score > best[key].score)) { best[key] = { score: Math.round(G.score), grade }; saveBest(best); record = true; }
-  G.result = { defeat, acc, grade, record, score: Math.round(G.score), maxCombo: G.maxCombo, cnt: { ...G.cnt }, hist: G.hist.slice(), name: G.song.name[LANG] };
+  G.result = { defeat, acc, grade, record, score: Math.round(G.score), maxCombo: G.maxCombo, maxLayers: G.maxLayers, cnt: { ...G.cnt }, hist: G.hist.slice(), name: G.song.name[LANG] };
   G.endAt = G.gt + 2.5;
   if (G.auto && G.idx >= SONGS.length - 1) G.autoDone = true;
   showResults();
@@ -2198,7 +2352,7 @@ function showResults() {
       recEl.textContent = '';
     }
   }
-  const rows = [[T('score'), fmt(r.score)], [T('maxCombo'), r.maxCombo], [T('perfectN'), r.cnt.perfect], [T('goodN'), r.cnt.good], [T('missN'), r.cnt.miss], [T('brkN'), r.cnt.brk], [T('accN'), Math.round(r.acc * 100) + '%'], [T('grade'), r.grade]];
+  const rows = [[T('score'), fmt(r.score)], [T('maxCombo'), r.maxCombo], [T('maxLayer'), r.maxLayers + '/4'], [T('perfectN'), r.cnt.perfect], [T('goodN'), r.cnt.good], [T('missN'), r.cnt.miss], [T('brkN'), r.cnt.brk], [T('accN'), Math.round(r.acc * 100) + '%'], [T('grade'), r.grade]];
   $('#r-stats').innerHTML = rows.map(([a, b]) => `<div><span>${a}</span><b>${b}</b></div>`).join('');
   const bins = new Array(11).fill(0);
   for (const ms of r.hist) bins[Math.max(0, Math.min(10, Math.floor((ms + 110) / 20)))]++;
@@ -2211,6 +2365,7 @@ function showResults() {
 function goTitle() {
   stopAll();
   G.notes = []; G.lanes = [[], [], [], []]; G.song = null; G.visSong = SONGS[G.sel];
+  setLayerGains(4, true);
   G.paused = false; G.calibOn = false;
   show('title');
   refreshBest();
@@ -2251,6 +2406,8 @@ async function previewSong(idx) {
   if (!ctx) { toast(T('noAudio'), 'bad'); return; }
   const s = SONGS[idx];
   const t0 = ctx.currentTime + 0.05;
+  setLayerGains(4, true);
+  s.bass.forEach((b, i) => { if (b <= 14) boruBar(t0 + b, i, s.barDur); });
   for (const e of s.full) { if (e.t > 14) break; playEvent(e, t0 + e.t); }
   for (const b of s.bass) { if (b > 14) break; sndBass(t0 + b, s.barDur); }
 }
@@ -2588,12 +2745,21 @@ function buildBand() {
     ['kos', 'kos', 'kos', 'kos', 'kos', 'kos'],
     ['davul', 'davul', 'davul', 'davul', 'davul', 'davul'],
     ['zurna', 'zurna', 'zurna', 'zurna', 'zurna', 'zurna'],
-    ['zurna', 'zurna', 'zurna', 'zurna', 'zurna', 'zurna'],
+    ['boru', 'boru', 'boru', 'boru', 'boru', 'boru'],
     ['cevgen', 'cevgen', 'cevgen', 'cevgen', 'cevgen', 'cevgen'],
   ];
   BAND.length = 0;
-  rows.forEach((kinds, r) => kinds.forEach((kind, c) => BAND.push({ kind, x: (c - 2.5) * 1.35, z: -15.2 - r * 1.7, row: r, lead: false, coat: (c + r) % 2 ? 0xA4161A : 0x1B4332 })));
-  BAND.push({ kind: 'cevgen', x: 0, z: -13.4, row: -1, lead: true, coat: 0xF1E3C6 });
+  // Dört Katman: each member belongs to a layer (0 davul + kös, 1 zurna, 2 boru, 3 zil). Out of the layer
+  // count a member stands at the roadside (sx, sz, sr); the mehterbaşı (lead) always marches.
+  const KIND_LAYER = { kos: 0, davul: 0, zurna: 1, boru: 2, cevgen: 3 };
+  const rr = mulberry32(7);
+  rows.forEach((kinds, r) => kinds.forEach((kind, c) => {
+    const x = (c - 2.5) * 1.35, side = c < 3 ? -1 : 1;
+    BAND.push({ kind, x, z: -15.2 - r * 1.7, row: r, lead: false, coat: (c + r) % 2 ? 0xA4161A : 0x1B4332,
+      layer: KIND_LAYER[kind], sx: side * (3.9 + rr() * 0.5) + (c % 3 - 1) * 0.12 * side, sz: -15.2 - r * 1.7 + (c % 3 - 1) * 0.7 + (rr() - 0.5) * 0.5,
+      sr: side * (1.2 + rr() * 0.8), inF: 1, ph: rr() * 6.28 });
+  }));
+  BAND.push({ kind: 'cevgen', x: 0, z: -13.4, row: -1, lead: true, coat: 0xF1E3C6, layer: 0, sx: 0, sz: -13.4, sr: 0, inF: 1, ph: 0 });
   const cnt = {};
   for (const m of BAND) { m.ki = cnt[m.kind] || 0; cnt[m.kind] = m.ki + 1; }
   const N = BAND.length;
@@ -2603,6 +2769,8 @@ function buildBand() {
   C.davul = inst(new THREE.CylinderGeometry(0.26, 0.26, 0.36, 10), lamb(0x9b5a2b), cnt.davul);
   C.kos = inst(new THREE.CylinderGeometry(0.42, 0.42, 0.36, 12), lamb(0xd4af37), cnt.kos);
   C.zurna = inst(new THREE.CylinderGeometry(0.03, 0.07, 0.7, 6), lamb(0xe0b84a), cnt.zurna);
+  // boru (natural horn): a long brass tube with a wide bell, procedural (the CC0 instrument set has none)
+  C.boru = inst(new THREE.CylinderGeometry(0.03, 0.17, 1.0, 10, 1, true), new THREE.MeshLambertMaterial({ color: 0xffffff, flatShading: true, side: THREE.DoubleSide }), cnt.boru);
   C.staff = inst(new THREE.CylinderGeometry(0.035, 0.035, 2.1, 6), lamb(0x5a3a1a), cnt.cevgen);
   C.ring = inst(new THREE.CylinderGeometry(0.16, 0.16, 0.05, 10), lamb(0xD4AF37), cnt.cevgen);   // the zil (cymbal) flashes on lane-3 hits
   C.stick = inst(new THREE.CylinderGeometry(0.02, 0.028, 0.5, 5), lamb(0x5a3a1a), cnt.davul, false);   // drum sticks
@@ -2616,9 +2784,10 @@ function buildBand() {
     if (m.kind === 'davul') { paint(C.davul, m.ki, 0x9b5a2b); paint(C.stick, m.ki, 0x5a3a1a); }
     if (m.kind === 'kos') paint(C.kos, m.ki, 0xD4AF37);
     if (m.kind === 'zurna') paint(C.zurna, m.ki, 0xE0B84A);
+    if (m.kind === 'boru') paint(C.boru, m.ki, 0xE8C25A);
     if (m.kind === 'cevgen') { paint(C.staff, m.ki, 0x5a3a1a); paint(C.ring, m.ki, 0xD4AF37); }
   });
-  const BAND_PARTS = ['body', 'head', 'fez', 'sash', 'davul', 'kos', 'zurna', 'staff', 'ring', 'stick'];
+  const BAND_PARTS = ['body', 'head', 'fez', 'sash', 'davul', 'kos', 'zurna', 'boru', 'staff', 'ring', 'stick'];
   for (const k of BAND_PARTS) C[k].instanceColor.needsUpdate = true;
   // bring the band closer to the camera: scale every band mesh about its centre (z = -15), so the rows
   // keep their place on the avenue and the note highway in front is not covered
@@ -2773,37 +2942,56 @@ function updateBand(beat, dt) {
   const bob = Math.abs(Math.sin(beat * Math.PI));
   const turn = Math.sin(beat * Math.PI / 3);
   for (const k of FAM) G.instFlash[k] = Math.max(0, G.instFlash[k] - dt * 5);
+  // Dört Katman: in a song only the active layers march; in menus the whole band does
+  const inSong = G.song && (G.screen === 'play' || G.screen === 'pause' || G.screen === 'results');
+  const nLay = inSong ? G.layers : 4;
   for (let i = 0; i < BAND.length; i++) {
     const m = BAND[i];
-    const hop = bob * (m.lead ? 0.08 : 0.05);
-    const sway = turn * 0.08 * (m.row % 2 ? 1 : -1);
-    put(C.body, i, m.x, 0.45 + hop, m.z, 1, 1, 1, sway);
-    put(C.head, i, m.x, 1.05 + hop, m.z, 1, 1, 1, sway);
+    const want = m.layer < nLay ? 1 : 0;
+    // joining is a quick march back in; falling out is a slower stumble to the roadside
+    m.inF += Math.sign(want - m.inF) * Math.min(Math.abs(want - m.inF), dt * (want ? 1.6 : 1.1));
+    const k = m.inF, e = k * k * (3 - 2 * k);   // smoothstep
+    const out = 1 - e;
+    const mx = m.x + (m.sx - m.x) * out, mz = m.z + (m.sz - m.z) * out;
+    const stumble = Math.sin(Math.PI * k) * 0.35 * (m.sx < 0 ? 1 : -1);   // a lean while changing place
+    const hop = bob * (m.lead ? 0.08 : 0.05) * e;
+    const sway = turn * 0.08 * (m.row % 2 ? 1 : -1) * e + m.sr * out + Math.sin(G.idleT * 0.7 + m.ph) * 0.15 * out;
+    const slump = 1 - 0.12 * out;   // out-of-step members droop
+    paint(C.body, i, out > 0.01 ? TMP.col.setHex(m.coat).multiplyScalar(1 - 0.55 * out).getHex() : m.coat);
+    put(C.body, i, mx, 0.45 * slump + hop, mz, 1, slump, 1, sway, 0);
+    put(C.head, i, mx + stumble * 0.25, (1.05 - 0.13 * out) + hop, mz, 1, 1, 1, sway);
     // the mehterbaşı wears a taller börk; the sash sits at waist height (0.12 above the body centre)
-    put(C.fez, i, m.x, 1.27 + hop + (m.lead ? 0.1 : 0), m.z, 1, m.lead ? 1.45 : 1, 1, sway);
-    put(C.sash, i, m.x, 0.57 + hop, m.z, 1, 1, 1, sway);
+    put(C.fez, i, mx + stumble * 0.3, (1.27 - 0.13 * out) + hop + (m.lead ? 0.1 : 0), mz, 1, m.lead ? 1.45 : 1, 1, sway);
+    put(C.sash, i, mx, (0.57 - 0.07 * out) + hop, mz, 1, 1, 1, sway);
+    if (m.kind === 'boru') {
+      // the horn is raised to play while in formation and lowered (pointing down) when out
+      const blow = 0.25 + 0.1 * Math.sin(beat * Math.PI * 0.5 + m.ki);
+      put(C.boru, m.ki, mx + 0.05, (1.1 - 0.35 * out) + hop, mz + 0.55 - 0.2 * out, 1, 1, 1, sway, Math.PI / 2 + blow * e + 1.1 * out);
+      continue;
+    }
     if (m.kind === 'davul') {
       const f = G.instFlash.davul;
-      put(C.davul, m.ki, m.x - 0.05, 0.6 + hop, m.z + 0.22, 1 + f * 0.2, 1, 1 + f * 0.2, 0, Math.PI / 2);
+      put(C.davul, m.ki, mx - 0.05, 0.6 + hop, mz + 0.22, 1 + f * 0.2, 1, 1 + f * 0.2, 0, Math.PI / 2);
       // the drum arm: raised between the beats, striking the head on a davul note (f = 1 at the hit)
-      put(C.stick, m.ki, m.x + 0.1, 0.9 + hop, m.z + 0.42, 1, 1, 1, 0, -1.0 + 0.9 * f);
+      put(C.stick, m.ki, mx + 0.1, 0.9 + hop, mz + 0.42, 1, 1, 1, 0, -1.0 + 0.9 * f);
     } else if (m.kind === 'kos') {
       const f = G.instFlash.kos;
-      put(C.kos, m.ki, m.x + 0.3, 0.55 + hop, m.z + 0.2, 1 + f * 0.15, 1, 1 + f * 0.15, 0, Math.PI / 2);
+      put(C.kos, m.ki, mx + 0.3, 0.55 + hop, mz + 0.2, 1 + f * 0.15, 1, 1 + f * 0.15, 0, Math.PI / 2);
     } else if (m.kind === 'zurna') {
       // the zurna sways more while the player holds a zurna note
-      const swing = (0.18 + 0.22 * (G.holds[2] ? 1 : 0)) * Math.sin(beat * Math.PI + m.row * 0.8);
-      put(C.zurna, m.ki, m.x, 1.05 + hop, m.z + 0.42, 1, 1, 1, swing, Math.PI / 2);
+      const swing = (0.18 + 0.22 * (G.holds[2] ? 1 : 0)) * Math.sin(beat * Math.PI + m.row * 0.8) * e;
+      put(C.zurna, m.ki, mx, 1.05 - 0.3 * out + hop, mz + 0.42 - 0.15 * out, 1, 1, 1, swing, Math.PI / 2 + 1.0 * out);
     } else {
-      const f = G.instFlash.cevgen;
-      put(C.staff, m.ki, m.x + 0.42, 1.05 + hop, m.z, 1, 1, 1);
-      put(C.ring, m.ki, m.x + 0.42, 1.9 + hop + f * 0.08, m.z, 1 + f * 0.3, 1, 1 + f * 0.3, 0, Math.PI / 2);
+      const f = G.instFlash.cevgen * e;
+      put(C.staff, m.ki, mx + 0.42, 1.05 - 0.45 * out + hop, mz, 1, 1, 1);   // out of step: the staff is grounded
+      put(C.ring, m.ki, mx + 0.42, 1.9 - 0.45 * out + hop + f * 0.08, mz, 1 + f * 0.3, 1, 1 + f * 0.3, 0, Math.PI / 2);
       // the zil (cymbal) flashes bright gold on every lane-3 hit
       C.ring.setColorAt(m.ki, TMP.col.setHex(0xD4AF37).multiplyScalar(0.75 + 1.25 * f));
     }
   }
-  for (const k of ['body', 'head', 'fez', 'sash', 'davul', 'kos', 'zurna', 'staff', 'ring', 'stick']) C[k].instanceMatrix.needsUpdate = true;
+  for (const k of ['body', 'head', 'fez', 'sash', 'davul', 'kos', 'zurna', 'boru', 'staff', 'ring', 'stick']) C[k].instanceMatrix.needsUpdate = true;
   C.ring.instanceColor.needsUpdate = true;
+  C.body.instanceColor.needsUpdate = true;
   for (let j = 0; j < CROWD.length; j++) {
     const c = CROWD[j];
     const jump = G.cheer * Math.max(0, Math.sin(beat * Math.PI * 2 + c.ph)) * 0.32;
@@ -3178,6 +3366,7 @@ function updateDebug() {
     `fps ${G.fps}  draw calls ${info.render.calls}  triangles ${info.render.triangles}`,
     `screen ${G.screen}  clock ${G.clock}  gt ${G.gt.toFixed(2)}  lang ${LANG}`,
     `score ${G.score|0}  combo ${G.combo}  spirit ${G.spirit.toFixed(1)}  judged ${G.judged}`,
+    `layers ${G.layers} ×${lmult()}  streak ${G.lstreak}/${LAYER_STEP}  slip ${G.slip.toFixed(2)}/${SLIP_MAX}`,
     `perfect ${G.cnt.perfect} good ${G.cnt.good} miss ${G.cnt.miss} break ${G.cnt.brk} hist ${G.hist.length} r-hist ${$('#r-hist') ? $('#r-hist').children.length : -1}`,
     `errors ${G.errors.length}${G.errors.length ? ': ' + G.errors.slice(-3).join(' | ') : ''}`,  ].join('\n');
 }
@@ -3201,7 +3390,7 @@ function state() {
   return {
     screen: G.screen, lang: LANG, clock: G.clock, song: G.song ? G.song.idx : null, diff: G.diff,
     gt: +G.gt.toFixed(3), score: Math.round(G.score), combo: G.combo, maxCombo: G.maxCombo,
-    spirit: +G.spirit.toFixed(2), counts: { ...G.cnt }, judged: G.judged, notes: G.notes.length,
+    spirit: +G.spirit.toFixed(2), layers: G.layers, layerMult: lmult(), lstreak: G.lstreak, slip: +G.slip.toFixed(3), maxLayers: G.maxLayers, layerLog: G.layerLog.slice(), counts: { ...G.cnt }, judged: G.judged, notes: G.notes.length,
     auto: G.auto, autoDone: G.autoDone, result: G.result ? { grade: G.result.grade, defeat: G.result.defeat, score: G.result.score, acc: +G.result.acc.toFixed(3) } : null,
     errors: G.errors.slice(), fps: G.fps, drawCalls: R ? R.info.render.calls : 0, triangles: R ? R.info.render.triangles : 0,
     calib: S.calib, keys: S.keys.slice(), quality: lowQ() ? 'low' : 'high', assets: { ...G.assets },
