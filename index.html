@@ -14,7 +14,7 @@
 <meta property="og:image:width" content="960">
 <meta property="og:image:height" content="540">
 <meta name="twitter:card" content="summary_large_image">
-<script>/*ARENA-KIT:BEGIN v1.0.0 sha256:a9b9a8b52b3e*/
+<script>/*ARENA-KIT:BEGIN v1.0.1 sha256:bc575c398c95*/
 /* ARENA-KIT v1 — shared layer for the 21 Claude Game Arena games.
  *
  * Injected inline into each game's index.html (between begin/end marker comments) by
@@ -24,7 +24,8 @@
  *   Arena.perf.attach(renderer)        dynamic pixel ratio for weak GPUs (Intel UHD)
  *   Arena.hint(id, text)               one-time hint toast (first 30 s guidance)
  *   Arena.endCard({...})               end-of-session card: reason, score, "again", another game
- *   Arena.daily(game)                  UTC-day seed + mulberry32 rng + streak
+ *   Arena.daily(game, {dayKey})        UTC-day seed (or the game's own day key) + mulberry32 rng + streak
+ *   Arena.quiet                        true on ?auto / ?nosave / ?demo: nothing is written to localStorage
  *   Arena.share({...})                 Web Share / clipboard text + optional PNG card
  *   Arena.profile(), Arena.award(id)   cross-game passport (shared origin localStorage)
  *   Arena.settings / openSettings()    accessibility panel (text size, contrast, motion, vibration, auto-pause)
@@ -35,7 +36,7 @@
 (function (root) {
   'use strict';
   if (root.Arena && root.Arena.version) return; // injected twice (e.g. iframe) -> keep the first
-  var VERSION = '1.0.0';
+  var VERSION = '1.0.1';
   var hasDOM = typeof document !== 'undefined';
 
   /* ---------- core (pure, Node-testable) ---------- */
@@ -45,6 +46,12 @@
     var d = date || new Date();
     return d.getUTCFullYear() * 10000 + (d.getUTCMonth() + 1) * 100 + d.getUTCDate();
   };
+  core.localDayKey = function (date) { // local-time YYYYMMDD (for games whose own daily turns at local midnight)
+    var d = date || new Date();
+    return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+  };
+  // Bot / demo / no-save runs must not touch the player's storage: ?auto, ?nosave, ?demo (any value).
+  core.isQuiet = function (search) { return /[?&](auto|nosave|demo)(=|&|$)/.test(search || ''); };
   core.prevDayKey = function (key) {
     var y = Math.floor(key / 10000), m = Math.floor(key / 100) % 100, d = key % 100;
     return core.dayKey(new Date(Date.UTC(y, m - 1, d) - 86400000));
@@ -99,7 +106,9 @@
 
   /* ---------- storage ---------- */
   var mem = {};
-  function store() { try { return root.localStorage; } catch (e) { return null; } }
+  var quiet = false;
+  try { quiet = hasDOM && core.isQuiet(location.search); } catch (e) {}
+  function store() { if (quiet) return null; try { return root.localStorage; } catch (e) { return null; } }
   function get(key, fallback) {
     var s = store(), raw = null;
     try { raw = s ? s.getItem('arena.' + key) : (key in mem ? mem[key] : null); } catch (e) { raw = null; }
@@ -260,11 +269,12 @@
     return close;
   }
 
-  function daily(game) {
+  function daily(game, opts) {
     game = game || gameId;
+    var own = opts && /^\d{8}$/.test(String(opts.dayKey || '')) ? +opts.dayKey : 0;
     var q = null;
     try { q = hasDOM && new URLSearchParams(location.search).get('d'); } catch (e) {}
-    var day = /^\d{8}$/.test(q || '') ? +q : core.dayKey();
+    var day = /^\d{8}$/.test(q || '') ? +q : (own || core.dayKey());
     var seed = core.hash(game + ':' + day);
     var recs = get('daily.v1', {});
     var rec = recs[game] || { last: 0, streak: 0, best: 0 };
@@ -360,7 +370,7 @@
   }
 
   root.Arena = {
-    version: VERSION, game: gameId, games: GAMES.slice(), lang: function (l) { if (l) lang = l === 'tr' ? 'tr' : 'en'; return lang; },
+    version: VERSION, quiet: quiet, game: gameId, games: GAMES.slice(), lang: function (l) { if (l) lang = l === 'tr' ? 'tr' : 'en'; return lang; },
     perf: perf, hint: hint, toast: toast, endCard: endCard, daily: daily, share: share, shareCard: shareCard,
     profile: profile, award: award, settings: settings, openSettings: openSettings, mountSettingsButton: mountSettingsButton,
     on: function (name, fn) { (listeners[name] = listeners[name] || []).push(fn); },
@@ -866,6 +876,9 @@ h2 {
 .panel-orn { width: 140px; height: 16px; margin: 0 auto 4px auto; display: block; }
 .ledger-desc { font-size: 13px; opacity: 0.8; margin: 4px 0 0 0; }
 .diff-seg { max-width: 360px; margin: 0 auto; width: 100%; }
+.nofail-row { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 44px; margin: 6px auto 0; max-width: 360px; cursor: pointer; font-size: 14px; }
+.nofail-row input { width: 22px; height: 22px; flex: none; accent-color: var(--gold); cursor: pointer; }
+.nofail-row small { display: block; font-size: 11px; opacity: 0.75; }
 
 .songs {
   display: grid;
@@ -1735,6 +1748,20 @@ body.playing #hud, body.playing #spirit, body.playing #layers { display: flex; }
   .songs { grid-template-columns: 1fr; }
 }
 
+/* Phone HUD: row 1 = crest, song, buttons; row 2 = score, combo, accuracy */
+@media (max-width: 560px) {
+  #hud { left: 8px; right: 8px; top: 8px; flex-wrap: wrap; row-gap: 2px; column-gap: 6px; padding: 5px 8px; }
+  .brand-text { display: none; }
+  .brand-svg { width: 28px; height: 28px; }
+  .song-meta { flex: 1 1 0; min-width: 0; }
+  #h-song { min-width: 0; overflow: hidden; text-overflow: ellipsis; font-size: 13px; }
+  .stats { order: 3; flex: 1 0 100%; justify-content: space-around; gap: 6px; }
+  .stat { flex-direction: row; align-items: baseline; gap: 5px; }
+  .stat b { font-size: 15px; }
+  .score-stat b { font-size: 17px; }
+  #layers { top: 96px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
     animation-duration: 0.001ms !important;
@@ -1952,6 +1979,10 @@ body.playing #hud, body.playing #spirit, body.playing #layers { display: flex; }
       <button data-diff="normal" data-i18n="normal">Normal</button>
       <button data-diff="hard" data-i18n="hard">Zor</button>
     </div>
+    <label class="nofail-row" for="s-nofail">
+      <input type="checkbox" id="s-nofail">
+      <span><b data-i18n="noFail">Ruh tükenmez</b> <small data-i18n="noFailNote">Açıkken rekor ve rozet yazılmaz</small></span>
+    </label>
 
     <div class="songs" id="song-list"></div>
 
@@ -2098,6 +2129,7 @@ body.playing #hud, body.playing #spirit, body.playing #layers { display: flex; }
     </div>
 
     <div class="btns">
+      <button id="b-easy" class="primary hidden" data-i18n="tryEasy">Kolay’da dene</button>
       <button id="b-again" class="primary" data-i18n="playAgain">Tekrar oyna</button>
       <button id="b-main2" data-i18n="mainMenu">Ana menü</button>
     </div>
@@ -2121,7 +2153,7 @@ const Q = new URLSearchParams(location.search);
 const FLAG = { auto: Q.has('auto'), debug: Q.has('debug'), low: Q.has('low'), noassets: Q.has('noassets') };
 const PHONE = matchMedia('(pointer: coarse)').matches;
 const DEF_LANG = /^tr/i.test(navigator.language || '') ? 'tr' : 'en';
-const DEF = { master: 0.8, music: 0.6, sfx: 0.8, musicOn: true, sfxOn: true, lang: DEF_LANG, quality: PHONE ? 'low' : 'high', keys: ['d', 'f', 'j', 'k'], calib: 0 };
+const DEF = { master: 0.8, music: 0.6, sfx: 0.8, musicOn: true, sfxOn: true, lang: DEF_LANG, quality: PHONE ? 'low' : 'high', keys: ['d', 'f', 'j', 'k'], calib: 0, noFail: false };
 
 function store(key, fallback) {
   try { const raw = localStorage.getItem(key); return raw ? { ...fallback, ...JSON.parse(raw) } : { ...fallback }; }
@@ -2135,6 +2167,14 @@ const lowQ = () => FLAG.low || S.quality === 'low';
 const saveSettings = () => persist('arena.mehter.settings', S);
 const loadBest = () => store('arena.mehter.best', {});
 const saveBest = (b) => persist('arena.mehter.best', b);
+// Easy records live in their own key (KARARLAR #8): the old arena.mehter.best entries stay as they were.
+// A legacy "N-easy" entry in the old key is still shown until a new Easy record replaces it here.
+const loadBestEasy = () => store('arena.mehter.best.easy', {});
+const saveBestEasy = (b) => persist('arena.mehter.best.easy', b);
+// First experience: a player with no saved difficulty starts on Easy, unless they already hold records
+// (those were set on the old Normal default). The difficulty the player picks is remembered in S.diff.
+const DIFFS = ['easy', 'normal', 'hard'];
+if (!DIFFS.includes(S.diff)) S.diff = Object.keys(loadBest()).length ? 'normal' : 'easy';
 
 // ----- strings -------------------------------------------------------------
 const I18N = {
@@ -2148,6 +2188,8 @@ const I18N = {
     resume: 'Devam', restart: 'Yeniden başlat', mainMenu: 'Ana menü',
     master: 'Ana ses', music: 'Müzik', sfx: 'Efektler', language: 'Dil', quality: 'Kalite', low: 'Düşük', high: 'Yüksek',
     fullscreen: 'Tam ekran', keys: 'Tuşlar', pressKey: 'Bir tuşa basın', rebindDone: 'Tuş atandı',
+    qualitySet: 'Kalite: {q}. Sayfa yenilenince uygulanır.',
+    noFail: 'Ruh tükenmez', noFailNote: 'Açıkken rekor ve rozet yazılmaz', noFailResult: 'Ruh tükenmez açık: rekor yazılmadı', tryEasy: 'Kolay’da dene',
     playAgain: 'Tekrar oyna', score: 'Skor', combo: 'Kombo', acc: 'İsabet', spirit: 'Ruh', song: 'Şarkı',
     pause: 'Duraklat', grade: 'Derece', diff: 'Zorluk', newRecord: 'Yeni rekor!', defeat: 'Ruh tükendi', cleared: 'Şarkı tamam',
     perfect: 'MÜKEMMEL', good: 'İYİ', miss: 'KAÇTI', brk: 'KOPTU',
@@ -2183,6 +2225,8 @@ const I18N = {
     resume: 'Resume', restart: 'Restart', mainMenu: 'Main menu',
     master: 'Master', music: 'Music', sfx: 'Effects', language: 'Language', quality: 'Quality', low: 'Low', high: 'High',
     fullscreen: 'Fullscreen', keys: 'Keys', pressKey: 'Press a key', rebindDone: 'Key set',
+    qualitySet: 'Quality: {q}. It applies after a page reload.',
+    noFail: 'No-fail', noFailNote: 'While on, no records or badges are saved', noFailResult: 'No-fail on: no record saved', tryEasy: 'Try on Easy',
     playAgain: 'Play again', score: 'Score', combo: 'Combo', acc: 'Accuracy', spirit: 'Spirit', song: 'Song',
     pause: 'Pause', grade: 'Grade', diff: 'Difficulty', newRecord: 'New record!', defeat: 'Spirit broke', cleared: 'Song complete',
     perfect: 'PERFECT', good: 'GOOD', miss: 'MISS', brk: 'BREAK',
@@ -2461,7 +2505,7 @@ function playEvent(e, w) {
 
 // ----- game state ----------------------------------------------------------
 const G = {
-  ready: false, screen: 'title', song: null, visSong: null, idx: 0, sel: 0, diff: 'normal',
+  ready: false, screen: 'title', song: null, visSong: null, idx: 0, sel: 0, diff: S.diff, noFail: false,
   clock: 'wall', audioT0: 0, gt: 0, idleT: 0, paused: false, auto: false, bot: false, autoDone: false,
   endAt: Infinity, ended: false, notes: [], lanes: [[], [], [], []], lp: [0, 0, 0, 0], vis: 0,
   holds: [null, null, null, null], held: [false, false, false, false], flash: [0, 0, 0, 0], instFlash: { davul: 0, kos: 0, zurna: 0, cevgen: 0 },
@@ -2558,6 +2602,7 @@ function startSong(idx, diff, opts = {}) {
   G.song = s; G.visSong = s; G.idx = idx; G.diff = diff; if (idx >= 0) G.sel = idx;
   G.daily = s.idx < 0 ? s.day : 0;
   G.auto = !!opts.auto; G.bot = !!opts.bot; G.autoDone = false;
+  G.noFail = !!S.noFail && !G.auto && !G.bot;
   G.notes = makeChart(s, diff);
   G.lanes = [[], [], [], []];
   G.notes.forEach((n) => G.lanes[n.lane].push(n));
@@ -2678,10 +2723,13 @@ function onHit(n, grade) {
   if (n.dur > 0) { n.state = 1; n.tick = G.gt + 0.25; G.holds[n.lane] = n; } else n.state = 2;
   if (G.combo >= 10 && G.combo % 10 === 0) { petals(lowQ() ? 18 : 36); sndCheer(); }
 }
+// warm-up: notes in the first 2 bars of a song cost no spirit (scores and layers count as usual)
+const warmNote = (n) => !!(G.song && n.t < LEAD + 2 * G.song.barDur);
 function onMiss(n) {
   G.judged++; G.cnt.miss++; G.combo = 0;
   layerSlip();
-  G.spirit -= 7; n.w = 0; n.state = 2;
+  if (!warmNote(n)) G.spirit -= 7;
+  n.w = 0; n.state = 2;
   judgeShow('miss'); sndMiss();
   checkFail();
 }
@@ -2695,11 +2743,14 @@ function breakHold(l, n) {
   G.cnt.brk++; G.combo = 0; G.judged += 0;
   layerSlip();
   G.weight -= n.w * 0.5; n.w *= 0.5;
-  G.spirit -= 5;
+  if (!warmNote(n)) G.spirit -= 5;
   judgeShow('brk'); sndMiss();
   checkFail();
 }
-function checkFail() { if (G.screen === 'play' && G.spirit <= 0 && !G.ended) endSong(true); }
+function checkFail() {
+  if (G.noFail) { G.spirit = Math.max(0, G.spirit); return; }   // no-fail: the song always plays to the end
+  if (G.screen === 'play' && G.spirit <= 0 && !G.ended) endSong(true);
+}
 
 function endSong(defeat) {
   G.ended = true;
@@ -2707,14 +2758,20 @@ function endSong(defeat) {
   const acc = Math.max(0, G.weight / total);
   const grade = defeat ? 'C' : acc >= 0.95 ? 'S' : acc >= 0.85 ? 'A' : acc >= 0.7 ? 'B' : 'C';
   const key = `${G.idx}-${G.diff}`;
-  const best = loadBest();
+  const easy = G.diff === 'easy';
+  const best = easy ? loadBestEasy() : loadBest();
+  const prev = bestOf(G.idx, G.diff);
   let record = false;
-  if (G.idx >= 0 && !defeat && (!best[key] || G.score > best[key].score)) { best[key] = { score: Math.round(G.score), grade }; saveBest(best); record = true; }
-  G.result = { defeat, acc, grade, record, score: Math.round(G.score), maxCombo: G.maxCombo, maxLayers: G.maxLayers, cnt: { ...G.cnt }, hist: G.hist.slice(), name: G.song.name[LANG] };
+  if (G.idx >= 0 && !defeat && !G.noFail && (!prev || G.score > prev.score)) {
+    best[key] = { score: Math.round(G.score), grade };
+    if (easy) saveBestEasy(best); else saveBest(best);
+    record = true;
+  }
+  G.result = { defeat, acc, grade, record, noFail: G.noFail, score: Math.round(G.score), maxCombo: G.maxCombo, maxLayers: G.maxLayers, cnt: { ...G.cnt }, hist: G.hist.slice(), name: G.song.name[LANG] };
   G.endAt = G.gt + 2.5;
   if (G.auto && G.idx >= SONGS.length - 1) G.autoDone = true;
   // arena-kit: passport badges and the daily streak (the bot never writes to the player's passport)
-  if (window.Arena && !G.auto && !G.bot) {
+  if (window.Arena && !G.auto && !G.bot && !G.noFail) {
     if (!defeat && grade === 'S') Arena.award('mehter-s', T('awS'));
     if (G.maxLayers >= 4) Arena.award('mehter-4layers', T('awLayers'));
     if (!defeat && G.idx === SONGS.length - 1) Arena.award('mehter-zafer', T('awZafer'));
@@ -2740,9 +2797,12 @@ function showResults() {
     if (r.record) {
       recEl.innerHTML = `<span class="wax-seal-badge"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2l3 6 6 1-4.5 4.5 1 6.5-5.5-3.5L6.5 20l1-6.5L3 9l6-1z"/></svg> ${T('newRecord')}</span>`;
     } else {
-      recEl.textContent = '';
+      recEl.textContent = r.noFail ? T('noFailResult') : '';
     }
   }
+  // a defeat off Easy suggests the easier chart (not for the daily song, which is always Normal)
+  const easyBtn = $('#b-easy');
+  if (easyBtn) easyBtn.classList.toggle('hidden', !(r.defeat && G.diff !== 'easy' && G.idx >= 0 && !G.auto));
   const rows = [[T('score'), fmt(r.score)], [T('maxCombo'), r.maxCombo], [T('maxLayer'), r.maxLayers + '/4'], [T('perfectN'), r.cnt.perfect], [T('goodN'), r.cnt.good], [T('missN'), r.cnt.miss], [T('brkN'), r.cnt.brk], [T('accN'), Math.round(r.acc * 100) + '%'], [T('grade'), r.grade]];
   $('#r-stats').innerHTML = rows.map(([a, b]) => `<div><span>${a}</span><b>${b}</b></div>`).join('');
   const bins = new Array(11).fill(0);
@@ -3510,7 +3570,11 @@ function setLang(l) {
   saveSettings();
   applyI18n();
 }
-function bestOf(idx, diff) { const b = loadBest(); return b[`${idx}-${diff}`]; }
+function bestOf(idx, diff) {
+  const k = `${idx}-${diff}`;
+  if (diff === 'easy') return loadBestEasy()[k] || loadBest()[k];
+  return loadBest()[k];
+}
 function refreshBest() {
   if (window.Arena) { const d = Arena.daily(); setText($('#title-daily'), T('daily') + ': ' + (d.done ? T('dailyDone') + ' · ' : '') + T('dailyLine').replace('{s}', d.streak).replace('{b}', d.best)); }
   const b = bestOf(G.sel, G.diff);
@@ -3574,6 +3638,7 @@ function buildSongCards() {
 function visualSelectBpm() { G.visSong = SONGS[G.sel]; }
 function refreshDiffButtons() {
   for (const b of $$('#diffs button')) { b.classList.toggle('on', b.dataset.diff === G.diff); b.setAttribute('aria-checked', String(b.dataset.diff === G.diff)); }
+  const nf = $('#s-nofail'); if (nf) nf.checked = !!S.noFail;
 }
 function refreshSettings() {
   $('#s-master').value = S.master;
@@ -3623,13 +3688,15 @@ function wireUI() {
     await readyAudio();
     startSong(G.sel, G.diff, {});
   });
-  for (const b of $$('#diffs button')) b.addEventListener('click', () => { G.diff = b.dataset.diff; refreshDiffButtons(); buildSongCards(); refreshBest(); });
+  for (const b of $$('#diffs button')) b.addEventListener('click', () => { G.diff = S.diff = b.dataset.diff; saveSettings(); refreshDiffButtons(); buildSongCards(); refreshBest(); });
+  $('#s-nofail').addEventListener('change', (e) => { S.noFail = e.target.checked; saveSettings(); });
   $('#b-set-back').addEventListener('click', closeSettings);
   $('#s-master').addEventListener('input', (e) => { S.master = Number(e.target.value); applyVolumes(); saveSettings(); });
   $('#s-music').addEventListener('input', (e) => { S.music = Number(e.target.value); applyVolumes(); saveSettings(); });
   $('#s-sfx').addEventListener('input', (e) => { S.sfx = Number(e.target.value); applyVolumes(); saveSettings(); });
   for (const b of $$('[data-lang]')) b.addEventListener('click', () => setLang(b.dataset.lang));
-  for (const b of $$('[data-q]')) b.addEventListener('click', () => { S.quality = b.dataset.q; saveSettings(); refreshSettings(); toast(T('rebindDone')); });
+  // shadows and pixel ratio are read once at start, so the toast says the change waits for a reload
+  for (const b of $$('[data-q]')) b.addEventListener('click', () => { S.quality = b.dataset.q; saveSettings(); refreshSettings(); toast(T('qualitySet').replace('{q}', T(S.quality))); });
   $('#b-fs').addEventListener('click', toggleFullscreen);
   for (const b of $$('.keys button[data-lane]')) b.addEventListener('click', () => { G.rebind = Number(b.dataset.lane); setText($('#rebind-msg'), T('pressKey')); refreshKeys(); });
   $('#b-cal-start').addEventListener('click', calibStart);
@@ -3642,6 +3709,11 @@ function wireUI() {
   $('#b-main').addEventListener('click', goTitle);
   $('#b-main2').addEventListener('click', goTitle);
   $('#b-again').addEventListener('click', async () => { await readyAudio(); startSong(G.idx, G.diff, { song: G.idx < 0 ? G.song : undefined }); });
+  $('#b-easy').addEventListener('click', async () => {
+    if (G.idx < 0) return;
+    G.diff = S.diff = 'easy'; saveSettings(); refreshDiffButtons();
+    await readyAudio(); startSong(G.idx, 'easy', {});
+  });
   // arena-kit: daily challenge, accessibility panel (from Settings: a corner button would sit on the zil lane),
   // share and another game on the results scroll
   $('#b-daily').addEventListener('click', async () => { if (!window.Arena) return; await readyAudio(); startSong(-1, 'normal', { song: dailySong(Arena.daily()) }); });
@@ -3697,10 +3769,13 @@ function onKey(e) {
     e.preventDefault();
     return;
   }
-  if (k === 'm') { S.musicOn = !S.musicOn; applyVolumes(); saveSettings(); return; }
-  if (k === 'x') { S.sfxOn = !S.sfxOn; applyVolumes(); saveSettings(); return; }
-  if (k === 'l') { setLang(LANG === 'tr' ? 'en' : 'tr'); return; }
-  if (k === 'p' || k === 'escape') {
+  // a key bound to a lane is a lane key everywhere: M / X / L / P shortcuts are skipped for it
+  // (Esc cannot be bound, so pause always stays on Esc)
+  const laneKey = S.keys.includes(k);
+  if (k === 'm' && !laneKey) { S.musicOn = !S.musicOn; applyVolumes(); saveSettings(); return; }
+  if (k === 'x' && !laneKey) { S.sfxOn = !S.sfxOn; applyVolumes(); saveSettings(); return; }
+  if (k === 'l' && !laneKey) { setLang(LANG === 'tr' ? 'en' : 'tr'); return; }
+  if ((k === 'p' && !laneKey) || k === 'escape') {
     if (G.screen === 'play') pauseGame();
     else if (G.screen === 'pause') resumeGame();
     else if (G.screen === 'settings' && G.returnTo === 'pause') closeSettings();
