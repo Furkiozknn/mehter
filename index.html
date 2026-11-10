@@ -14,11 +14,12 @@
 <meta property="og:image:width" content="960">
 <meta property="og:image:height" content="540">
 <meta name="twitter:card" content="summary_large_image">
-<script>/*ARENA-KIT:BEGIN v1.0.1 sha256:bc575c398c95*/
+<script>/*ARENA-KIT:BEGIN v1.1.0 sha256:3bea83137e26*/
 /* ARENA-KIT v1 — shared layer for the 21 Claude Game Arena games.
  *
  * Injected inline into each game's index.html (between begin/end marker comments) by
- * arena-kit/inject.py, so every game stays a single file. Plain script, no imports, no network.
+ * arena-kit/inject.py, so every game stays a single file. Plain script, no imports; the kit itself opens no
+ * connection (v1.1 play events are handed to the page's existing GoatCounter counter, if it is there).
  * Everything is optional: a game that never calls Arena.* behaves exactly as before.
  *
  *   Arena.perf.attach(renderer)        dynamic pixel ratio for weak GPUs (Intel UHD)
@@ -29,6 +30,10 @@
  *   Arena.share({...})                 Web Share / clipboard text + optional PNG card
  *   Arena.profile(), Arena.award(id)   cross-game passport (shared origin localStorage)
  *   Arena.settings / openSettings()    accessibility panel (text size, contrast, motion, vibration, auto-pause)
+ *   Arena.complete({mount, feedback})  v1.1: "completed" event + one-tap 👍/👎 (once a day per game), inline in `mount`
+ *   Arena.track(name)                  v1.1: one GoatCounter event "<game>/<name>" per page load; automatic:
+ *                                      "start" (first real input) and "return" (played this game on an earlier day)
+ *                                      Nothing is sent or shown on quiet runs; no cookies, no ids, no new service.
  *
  * Storage: every key starts with "arena." and is versioned; every access is wrapped in try/catch
  * (private mode, quota, portals). Pure logic lives in Arena._core so it can be tested in Node.
@@ -36,7 +41,7 @@
 (function (root) {
   'use strict';
   if (root.Arena && root.Arena.version) return; // injected twice (e.g. iframe) -> keep the first
-  var VERSION = '1.0.1';
+  var VERSION = '1.1.0';
   var hasDOM = typeof document !== 'undefined';
 
   /* ---------- core (pure, Node-testable) ---------- */
@@ -56,6 +61,12 @@
     var y = Math.floor(key / 10000), m = Math.floor(key / 100) % 100, d = key % 100;
     return core.dayKey(new Date(Date.UTC(y, m - 1, d) - 86400000));
   };
+  // v1.1: a player is "returning" if this game was last played on an earlier day (old profiles: any earlier play)
+  core.isReturn = function (lastDay, plays, lastAnyAt, today) {
+    if (lastDay) return lastDay < today;
+    return !!(plays > 0 && lastAnyAt && core.dayKey(new Date(lastAnyAt)) < today);
+  };
+  core.eventName = function (name) { return String(name || '').replace(/[^a-z0-9-]/gi, '').slice(0, 24).toLowerCase(); };
   core.hash = function (str) { // FNV-1a 32-bit
     var h = 0x811c9dc5;
     for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
@@ -124,10 +135,12 @@
   var STR = {
     tr: { again: 'Bir daha', another: 'Başka bir oyun dene', close: 'Kapat', settings: 'Erişilebilirlik',
       textSize: 'Yazı boyutu', contrast: 'Yüksek karşıtlık', motion: 'Hareketi azalt', vibration: 'Titreşim',
-      autoPause: 'Sekme değişince duraklat', copied: 'Panoya kopyalandı', streak: 'Seri', days: 'gün', share: 'Paylaş' },
+      autoPause: 'Sekme değişince duraklat', copied: 'Panoya kopyalandı', streak: 'Seri', days: 'gün', share: 'Paylaş',
+      fbAsk: 'Beğendin mi?', like: 'Beğendim', dislike: 'Beğenmedim', thanks: 'Teşekkürler!' },
     en: { again: 'Play again', another: 'Try another game', close: 'Close', settings: 'Accessibility',
       textSize: 'Text size', contrast: 'High contrast', motion: 'Reduce motion', vibration: 'Vibration',
-      autoPause: 'Pause when the tab is hidden', copied: 'Copied to clipboard', streak: 'Streak', days: 'days', share: 'Share' },
+      autoPause: 'Pause when the tab is hidden', copied: 'Copied to clipboard', streak: 'Streak', days: 'days', share: 'Share',
+      fbAsk: 'Did you enjoy it?', like: 'I liked it', dislike: 'I did not like it', thanks: 'Thanks!' },
   };
   var lang = 'en';
   try { lang = /^tr/i.test((hasDOM && document.documentElement.lang) || (root.navigator && navigator.language) || '') ? 'tr' : 'en'; } catch (e) {}
@@ -144,9 +157,13 @@
     gameId = (meta && meta.content) || (GAMES.indexOf(seg) >= 0 ? seg : 'unknown');
   } catch (e) {}
   function profile() { return get('profile.v1', { plays: {}, badges: {}, last: null, first: null }); }
+  var returning = false;
   function touchProfile() {
-    var p = profile(), now = Date.now();
+    var p = profile(), now = Date.now(), today = core.dayKey();
+    p.lastDay = p.lastDay || {};
+    returning = core.isReturn(p.lastDay[gameId], p.plays[gameId] || 0, p.last && p.last.at, today);
     p.plays[gameId] = (p.plays[gameId] || 0) + 1; p.last = { game: gameId, at: now }; p.first = p.first || now;
+    p.lastDay[gameId] = today;
     set('profile.v1', p); return p;
   }
   function award(id, label) {
@@ -199,6 +216,13 @@
     'width:40px;height:40px;border-radius:50%;border:0;background:rgba(14,13,11,.7);color:#f6f1e6;font:20px/40px system-ui;cursor:pointer;opacity:.7}' +
     '.arena-gear:hover,.arena-gear:focus-visible{opacity:1}' +
     'html[data-arena-contrast] body{filter:contrast(1.25) saturate(1.1)}' +
+    '.arena-fb{position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top));transform:translateX(-50%);z-index:2147483000;white-space:nowrap;' +
+    'display:flex;align-items:center;gap:8px;padding:6px 6px 6px 14px;border-radius:999px;background:rgba(14,13,11,.9);color:#f6f1e6;' +
+    'font:600 calc(15px*var(--arena-text-scale,1))/1.2 system-ui,sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)}' +
+    '.arena-fb button{min-width:44px;min-height:44px;border:0;border-radius:50%;background:#2b2722;color:#f6f1e6;font:22px/1 system-ui;cursor:pointer}' +
+    '.arena-fb button.arena-fb-x{font-size:16px;background:transparent}' +
+    '.arena-fb.arena-fb-inline{position:static;transform:none;margin:12px auto 0;width:max-content;max-width:100%;box-shadow:none}' +
+    '.arena-fb button:focus-visible{outline:3px solid #3fd4dc;outline-offset:2px}' +
     'html[data-arena-reduced-motion] *{animation-duration:.001s!important;animation-iteration-count:1!important;transition-duration:.001s!important}';
   var styled = false;
   function style() {
@@ -267,6 +291,55 @@
     var close = modal(el('div', { class: 'arena-card' }, kids));
     again.addEventListener('click', function () { close(); if (o.onAgain) o.onAgain(); });
     return close;
+  }
+
+  /* ---------- play events (v1.1) ---------- */
+  // Handed to the page's own GoatCounter (`window.goatcounter.count`, already on 20 of 21 pages). The kit opens no
+  // connection itself; without the counter (or on ?auto / ?nosave / ?demo) the events are simply dropped.
+  var sent = {}, pending = [];
+  function gcSend(path, title) {
+    var gc = root.goatcounter;
+    if (!gc || typeof gc.count !== 'function') return false;
+    try { gc.count({ path: path, title: title || path, event: true }); } catch (e) {}
+    return true;
+  }
+  function flush(tries) {
+    pending = pending.filter(function (e) { return !gcSend(e[0], e[1]); });
+    if (pending.length && tries < 20) setTimeout(function () { flush(tries + 1); }, 500); // count.js loads async
+  }
+  function track(name, title) {
+    name = core.eventName(name);
+    if (quiet || !hasDOM || !name || sent[name]) return false;
+    sent[name] = 1;
+    var path = gameId + '/' + name;
+    if (!gcSend(path, title)) { pending.push([path, title]); if (pending.length === 1) flush(0); }
+    return true;
+  }
+  var fbEl = null;
+  function complete(o) {
+    o = o || {};
+    track('complete');
+    if (quiet || !hasDOM || !document.body || o.feedback === false || fbEl) return;
+    var asked = get('feedback.v1', {}), today = core.dayKey();
+    if (asked[gameId] === today) return;
+    style();
+    var up = el('button', { type: 'button', 'aria-label': t('like'), title: t('like'), text: '👍' });
+    var down = el('button', { type: 'button', 'aria-label': t('dislike'), title: t('dislike'), text: '👎' });
+    var x = el('button', { type: 'button', class: 'arena-fb-x', 'aria-label': t('close'), title: t('close'), text: '✕' });
+    var label = el('span', { text: t('fbAsk') });
+    var mount = o.mount && o.mount.appendChild ? o.mount : null;   // inline in the game's own end screen if given
+    fbEl = el('div', { class: mount ? 'arena-fb arena-fb-inline' : 'arena-fb', role: 'group', 'aria-label': t('fbAsk') }, [label, up, down, x]);
+    function done() { if (fbEl && fbEl.parentNode) fbEl.parentNode.removeChild(fbEl); fbEl = null; }
+    function vote(v) {
+      track(v); var a = get('feedback.v1', {}); a[gameId] = today; set('feedback.v1', a);
+      [up, down, x].forEach(function (b) { b.remove(); }); label.textContent = t('thanks'); announce(t('thanks'));
+      setTimeout(done, 1500);
+    }
+    up.addEventListener('click', function () { vote('like'); });
+    down.addEventListener('click', function () { vote('dislike'); });
+    x.addEventListener('click', done);
+    (mount || document.body).appendChild(fbEl);
+    if (!mount) setTimeout(done, o.ms || 20000);   // floating panel fades out; an inline one stays with the end screen
   }
 
   function daily(game, opts) {
@@ -365,7 +438,16 @@
       if (!settings.autoPause) return;
       emit(document.hidden ? 'pause' : 'resume');
     });
-    var boot = function () { applySettings(); touchProfile(); };
+    var boot = function () {
+      applySettings(); touchProfile();
+      if (quiet) return;
+      var first = function (e) {
+        if (e && e.isTrusted === false) return;
+        ['pointerdown', 'keydown', 'touchstart'].forEach(function (n) { document.removeEventListener(n, first, true); });
+        track('start'); if (returning) track('return');
+      };
+      ['pointerdown', 'keydown', 'touchstart'].forEach(function (n) { document.addEventListener(n, first, true); });
+    };
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
   }
 
@@ -373,6 +455,7 @@
     version: VERSION, quiet: quiet, game: gameId, games: GAMES.slice(), lang: function (l) { if (l) lang = l === 'tr' ? 'tr' : 'en'; return lang; },
     perf: perf, hint: hint, toast: toast, endCard: endCard, daily: daily, share: share, shareCard: shareCard,
     profile: profile, award: award, settings: settings, openSettings: openSettings, mountSettingsButton: mountSettingsButton,
+    track: track, complete: complete,
     on: function (name, fn) { (listeners[name] = listeners[name] || []).push(fn); },
     _core: core, _store: { get: get, set: set },
   };
@@ -1887,7 +1970,7 @@ body.playing #hud, body.playing #spirit, body.playing #layers { display: flex; }
 </div>
 
 <div id="judge" aria-live="polite"></div>
-<div id="toasts" aria-live="polite"></div>
+<div id="toasts" role="status" aria-live="polite"></div>
 <pre id="dbg" class="hidden"></pre>
 
 <!-- TITLE SCREEN -->
@@ -2152,6 +2235,8 @@ const $$ = (s) => [...document.querySelectorAll(s)];
 const Q = new URLSearchParams(location.search);
 const FLAG = { auto: Q.has('auto'), debug: Q.has('debug'), low: Q.has('low'), noassets: Q.has('noassets') };
 const PHONE = matchMedia('(pointer: coarse)').matches;
+/** arena-kit "reduce motion": the scene lights stop swelling on the beat. Read live (visual layer only, the sim never reads it). */
+const calm = () => !!(window.Arena && Arena.settings && Arena.settings.reducedMotion);
 const DEF_LANG = /^tr/i.test(navigator.language || '') ? 'tr' : 'en';
 const DEF = { master: 0.8, music: 0.6, sfx: 0.8, musicOn: true, sfxOn: true, lang: DEF_LANG, quality: PHONE ? 'low' : 'high', keys: ['d', 'f', 'j', 'k'], calib: 0, noFail: false };
 
@@ -2181,6 +2266,7 @@ const I18N = {
   tr: {
     subtitle: 'Davul, kös, zurna ve zil bu caddede sizin ritminizle yürür.',
     howto1: 'Notalar vuruş çizgisine doğru gelir. Tam anda D F J K tuşlarına basın ya da şeritlere dokunun.',
+    howto1Touch: 'Notalar vuruş çizgisine doğru gelir. Tam anda alttaki dört şeride dokunun.',
     howto2: 'Zurna uzun notalarında tuşu basılı tutun. Kombo çarpanı artar; ruh sıfıra inerse şarkı biter.',
     howto3: 'Gecikmenizi kalibrasyon ekranında ölçün.',
     play: 'Oyna', settings: 'Ayarlar', calib: 'Kalibrasyon', back: 'Geri', start: 'Başla',
@@ -2218,6 +2304,7 @@ const I18N = {
   en: {
     subtitle: 'Davul, kös, zurna and zil march down this avenue to your rhythm.',
     howto1: 'Notes roll toward the hit line. Press D F J K on the beat, or tap the lanes.',
+    howto1Touch: 'Notes roll toward the hit line. Tap the four lanes at the bottom on the beat.',
     howto2: 'Hold long zurna notes. Combos raise the multiplier; if band spirit hits zero the song ends.',
     howto3: 'Measure your input lag on the calibration screen.',
     play: 'Play', settings: 'Settings', calib: 'Calibration', back: 'Back', start: 'Start',
@@ -2778,6 +2865,7 @@ function endSong(defeat) {
     if (G.daily) { const d = Arena.daily(); if (d.day === G.daily) G.result.streak = d.complete(G.result.score); }
   }
   showResults();
+  if (window.Arena && Arena.complete) Arena.complete({ mount: $('#scr-results .results-panel') });   // arena-kit v1.1: mehter/complete + one-tap 👍/👎 (nothing on ?auto)
 }
 function showResults() {
   const r = G.result;
@@ -3661,6 +3749,9 @@ function refreshKeys() {
     if (lbl) setText(lbl, keyName); else setText(b, keyName);
     b.setAttribute('aria-label', `${T('laneTouch')} ${l + 1} (${keyName})`);
   }
+  // how-to line: the bound keys (not a fixed "D F J K"); touch screens get a text without keys
+  const h1 = $('[data-i18n="howto1"]');
+  if (h1) setText(h1, PHONE ? T('howto1Touch') : T('howto1').replace('D F J K', S.keys.map((k) => k.toUpperCase()).join(' ')));
 }
 function openSettings() {
   G.returnTo = G.screen === 'pause' ? 'pause' : 'title';
@@ -3821,7 +3912,7 @@ function frame(now) {
 }
 function updateVisuals(dt) {
   const vb = visualBeat();
-  BEAT_PULSE = Math.pow(1 - (vb.beat - Math.floor(vb.beat)), 3);   // 1 on the beat, decays to 0 before the next
+  BEAT_PULSE = calm() ? 0 : Math.pow(1 - (vb.beat - Math.floor(vb.beat)), 3);   // 1 on the beat, decays to 0 before the next; reduce motion: no light pulse
   updateSky(dt, visualDark());
   updateBand(vb.beat, dt);
   G.cheer += ((G.combo >= 10 ? Math.min(1, G.combo / 40) : 0.15) - G.cheer) * Math.min(1, dt * 2);
