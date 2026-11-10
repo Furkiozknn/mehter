@@ -1887,7 +1887,7 @@ body.playing #hud, body.playing #spirit, body.playing #layers { display: flex; }
 </div>
 
 <div id="judge" aria-live="polite"></div>
-<div id="toasts" aria-live="polite"></div>
+<div id="toasts" role="status" aria-live="polite"></div>
 <pre id="dbg" class="hidden"></pre>
 
 <!-- TITLE SCREEN -->
@@ -2152,6 +2152,8 @@ const $$ = (s) => [...document.querySelectorAll(s)];
 const Q = new URLSearchParams(location.search);
 const FLAG = { auto: Q.has('auto'), debug: Q.has('debug'), low: Q.has('low'), noassets: Q.has('noassets') };
 const PHONE = matchMedia('(pointer: coarse)').matches;
+/** arena-kit "reduce motion": the scene lights stop swelling on the beat. Read live (visual layer only, the sim never reads it). */
+const calm = () => !!(window.Arena && Arena.settings && Arena.settings.reducedMotion);
 const DEF_LANG = /^tr/i.test(navigator.language || '') ? 'tr' : 'en';
 const DEF = { master: 0.8, music: 0.6, sfx: 0.8, musicOn: true, sfxOn: true, lang: DEF_LANG, quality: PHONE ? 'low' : 'high', keys: ['d', 'f', 'j', 'k'], calib: 0, noFail: false };
 
@@ -2181,6 +2183,7 @@ const I18N = {
   tr: {
     subtitle: 'Davul, kös, zurna ve zil bu caddede sizin ritminizle yürür.',
     howto1: 'Notalar vuruş çizgisine doğru gelir. Tam anda D F J K tuşlarına basın ya da şeritlere dokunun.',
+    howto1Touch: 'Notalar vuruş çizgisine doğru gelir. Tam anda alttaki dört şeride dokunun.',
     howto2: 'Zurna uzun notalarında tuşu basılı tutun. Kombo çarpanı artar; ruh sıfıra inerse şarkı biter.',
     howto3: 'Gecikmenizi kalibrasyon ekranında ölçün.',
     play: 'Oyna', settings: 'Ayarlar', calib: 'Kalibrasyon', back: 'Geri', start: 'Başla',
@@ -2218,6 +2221,7 @@ const I18N = {
   en: {
     subtitle: 'Davul, kös, zurna and zil march down this avenue to your rhythm.',
     howto1: 'Notes roll toward the hit line. Press D F J K on the beat, or tap the lanes.',
+    howto1Touch: 'Notes roll toward the hit line. Tap the four lanes at the bottom on the beat.',
     howto2: 'Hold long zurna notes. Combos raise the multiplier; if band spirit hits zero the song ends.',
     howto3: 'Measure your input lag on the calibration screen.',
     play: 'Play', settings: 'Settings', calib: 'Calibration', back: 'Back', start: 'Start',
@@ -3661,6 +3665,9 @@ function refreshKeys() {
     if (lbl) setText(lbl, keyName); else setText(b, keyName);
     b.setAttribute('aria-label', `${T('laneTouch')} ${l + 1} (${keyName})`);
   }
+  // how-to line: the bound keys (not a fixed "D F J K"); touch screens get a text without keys
+  const h1 = $('[data-i18n="howto1"]');
+  if (h1) setText(h1, PHONE ? T('howto1Touch') : T('howto1').replace('D F J K', S.keys.map((k) => k.toUpperCase()).join(' ')));
 }
 function openSettings() {
   G.returnTo = G.screen === 'pause' ? 'pause' : 'title';
@@ -3821,7 +3828,7 @@ function frame(now) {
 }
 function updateVisuals(dt) {
   const vb = visualBeat();
-  BEAT_PULSE = Math.pow(1 - (vb.beat - Math.floor(vb.beat)), 3);   // 1 on the beat, decays to 0 before the next
+  BEAT_PULSE = calm() ? 0 : Math.pow(1 - (vb.beat - Math.floor(vb.beat)), 3);   // 1 on the beat, decays to 0 before the next; reduce motion: no light pulse
   updateSky(dt, visualDark());
   updateBand(vb.beat, dt);
   G.cheer += ((G.combo >= 10 ? Math.min(1, G.combo / 40) : 0.15) - G.cheer) * Math.min(1, dt * 2);
