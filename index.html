@@ -818,7 +818,7 @@ h2 {
 }
 .seg button {
   flex: 1;
-  min-height: 42px;
+  min-height: 44px;
   padding: 6px 12px;
   border-radius: 8px;
   border: 1px solid transparent;
@@ -1814,7 +1814,7 @@ body.playing #hud, body.playing #spirit, body.playing #layers { display: flex; }
   .stat b { font-size: 16px; }
   .score-stat b { font-size: 20px; }
   .tools { gap: 4px; }
-  .ibtn { min-width: 40px; min-height: 40px; padding: 6px; }
+  .ibtn { min-width: 44px; min-height: 44px; padding: 6px; }
   
   #spirit { left: 8px; width: 20px; }
   #layers { top: 64px; right: 8px; gap: 3px; padding: 4px 6px; }
@@ -1941,8 +1941,8 @@ body.playing #hud, body.playing #spirit, body.playing #layers { display: flex; }
     <button id="b-sound" class="ibtn" data-i18n-aria="sound" aria-label="Ses">
       <svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 8.5a5 5 0 0 1 0 7M19 6a9 9 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
     </button>
-    <button id="b-practice-h" class="ibtn txt" aria-label="Pratik" title="Pratik Modu">PRC</button>
-    <button id="b-lang-h" class="ibtn txt" aria-label="Dil">TR</button>
+    <button id="b-practice-h" class="ibtn txt" data-i18n="practiceBadge" data-i18n-aria="practiceBadge" data-i18n-title="practice" aria-label="Pratik" title="Pratik Modu">Pratik</button>
+    <button id="b-lang-h" class="ibtn txt" data-i18n-aria="language" aria-label="Dil">TR</button>
   </div>
 </header>
 
@@ -2118,7 +2118,7 @@ body.playing #hud, body.playing #spirit, body.playing #layers { display: flex; }
       </div>
       <div class="row">
         <span data-i18n="practice">Pratik Modu</span>
-        <div class="seg" style="flex:1"><button data-prac="0">Kapalı</button><button data-prac="1">Açık</button></div>
+        <div class="seg" style="flex:1"><button data-prac="0" data-i18n="off">Kapalı</button><button data-prac="1" data-i18n="on">Açık</button></div>
       </div>
       <div class="row">
         <button id="b-fs" class="full-btn" data-i18n="fullscreen">Tam ekran</button>
@@ -2314,6 +2314,8 @@ const I18N = {
     howto4: 'Dört Katman: isabetli seri tuttukça zurna, boru ve zil takımları yürüyüşe katılır; her katman puanı artırır. Çok kaçırırsanız en üst takım saftan düşer.',
     practice: 'Pratik Modu',
     practiceBadge: 'Pratik',
+    off: 'Kapalı',
+    on: 'Açık',
     a11y: 'Erişilebilirlik', share: 'Paylaş', anotherGame: 'Başka oyun', daily: 'Günün Meydan Okuması',
     dailySong: 'Günün Marşı', dailyDesc: 'Herkese aynı usul, tempo ve zurna ezgisi', dailyLine: 'seri {s} gün · en iyi {b}', dailyDone: 'bugün tamam',
     shareLine: '{song} · {diff} · {grade} · {score} puan', awS: 'Mehter: S notu', awLayers: 'Mehter: dört katman', awZafer: 'Mehter: Zafer Marşı',
@@ -2323,6 +2325,8 @@ const I18N = {
   en: {
     practice: 'Practice Mode',
     practiceBadge: 'Practice',
+    off: 'Off',
+    on: 'On',
     subtitle: 'Davul, kös, zurna and zil march down this avenue to your rhythm.',
     howto1: 'Notes roll toward the hit line. Press D F J K on the beat, or tap the lanes.',
     howto1Touch: 'Notes roll toward the hit line. Tap the four lanes at the bottom on the beat.',
@@ -3799,6 +3803,7 @@ function applyI18n() {
     if (I18N[LANG][k] !== undefined) el.textContent = T(k);
   }
   for (const el of $$('[data-i18n-aria]')) el.setAttribute('aria-label', T(el.dataset.i18nAria));
+  for (const el of $$('[data-i18n-title]')) el.setAttribute('title', T(el.dataset.i18nTitle));
   setText($('#b-lang-h'), LANG === 'tr' ? 'TR' : 'EN');
   setText($('#b-title-lang'), LANG === 'tr' ? 'TR / EN' : 'EN / TR');
   if (!G.ready) setText($('#loading'), T('loading'));
@@ -3965,8 +3970,8 @@ function wireUI() {
   for (const b of $$('[data-lang]')) b.addEventListener('click', () => setLang(b.dataset.lang));
   // shadows and pixel ratio are read once at start, so the toast says the change waits for a reload
   for (const b of $$('[data-q]')) b.addEventListener('click', () => { S.quality = b.dataset.q; saveSettings(); refreshSettings(); toast(T('qualitySet').replace('{q}', T(S.quality))); });
-  for (const b of $$('[data-prac]')) b.addEventListener('click', () => { S.noFail = b.dataset.prac === '1'; saveSettings(); refreshSettings(); toast(T('practice') + ': ' + (S.noFail ? (LANG === 'tr' ? 'Açık' : 'On') : (LANG === 'tr' ? 'Kapalı' : 'Off'))); });
-  $('#b-practice-h').addEventListener('click', () => { S.noFail = !S.noFail; saveSettings(); refreshSettings(); toast(T('practice') + ': ' + (S.noFail ? (LANG === 'tr' ? 'Açık' : 'On') : (LANG === 'tr' ? 'Kapalı' : 'Off'))); });
+  for (const b of $$('[data-prac]')) b.addEventListener('click', () => { S.noFail = b.dataset.prac === '1'; saveSettings(); refreshSettings(); toast(T('practice') + ': ' + T(S.noFail ? 'on' : 'off')); });
+  $('#b-practice-h').addEventListener('click', () => { S.noFail = !S.noFail; saveSettings(); refreshSettings(); toast(T('practice') + ': ' + T(S.noFail ? 'on' : 'off')); });
   $('#b-fs').addEventListener('click', toggleFullscreen);
   for (const b of $$('.keys button[data-lane]')) b.addEventListener('click', () => { G.rebind = Number(b.dataset.lane); setText($('#rebind-msg'), T('pressKey')); refreshKeys(); });
   $('#b-cal-start').addEventListener('click', calibStart);
