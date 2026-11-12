@@ -1117,6 +1117,7 @@ h2 {
   border: 1px solid rgba(232, 178, 58, 0.2);
 }
 .range-wrap { flex: 1; min-width: 160px; display: flex; align-items: center; }
+.speed-val { min-width: 44px; text-align: right; font-variant-numeric: tabular-nums; font-weight: 800; font-size: 14px; color: var(--gold-hi); margin-left: 8px; flex: none; }
 .full-btn { width: 100%; }
 .keys-header { display: flex; justify-content: space-between; align-items: baseline; }
 .keys-header span { font-weight: 700; }
@@ -2101,6 +2102,13 @@ body.playing #hud, body.playing #spirit, body.playing #layers { display: flex; }
 
     <div class="setting-group">
       <div class="row">
+        <label for="s-speed" data-i18n="noteSpeed">Nota hızı</label>
+        <div class="range-wrap">
+          <input id="s-speed" type="range" min="0.7" max="1.5" step="0.1" value="1.0" data-i18n-aria="noteSpeed" aria-label="Nota hızı">
+          <span id="s-speed-val" class="speed-val">1.0×</span>
+        </div>
+      </div>
+      <div class="row">
         <span data-i18n="language">Dil</span>
         <div class="seg" style="flex:1"><button data-lang="tr">Türkçe</button><button data-lang="en">English</button></div>
       </div>
@@ -2243,7 +2251,7 @@ const PHONE = matchMedia('(pointer: coarse)').matches;
 /** arena-kit "reduce motion": the scene lights stop swelling on the beat. Read live (visual layer only, the sim never reads it). */
 const calm = () => !!(window.Arena && Arena.settings && Arena.settings.reducedMotion);
 const DEF_LANG = /^tr/i.test(navigator.language || '') ? 'tr' : 'en';
-const DEF = { master: 0.8, music: 0.6, sfx: 0.8, musicOn: true, sfxOn: true, lang: DEF_LANG, quality: PHONE ? 'low' : 'high', keys: ['d', 'f', 'j', 'k'], calib: 0, noFail: false };
+const DEF = { master: 0.8, music: 0.6, sfx: 0.8, musicOn: true, sfxOn: true, lang: DEF_LANG, quality: PHONE ? 'low' : 'high', keys: ['d', 'f', 'j', 'k'], calib: 0, noFail: false, speed: 1.0 };
 
 function store(key, fallback) {
   try { const raw = localStorage.getItem(key); return raw ? { ...fallback, ...JSON.parse(raw) } : { ...fallback }; }
@@ -2252,6 +2260,10 @@ function store(key, fallback) {
 function persist(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* private mode */ } }
 
 const S = store('arena.mehter.settings', DEF);
+if (typeof S.speed !== 'number' || isNaN(S.speed)) S.speed = 1.0;
+S.speed = Math.max(0.7, Math.min(1.5, Math.round(S.speed * 100) / 100));
+if (Q.has('speed')) { const qs = parseFloat(Q.get('speed')); if (!isNaN(qs) && qs >= 0.7 && qs <= 1.5) S.speed = Math.round(qs * 100) / 100; }
+S.noteSpeed = S.speed;
 let LANG = Q.get('lang') === 'en' ? 'en' : Q.get('lang') === 'tr' ? 'tr' : S.lang;   // S.lang defaults to the browser language
 const lowQ = () => FLAG.low || S.quality === 'low';
 const saveSettings = () => persist('arena.mehter.settings', S);
@@ -2277,7 +2289,7 @@ const I18N = {
     play: 'Oyna', settings: 'Ayarlar', calib: 'Kalibrasyon', back: 'Geri', start: 'Başla',
     selectSong: 'Şarkı seç', easy: 'Kolay', normal: 'Normal', hard: 'Zor',
     resume: 'Devam', restart: 'Yeniden başlat', mainMenu: 'Ana menü',
-    master: 'Ana ses', music: 'Müzik', sfx: 'Efektler', language: 'Dil', quality: 'Kalite', low: 'Düşük', high: 'Yüksek',
+    master: 'Ana ses', music: 'Müzik', sfx: 'Efektler', noteSpeed: 'Nota hızı', language: 'Dil', quality: 'Kalite', low: 'Düşük', high: 'Yüksek',
     fullscreen: 'Tam ekran', keys: 'Tuşlar', pressKey: 'Bir tuşa basın', rebindDone: 'Tuş atandı',
     qualitySet: 'Kalite: {q}. Sayfa yenilenince uygulanır.',
     noFail: 'Ruh tükenmez', noFailNote: 'Açıkken rekor ve rozet yazılmaz', noFailResult: 'Ruh tükenmez açık: rekor yazılmadı', tryEasy: 'Kolay’da dene',
@@ -2319,7 +2331,7 @@ const I18N = {
     play: 'Play', settings: 'Settings', calib: 'Calibration', back: 'Back', start: 'Start',
     selectSong: 'Choose a song', easy: 'Easy', normal: 'Normal', hard: 'Hard',
     resume: 'Resume', restart: 'Restart', mainMenu: 'Main menu',
-    master: 'Master', music: 'Music', sfx: 'Effects', language: 'Language', quality: 'Quality', low: 'Low', high: 'High',
+    master: 'Master', music: 'Music', sfx: 'Effects', noteSpeed: 'Note speed', language: 'Language', quality: 'Quality', low: 'Low', high: 'High',
     fullscreen: 'Fullscreen', keys: 'Keys', pressKey: 'Press a key', rebindDone: 'Key set',
     qualitySet: 'Quality: {q}. It applies after a page reload.',
     noFail: 'No-fail', noFailNote: 'While on, no records or badges are saved', noFailResult: 'No-fail on: no record saved', tryEasy: 'Try on Easy',
@@ -2366,6 +2378,10 @@ const LAYER_STEP = 16, SLIP_MAX = 3, SLIP_HEAL = 1 / 8;
 const LAYER_MULT = [1, 1.5, 2, 2.5];   // score multiplier for 1..4 active layers, on top of the combo multiplier
 const LANE_LAYER = [0, 0, 1, 3];       // davul and kös: layer 1, zurna: layer 2, zil: layer 4 (boru, layer 3, has no lane)
 const HIT_Z = 2.2, SPAWN_Z = -12.5, SPEED = 8.0;
+const noteSpeedMult = () => Math.max(0.7, Math.min(1.5, Number(S.speed ?? S.noteSpeed ?? 1.0) || 1.0));
+const noteSpeed = () => SPEED * noteSpeedMult();
+const noteTravelTime = () => (HIT_Z - SPAWN_Z) / noteSpeed();
+const noteLookAhead = () => noteTravelTime() + 0.25;
 const LOOK = (HIT_Z - SPAWN_Z) / SPEED + 0.25;
 // 16 sixteenth slots per bar: D strong davul, t light davul, z zil. Kös and zurna are placed by rule.
 const USUL = {
@@ -3562,17 +3578,19 @@ function updateBand(beat, dt) {
 function updateNotes() {
   const gt = G.gt;
   const N = G.notes;
+  const spd = noteSpeed();
+  const look = (HIT_Z - SPAWN_Z) / spd + 0.25;
   let vi = G.vis;
-  while (vi < N.length && N[vi].t < gt - 0.45) vi++;
+  while (vi < N.length && (N[vi].t + (N[vi].dur || 0)) < gt - 0.45) vi++;
   G.vis = vi;
   let nc = 0, hc = 0;
   for (let i = vi; i < N.length; i++) {
     const n = N[i];
-    if (n.t > gt + LOOK) break;
+    if (n.t > gt + look) break;
     if (n.state === 2) continue;
-    const zh = n.state === 1 ? HIT_Z : Math.min(HIT_Z, HIT_Z - (n.t - gt) * SPEED);
+    const zh = n.state === 1 ? HIT_Z : Math.min(HIT_Z, HIT_Z - (n.t - gt) * spd);
     if (n.dur > 0) {
-      const zt = HIT_Z - (n.t + n.dur - gt) * SPEED;
+      const zt = HIT_Z - (n.t + n.dur - gt) * spd;
       const len = zh - zt;
       if (len > 0.05 && hc < 180) {
         put(C.holds, hc, LANE_X[n.lane], 0.2, (zh + zt) / 2, 1, 1, len);
@@ -3745,6 +3763,10 @@ function refreshSettings() {
   $('#s-master').value = S.master;
   $('#s-music').value = S.music;
   $('#s-sfx').value = S.sfx;
+  const spdEl = $('#s-speed');
+  if (spdEl) spdEl.value = String(S.speed ?? 1.0);
+  const spdVal = $('#s-speed-val');
+  if (spdVal) spdVal.textContent = Number(S.speed ?? 1.0).toFixed(1) + '×';
   for (const b of $$('[data-lang]')) b.classList.toggle('on', b.dataset.lang === LANG);
   for (const b of $$('[data-q]')) b.classList.toggle('on', b.dataset.q === S.quality);
   refreshPracticeHud();
@@ -3806,6 +3828,14 @@ function wireUI() {
   $('#s-master').addEventListener('input', (e) => { S.master = Number(e.target.value); applyVolumes(); saveSettings(); });
   $('#s-music').addEventListener('input', (e) => { S.music = Number(e.target.value); applyVolumes(); saveSettings(); });
   $('#s-sfx').addEventListener('input', (e) => { S.sfx = Number(e.target.value); applyVolumes(); saveSettings(); });
+  const spdIn = $('#s-speed');
+  if (spdIn) spdIn.addEventListener('input', (e) => {
+    const val = Math.max(0.7, Math.min(1.5, Math.round(Number(e.target.value) * 100) / 100));
+    S.speed = S.noteSpeed = val;
+    saveSettings();
+    const lbl = $('#s-speed-val');
+    if (lbl) lbl.textContent = val.toFixed(1) + '×';
+  });
   for (const b of $$('[data-lang]')) b.addEventListener('click', () => setLang(b.dataset.lang));
   // shadows and pixel ratio are read once at start, so the toast says the change waits for a reload
   for (const b of $$('[data-q]')) b.addEventListener('click', () => { S.quality = b.dataset.q; saveSettings(); refreshSettings(); toast(T('qualitySet').replace('{q}', T(S.quality))); });
@@ -3958,7 +3988,7 @@ function updateDebug() {
   const info = R ? R.info : { render: { calls: 0, triangles: 0 } };
   d.textContent = [
     `fps ${G.fps}  draw calls ${info.render.calls}  triangles ${info.render.triangles}`,
-    `screen ${G.screen}  clock ${G.clock}  gt ${G.gt.toFixed(2)}  lang ${LANG}`,
+    `screen ${G.screen}  clock ${G.clock}  gt ${G.gt.toFixed(2)}  spd ${noteSpeedMult()}x  lang ${LANG}`,
     `score ${G.score|0}  combo ${G.combo}  spirit ${G.spirit.toFixed(1)}  judged ${G.judged}`,
     `layers ${G.layers} ×${lmult()}  streak ${G.lstreak}/${LAYER_STEP}  slip ${G.slip.toFixed(2)}/${SLIP_MAX}`,
     `perfect ${G.cnt.perfect} good ${G.cnt.good} miss ${G.cnt.miss} break ${G.cnt.brk} hist ${G.hist.length} r-hist ${$('#r-hist') ? $('#r-hist').children.length : -1}`,
@@ -3987,10 +4017,22 @@ function state() {
     spirit: +G.spirit.toFixed(2), layers: G.layers, layerMult: lmult(), lstreak: G.lstreak, slip: +G.slip.toFixed(3), maxLayers: G.maxLayers, layerLog: G.layerLog.slice(), counts: { ...G.cnt }, judged: G.judged, notes: G.notes.length,
     auto: G.auto, autoDone: G.autoDone, result: G.result ? { grade: G.result.grade, defeat: G.result.defeat, score: G.result.score, acc: +G.result.acc.toFixed(3) } : null,
     errors: G.errors.slice(), fps: G.fps, drawCalls: R ? R.info.render.calls : 0, triangles: R ? R.info.render.triangles : 0,
-    calib: S.calib, keys: S.keys.slice(), quality: lowQ() ? 'low' : 'high', assets: { ...G.assets },
+    calib: S.calib, keys: S.keys.slice(), quality: lowQ() ? 'low' : 'high', speed: noteSpeedMult(), noteSpeed: noteSpeedMult(), assets: { ...G.assets },
   };
 }
-window.mehter = Object.assign(G, { state, sim: simulate, songs: SONGS.map((s) => ({ idx: s.idx, bpm: s.bpm, notes: s.full.length, end: +s.end.toFixed(1) })) });
+window.mehter = Object.assign(G, {
+  state,
+  sim: simulate,
+  songs: SONGS.map((s) => ({ idx: s.idx, bpm: s.bpm, notes: s.full.length, end: +s.end.toFixed(1) })),
+  get speed() { return noteSpeedMult(); },
+  setSpeed(v) {
+    const val = Math.max(0.7, Math.min(1.5, Math.round(Number(v) * 100) / 100));
+    S.speed = S.noteSpeed = val;
+    saveSettings();
+    refreshSettings();
+    return val;
+  },
+});
 window.mehterSim = (sec) => simulate(sec);
 
 // ----- boot -----------------------------------------------------------------
