@@ -1940,6 +1940,7 @@ body.playing #hud, body.playing #spirit, body.playing #layers { display: flex; }
     <button id="b-sound" class="ibtn" data-i18n-aria="sound" aria-label="Ses">
       <svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 8.5a5 5 0 0 1 0 7M19 6a9 9 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
     </button>
+    <button id="b-practice-h" class="ibtn txt" aria-label="Pratik" title="Pratik Modu">PRC</button>
     <button id="b-lang-h" class="ibtn txt" aria-label="Dil">TR</button>
   </div>
 </header>
@@ -2106,6 +2107,10 @@ body.playing #hud, body.playing #spirit, body.playing #layers { display: flex; }
       <div class="row">
         <span data-i18n="quality">Kalite</span>
         <div class="seg" style="flex:1"><button data-q="low" data-i18n="low">Düşük</button><button data-q="high" data-i18n="high">Yüksek</button></div>
+      </div>
+      <div class="row">
+        <span data-i18n="practice">Pratik Modu</span>
+        <div class="seg" style="flex:1"><button data-prac="0">Kapalı</button><button data-prac="1">Açık</button></div>
       </div>
       <div class="row">
         <button id="b-fs" class="full-btn" data-i18n="fullscreen">Tam ekran</button>
@@ -2295,6 +2300,8 @@ const I18N = {
     layers: 'Katman', lyDavul: 'Davul', lyZurna: 'Zurna', lyBoru: 'Boru', lyZil: 'Zil',
     layerUp: 'katılıyor!', layerDown: 'saftan düştü', maxLayer: 'En çok katman',
     howto4: 'Dört Katman: isabetli seri tuttukça zurna, boru ve zil takımları yürüyüşe katılır; her katman puanı artırır. Çok kaçırırsanız en üst takım saftan düşer.',
+    practice: 'Pratik Modu',
+    practiceBadge: 'Pratik',
     a11y: 'Erişilebilirlik', share: 'Paylaş', anotherGame: 'Başka oyun', daily: 'Günün Meydan Okuması',
     dailySong: 'Günün Marşı', dailyDesc: 'Herkese aynı usul, tempo ve zurna ezgisi', dailyLine: 'seri {s} gün · en iyi {b}', dailyDone: 'bugün tamam',
     shareLine: '{song} · {diff} · {grade} · {score} puan', awS: 'Mehter: S notu', awLayers: 'Mehter: dört katman', awZafer: 'Mehter: Zafer Marşı',
@@ -2302,6 +2309,8 @@ const I18N = {
     descs: ['Ağır adım, düyek ölçüsü', 'Sofyan adımı, hızlanan davul', 'Semai ölçüsü, zurna ağırlıklı', 'Nevbet töreni, yoğun kös', 'Devr-i kebir, uzun zurna notaları', 'Zafer yürüyüşü, en hızlı tempo'],
   },
   en: {
+    practice: 'Practice Mode',
+    practiceBadge: 'Practice',
     subtitle: 'Davul, kös, zurna and zil march down this avenue to your rhythm.',
     howto1: 'Notes roll toward the hit line. Press D F J K on the beat, or tap the lanes.',
     howto1Touch: 'Notes roll toward the hit line. Tap the four lanes at the bottom on the beat.',
@@ -2882,11 +2891,15 @@ function showResults() {
   setText($('#r-title'), r.name + ' · ' + T(G.diff));
   const recEl = $('#r-record');
   if (recEl) {
-    if (r.record) {
-      recEl.innerHTML = `<span class="wax-seal-badge"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2l3 6 6 1-4.5 4.5 1 6.5-5.5-3.5L6.5 20l1-6.5L3 9l6-1z"/></svg> ${T('newRecord')}</span>`;
-    } else {
-      recEl.textContent = r.noFail ? T('noFailResult') : '';
+    let badgeHtml = '';
+    if (r.noFail) {
+      badgeHtml += `<span class="wax-seal-badge" style="background:radial-gradient(circle, #3E7EA6, #2E6B4F);margin-right:6px;">${T('practiceBadge')}</span>`;
     }
+    if (r.record) {
+      badgeHtml += `<span class="wax-seal-badge"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2l3 6 6 1-4.5 4.5 1 6.5-5.5-3.5L6.5 20l1-6.5L3 9l6-1z"/></svg> ${T('newRecord')}</span>`;
+    }
+    if (r.noFail && !r.record) badgeHtml += `<span>${T('noFailResult')}</span>`;
+    recEl.innerHTML = badgeHtml;
   }
   // a defeat off Easy suggests the easier chart (not for the daily song, which is always Normal)
   const easyBtn = $('#b-easy');
@@ -3734,6 +3747,14 @@ function refreshSettings() {
   $('#s-sfx').value = S.sfx;
   for (const b of $$('[data-lang]')) b.classList.toggle('on', b.dataset.lang === LANG);
   for (const b of $$('[data-q]')) b.classList.toggle('on', b.dataset.q === S.quality);
+  refreshPracticeHud();
+}
+// practice toggles (header + settings) and the song-select checkbox share S.noFail
+function refreshPracticeHud() {
+  for (const b of $$('[data-prac]')) b.classList.toggle('on', (b.dataset.prac === '1') === !!S.noFail);
+  const btn = $('#b-practice-h');
+  if (btn) btn.classList.toggle('on', !!S.noFail);
+  const nf = $('#s-nofail'); if (nf) nf.checked = !!S.noFail;
 }
 function refreshKeys() {
   for (const b of $$('.keys button[data-lane]')) {
@@ -3780,7 +3801,7 @@ function wireUI() {
     startSong(G.sel, G.diff, {});
   });
   for (const b of $$('#diffs button')) b.addEventListener('click', () => { G.diff = S.diff = b.dataset.diff; saveSettings(); refreshDiffButtons(); buildSongCards(); refreshBest(); });
-  $('#s-nofail').addEventListener('change', (e) => { S.noFail = e.target.checked; saveSettings(); });
+  $('#s-nofail').addEventListener('change', (e) => { S.noFail = e.target.checked; saveSettings(); refreshPracticeHud(); });
   $('#b-set-back').addEventListener('click', closeSettings);
   $('#s-master').addEventListener('input', (e) => { S.master = Number(e.target.value); applyVolumes(); saveSettings(); });
   $('#s-music').addEventListener('input', (e) => { S.music = Number(e.target.value); applyVolumes(); saveSettings(); });
@@ -3788,6 +3809,8 @@ function wireUI() {
   for (const b of $$('[data-lang]')) b.addEventListener('click', () => setLang(b.dataset.lang));
   // shadows and pixel ratio are read once at start, so the toast says the change waits for a reload
   for (const b of $$('[data-q]')) b.addEventListener('click', () => { S.quality = b.dataset.q; saveSettings(); refreshSettings(); toast(T('qualitySet').replace('{q}', T(S.quality))); });
+  for (const b of $$('[data-prac]')) b.addEventListener('click', () => { S.noFail = b.dataset.prac === '1'; saveSettings(); refreshSettings(); toast(T('practice') + ': ' + (S.noFail ? (LANG === 'tr' ? 'Açık' : 'On') : (LANG === 'tr' ? 'Kapalı' : 'Off'))); });
+  $('#b-practice-h').addEventListener('click', () => { S.noFail = !S.noFail; saveSettings(); refreshSettings(); toast(T('practice') + ': ' + (S.noFail ? (LANG === 'tr' ? 'Açık' : 'On') : (LANG === 'tr' ? 'Kapalı' : 'Off'))); });
   $('#b-fs').addEventListener('click', toggleFullscreen);
   for (const b of $$('.keys button[data-lane]')) b.addEventListener('click', () => { G.rebind = Number(b.dataset.lane); setText($('#rebind-msg'), T('pressKey')); refreshKeys(); });
   $('#b-cal-start').addEventListener('click', calibStart);
