@@ -1,0 +1,19 @@
+{
+  "game": "mehter",
+  "recorded": "2026-11-10T00:23:18.296Z",
+  "commit": "fd0b56c",
+  "entrySha": "78421540182f",
+  "run": "() => {\n      const M = window.mehter, out = { songs: 0, cleared: 0, sGrades: 0, score: 0, perfect: 0, good: 0, miss: 0, brk: 0, maxCombo: 0 };\n      let seen = -1;\n      for (let k = 0; k < 40000; k++) {\n        window.mehterSim(0.25);\n        if (M.screen !== 'play' && M.screen !== 'results') throw new Error(`gate: unexpected screen ${M.screen} in song ${M.idx}`);\n        const r = M.result;\n        if (r && M.screen === 'results' && M.idx !== seen) {\n          seen = M.idx; out.songs++; if (!r.defeat) out.cleared++; if (r.grade === 'S') out.sGrades++;\n          out.score += r.score; out.perfect += r.cnt.perfect; out.good += r.cnt.good; out.miss += r.cnt.miss; out.brk += r.cnt.brk;\n          out.maxCombo = Math.max(out.maxCombo, r.maxCombo);\n        }\n        if (M.autoDone && M.screen === 'results') break;\n      }\n      if (!M.autoDone) throw new Error(`gate: the bot did not finish (song ${M.idx}, screen ${M.screen})`);\n      window.__gateM = out;\n    }",
+  "metrics": {
+    "songs": 6,
+    "cleared": 6,
+    "sGrades": 6,
+    "score": 3792990,
+    "perfect": 3908,
+    "good": 0,
+    "miss": 0,
+    "brk": 0,
+    "maxCombo": 907,
+    "gameErrors": 0
+  }
+}
