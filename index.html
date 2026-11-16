@@ -1577,6 +1577,15 @@ h2 {
   background: linear-gradient(to top, var(--gold-dark), var(--gold-hi));
   box-shadow: 0 0 8px rgba(232, 178, 58, 0.5);
 }
+.hist-fix {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13px;
+  margin-top: 4px;
+}
+.hist-fix button { flex: none; min-height: 40px; padding: 6px 14px; }
 .hist-l {
   display: flex;
   justify-content: space-between;
@@ -2482,6 +2491,10 @@ body.playing #hud, body.playing #spirit, body.playing #layers { display: flex; }
         <span>0 ms</span>
         <span data-i18n="late">geç</span>
       </div>
+      <div id="r-offset" class="hist-fix hidden" role="status">
+        <span id="r-offset-txt"></span>
+        <button id="b-offset-fix" type="button" data-i18n="offsetFix">Düzelt</button>
+      </div>
     </div>
 
     <div class="btns">
@@ -2558,6 +2571,8 @@ const I18N = {
     perfect: 'MÜKEMMEL', good: 'İYİ', miss: 'KAÇTI', brk: 'KOPTU',
     maxCombo: 'En yüksek kombo', perfectN: 'Mükemmel', goodN: 'İyi', missN: 'Kaçan', brkN: 'Kopan', accN: 'İsabet',
     histogram: 'Vuruş zamanlaması (ms)', early: 'erken', late: 'geç',
+    offsetLate: 'Vuruşların ortalama {ms} ms geç.', offsetEarly: 'Vuruşların ortalama {ms} ms erken.', offsetFix: 'Düzelt',
+    offsetFixed: 'Gecikme ayarı {ms} ms oldu (Kalibrasyon ekranından değiştirebilirsin)',
     calibTitle: 'Gecikme kalibrasyonu', calibHelp: 'Metronomun her vuruşuna bir tuş basın (Boşluk, D F J K veya düğme).',
     calibNeedAudio: 'Ses için önce Oyna düğmesine bir kez basın.', calibNone: 'Yeterli vuruş yok, tekrar deneyin.',
     calibDone: 'Ortalama gecikme', tapBtn: 'Vur', reset: 'Sıfırla', calibSaved: 'Kalibrasyon kaydedildi',
@@ -2604,6 +2619,8 @@ const I18N = {
     perfect: 'PERFECT', good: 'GOOD', miss: 'MISS', brk: 'BREAK',
     maxCombo: 'Max combo', perfectN: 'Perfect', goodN: 'Good', missN: 'Missed', brkN: 'Broken holds', accN: 'Accuracy',
     histogram: 'Hit timing (ms)', early: 'early', late: 'late',
+    offsetLate: 'Your hits are {ms} ms late on average.', offsetEarly: 'Your hits are {ms} ms early on average.', offsetFix: 'Fix it',
+    offsetFixed: 'Input offset is now {ms} ms (change it on the Calibration screen)',
     calibTitle: 'Input latency calibration', calibHelp: 'Press a key or the button on every metronome beat (Space, D F J K or the button).',
     calibNeedAudio: 'Press Play once first so audio can run.', calibNone: 'Not enough taps, try again.',
     calibDone: 'Average offset', tapBtn: 'Tap', reset: 'Reset', calibSaved: 'Calibration saved',
@@ -3193,6 +3210,20 @@ function showResults() {
     const isCenter = idx === 5;
     return `<i class="${isCenter ? 'hist-center' : ''}" style="height:${Math.max(3, Math.round((b / mx) * 100))}%" title="${b}"></i>`;
   }).join('');
+  // A steady early/late bias (phone touch latency, Bluetooth audio) is offered as a one-tap calibration fix.
+  const off = offsetHint(r.hist);
+  G.offsetFix = off;
+  const fixEl = $('#r-offset');
+  if (fixEl) {
+    fixEl.classList.toggle('hidden', !off || G.auto);
+    if (off) setText($('#r-offset-txt'), T(off > 0 ? 'offsetLate' : 'offsetEarly').replace('{ms}', Math.abs(off)));
+  }
+}
+// Median hit error in ms when it is a clear bias (>= 20 hits, |median| >= 35 ms), else 0.
+function offsetHint(hist) {
+  if (!hist || hist.length < 20) return 0;
+  const h = hist.slice().sort((a, b) => a - b), med = h[h.length >> 1];
+  return Math.abs(med) >= 35 ? med : 0;
 }
 function goTitle() {
   stopAll();
@@ -4242,6 +4273,13 @@ function wireUI() {
   $('#b-cal-start').addEventListener('click', calibStart);
   $('#b-cal-tap').addEventListener('click', () => calibTap());
   $('#b-cal-reset').addEventListener('click', () => { S.calib = 0; saveSettings(); setText($('#cal-res'), T('resetDone')); });
+  $('#b-offset-fix').addEventListener('click', () => {
+    if (!G.offsetFix) return;
+    S.calib = Math.round((S.calib + G.offsetFix / 1000) * 1000) / 1000;
+    saveSettings(); G.offsetFix = 0;
+    $('#r-offset').classList.add('hidden');
+    toast(T('offsetFixed').replace('{ms}', Math.round(S.calib * 1000)));
+  });
   $('#b-cal-back').addEventListener('click', () => { CAL.on = false; stopAll(); show('title'); refreshBest(); });
   $('#b-pause').addEventListener('click', pauseGame);
   $('#b-resume').addEventListener('click', resumeGame);
