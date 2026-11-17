@@ -2966,6 +2966,7 @@ function store(key, fallback) {
 function persist(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* private mode */ } }
 
 const S = store('arena.mehter.settings', DEF);
+if (S.lang !== 'tr' && S.lang !== 'en') S.lang = DEF_LANG; // a stored unknown language would break the strings
 if (typeof S.speed !== 'number' || isNaN(S.speed)) S.speed = 1.0;
 S.speed = Math.max(0.7, Math.min(1.5, Math.round(S.speed * 100) / 100));
 if (Q.has('speed')) { const qs = parseFloat(Q.get('speed')); if (!isNaN(qs) && qs >= 0.7 && qs <= 1.5) S.speed = Math.round(qs * 100) / 100; }
