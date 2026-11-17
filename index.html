@@ -462,7 +462,7 @@
 })(typeof window !== 'undefined' ? window : globalThis);
 /*ARENA-KIT:END*/</script>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"},"integrity":{"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js":"sha384-GY5FqjttLCFRt/McQbyaVdCk2O1IQtOeX8Py6NfD89BIAsIyJFRl4UgSXrk2vXAk","https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/loaders/GLTFLoader.js":"sha384-Lq1Wl94so5JCKGDvezrdVMJhdeKQkwb8iwRo59QrPPd61CnrCJZLxYmFlQ8ZuOKR","https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/loaders/RGBELoader.js":"sha384-df8Ij6+muzecLENB3U9Z40GSfTjNV/TbniF7LQdZiYn4nHS5Javsoo5xFTWG0EJE","https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/utils/BufferGeometryUtils.js":"sha384-wOjwauvHlJO7K6APr7FmMGH2nupQa3Ndzas9bJZhsAMOK055efJud8ns4aYmASKv"}}</script>
-<script type="module">/*ARENA-CORE:BEGIN v2.1.0 sha256:767ddb5d5132*/
+<script type="module">/*ARENA-CORE:BEGIN v2.1.0 sha256:5ed27a255fc2*/
 /* ARENA-CORE v2 — shared visual / feel / test layer for the Claude Game Arena games (Furki Ozkan).
  *
  * Injected inline as <script type="module"> right after each game's importmap by tools/inject.mjs,
@@ -756,7 +756,7 @@ const ses = (() => {
   const BUSLAR = ['muzik', 'sfx', 'ortam'];
   const ayar = Object.assign({ ana: 1, muzik: 0.8, sfx: 1, ortam: 0.7, kapali: {} }, store.get('arena.core.ses', {}));
   ayar.kapali = Object.assign({ ana: false, muzik: false, sfx: false, ortam: false }, ayar.kapali);
-  let ctx = null, ana = null, duk = null, gurultu = null, etkin = false, rs = 0x5e5 >>> 0;
+  let ctx = null, ana = null, duk = null, gurultu = null, etkin = false, acildi = false, rs = 0x5e5 >>> 0;
   const bus = {}, kayit = new Map(), son = [], istek = { muzik: null, ortam: null }, calan = { muzik: null, ortam: null };
   const rnd = () => { rs = (rs + 0x6D2B79F5) >>> 0; let x = rs; x = Math.imul(x ^ (x >>> 15), x | 1); x ^= x + Math.imul(x ^ (x >>> 7), x | 61); return ((x ^ (x >>> 14)) >>> 0) / 4294967296; }; // own PRNG: never consumes the game's Math.random
   const kitAyar = () => { try { return (window.Arena && Arena.settings) || {}; } catch (e) { return {}; } };
@@ -775,10 +775,9 @@ const ses = (() => {
     for (const k of BUSLAR) bus[k].gain.setTargetAtTime(hedef(k), t, 0.02);
   };
   const kaydet = () => store.set('arena.core.ses', ayar);
-  function kilit() { // first gesture: create / resume, then stop listening
-    baglam();
-    if (ctx && ctx.state === 'running') for (const n of ['pointerdown', 'keydown', 'touchstart']) window.removeEventListener(n, kilit, true);
-  }
+  const kilitBirak = () => { for (const n of ['pointerdown', 'keydown', 'touchstart']) window.removeEventListener(n, kilit, true); };
+  // gestures unlock the context until it has run once; after that the game owns suspend/resume (e.g. its pause menu)
+  function kilit() { if (!acildi) baglam(); else kilitBirak(); }
   function kullan() {
     if (etkin || KAPALI) return;
     etkin = true;
@@ -798,6 +797,9 @@ const ses = (() => {
       ana = ctx.createGain(); ana.connect(ctx.destination);
       duk = ctx.createGain(); duk.connect(ana);
       for (const k of BUSLAR) { bus[k] = ctx.createGain(); bus[k].connect(k === 'muzik' ? duk : ana); }
+      const izle = () => { if (ctx.state === 'running' && !acildi) { acildi = true; kilitBirak(); } };
+      try { ctx.addEventListener('statechange', izle); } catch (e) { }
+      izle();
       uygula();
       for (const [ad, k] of kayit) coz(ad, k);
     }
