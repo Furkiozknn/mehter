@@ -495,6 +495,515 @@
 })(typeof window !== 'undefined' ? window : globalThis);
 /*ARENA-KIT:END*/</script>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"},"integrity":{"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js":"sha384-GY5FqjttLCFRt/McQbyaVdCk2O1IQtOeX8Py6NfD89BIAsIyJFRl4UgSXrk2vXAk","https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/loaders/GLTFLoader.js":"sha384-Lq1Wl94so5JCKGDvezrdVMJhdeKQkwb8iwRo59QrPPd61CnrCJZLxYmFlQ8ZuOKR","https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/loaders/RGBELoader.js":"sha384-df8Ij6+muzecLENB3U9Z40GSfTjNV/TbniF7LQdZiYn4nHS5Javsoo5xFTWG0EJE","https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/utils/BufferGeometryUtils.js":"sha384-wOjwauvHlJO7K6APr7FmMGH2nupQa3Ndzas9bJZhsAMOK055efJud8ns4aYmASKv"}}</script>
+<script type="module">/*ARENA-CORE:BEGIN v2.1.1 sha256:476baa52ff6a*/
+/* ARENA-CORE v2 — shared visual / feel / test layer for the Claude Game Arena games (Furki Ozkan).
+ *
+ * Injected inline as <script type="module"> right after each game's importmap by tools/inject.mjs,
+ * so every game stays a single file. It runs before the game's own module (document order) and puts
+ * everything on window.ArenaCore. Everything is optional: a game that never calls ArenaCore behaves exactly as before.
+ * The one global side effect is ?capture (see test.capture below), which only exists when that query flag is set.
+ *
+ *   ArenaCore.kalite                      'dusuk' | 'orta' | 'yuksek' (auto: integrated GPU -> orta; ?q=… overrides; saved)
+ *   ArenaCore.render.setup(renderer, scene, camera, opts) -> fx { render(), setSize(w,h), dispose(), info }
+ *       opts: { tonlama: 'neutral'|'aces'|'agx'|'none', pozlama, ortam (0..1 env light), bloom: {guc, esik, yaricap}|false,
+ *               renk: {doygunluk, kontrast}, tonlama 'koru' keeps the game's own tone mapping,
+ *               vinyet (0..1), grain (0..1), saydam (true when the canvas is transparent over a CSS background) }
+ *       composer mode puts a NaN/Inf guard right after the RenderPass (v2.1.1: exponent-bit test via floatBitsToUint,
+ *       because ANGLE/D3D11 folds `x != x` away), so one bad pixel from a game shader (e.g. pow(negative, y)) can not
+ *       turn the whole bloomed frame black. Still clamp such bases in the game: the guarded pixel itself becomes black.
+ *   ArenaCore.kabuk.yukleme({ baslik, alt, renk }) -> { ilerle(0..1), bitir() }   loading overlay
+ *   ArenaCore.kabuk.onceDerle(renderer, scene, camera) -> Promise   shader warm-up (renderer.compile, never throws)
+ *   ArenaCore.his.{ tween, hitstop, zamanOlcegi, sarsinti, ucanYazi }   game feel (Sumiro-tuned defaults)
+ *   ArenaCore.kamera.yay(cur, target, omega, dt, vel)                    critically damped spring (numbers or Vector3)
+ *   ArenaCore.test.kur({ read, step })     exposes window.__game for bots / gates
+ *   ArenaCore.test.capture                 ?capture&fps=30&seed=1 : virtual clock, window.__capture.advance(n)
+ *   ArenaCore.ses                          audio bus (v2.1). Zero cost until first call; AudioContext made on the first
+ *       pointerdown/keydown/touchstart (or ses.baglam() in a gesture handler), resume() never awaited; ?capture / ?sessiz: none.
+ *       ses.baglam() -> ctx|null   ses.ctx   ses.calisiyor   ses.bus.{muzik,sfx,ortam} (GainNodes)   ses.cikis (master)
+ *       ses.duzey('ana'|'muzik'|'sfx'|'ortam', v?)   ses.sustur(bus, m?)   persisted in arena.core.ses (not on quiet runs);
+ *           kit Arena.settings.muted / .sound === false / .volume are honoured when present
+ *       ses.yukle(ad, url|url[]|AudioBuffer[], { yedek: 'tok'|'ding'|'whoosh'|'darbe' })   fetch now, decode on unlock
+ *       ses.cal(ad, { varyant: 0.06, perde: 1, ses: 1, no, bus: 'sfx', zaman, duck })   random variant + pitch/volume spread;
+ *           falls back to the synth of that name (or `yedek`) when no file is decoded
+ *       ses.muzik(url|AudioBuffer|ad|null, { dongu: true, gecis: 1.2, ses: 1 })   crossfaded loop; ses.ortam(...) same on ambience
+ *       ses.duck(miktar=0.55, sure=0.22)   ses.ducking = { miktar, sure, esik: 3 one-shots in 0.2 s, 0 = off }
+ *       ses.synth.{ tok, ding, whoosh, darbe }({ zaman, perde, ses, bus })   procedural one-shots, no files
+ *       Reduced motion (OS or kit): whoosh/darbe 40% softer, ducking half as deep. Own PRNG: never touches Math.random.
+ */
+import * as THREE from 'three';
+
+const VERSION = '2.1.1';
+const Q = new URLSearchParams(location.search);
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { if (!Q.has('auto') && !Q.has('nosave') && !Q.has('capture')) localStorage.setItem(k, JSON.stringify(v)); } catch (e) { } },
+};
+
+/* ---------- test: deterministic capture (must run before the game module) ---------- */
+const test = (() => {
+  const t = { capture: null };
+  if (Q.has('capture')) {
+    const fps = parseFloat(Q.get('fps')) || 30;
+    let now = 0, seed = (parseInt(Q.get('seed')) || 1) >>> 0;
+    const queue = [];
+    const realNow = performance.now.bind(performance);
+    performance.now = () => now;
+    window.requestAnimationFrame = cb => { queue.push(cb); return queue.length; };
+    window.cancelAnimationFrame = () => { };
+    Math.random = () => { seed = (seed + 0x6D2B79F5) >>> 0; let x = seed; x = Math.imul(x ^ (x >>> 15), x | 1); x ^= x + Math.imul(x ^ (x >>> 7), x | 61); return ((x ^ (x >>> 14)) >>> 0) / 4294967296; };
+    t.capture = window.__capture = {
+      fps,
+      get time() { return now; },
+      advance(n = 1) { for (let i = 0; i < n; i++) { now += 1000 / fps; const cbs = queue.splice(0); for (const cb of cbs) cb(now); } return now; },
+      realNow,
+    };
+  }
+  t.kur = (api) => { window.__game = Object.assign(window.__game || {}, api); return window.__game; };
+  return t;
+})();
+
+/* ---------- quality tier ---------- */
+const kalite = (() => {
+  const forced = Q.get('q');
+  if (forced === 'dusuk' || forced === 'orta' || forced === 'yuksek') return forced;
+  if (Q.has('low')) return 'dusuk';
+  const saved = store.get('arena.core.kalite', null);
+  if (saved) return saved;
+  let tier = 'yuksek';
+  try {
+    const gl = document.createElement('canvas').getContext('webgl2');
+    const ext = gl && gl.getExtension('WEBGL_debug_renderer_info');
+    const name = ext ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)) : '';
+    if (/Intel|UHD|Iris|Mali|Adreno [1-5]|PowerVR|SwiftShader|llvmpipe/i.test(name)) tier = 'orta';
+    if (/SwiftShader|llvmpipe/i.test(name) || (navigator.deviceMemory && navigator.deviceMemory <= 2)) tier = 'dusuk';
+  } catch (e) { }
+  store.set('arena.core.kalite', tier);
+  return tier;
+})();
+
+/* ---------- render preset ---------- */
+const TONLAMA = { none: THREE.NoToneMapping, aces: THREE.ACESFilmicToneMapping, agx: THREE.AgXToneMapping, neutral: THREE.NeutralToneMapping };
+
+function cssKatman(vinyet, grain) {
+  const el = document.createElement('div');
+  el.className = 'arena-core-katman';
+  el.setAttribute('aria-hidden', 'true');
+  const noise = "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>\")";
+  el.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:1;' +
+    `background:radial-gradient(ellipse at 50% 45%, rgba(0,0,0,0) 55%, rgba(0,0,0,${(0.55 * vinyet).toFixed(3)}) 100%)` +
+    (grain > 0 ? `, ${noise}` : '') + ';' + (grain > 0 ? `background-size:auto, 160px 160px;opacity:1;` : '');
+  if (grain > 0) {
+    const g = document.createElement('div');
+    g.style.cssText = `position:absolute;inset:0;background-image:${noise};background-size:160px 160px;opacity:${(0.5 * grain).toFixed(3)};mix-blend-mode:overlay;`;
+    el.style.background = `radial-gradient(ellipse at 50% 45%, rgba(0,0,0,0) 55%, rgba(0,0,0,${(0.55 * vinyet).toFixed(3)}) 100%)`;
+    el.appendChild(g);
+  }
+  return el;
+}
+
+const NAN_SHADER = {
+  uniforms: { tDiffuse: { value: null } },
+  vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+  fragmentShader: `uniform sampler2D tDiffuse; varying vec2 vUv;
+    void main(){ vec4 c = texture2D(tDiffuse, vUv);
+      bool bad = any(equal(floatBitsToUint(c) & uvec4(0x7f800000u), uvec4(0x7f800000u))) || any(greaterThan(c.rgb, vec3(65000.0)));
+      gl_FragColor = bad ? vec4(0.0, 0.0, 0.0, 1.0) : c; }`,
+};
+
+const VINYET_SHADER = {
+  uniforms: { tDiffuse: { value: null }, guc: { value: 0.35 }, grain: { value: 0.0 }, zaman: { value: 0 }, doygunluk: { value: 1 }, kontrast: { value: 1 } },
+  vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+  fragmentShader: `uniform sampler2D tDiffuse; uniform float guc; uniform float grain; uniform float zaman; uniform float doygunluk; uniform float kontrast; varying vec2 vUv;
+    float h(vec2 p){ return fract(sin(dot(p, vec2(12.9898, 78.233)) + zaman) * 43758.5453); }
+    void main(){ vec4 c = texture2D(tDiffuse, vUv); vec2 d = vUv - 0.5; float v = smoothstep(0.85, 0.25, length(d) * 1.25);
+      float l = dot(c.rgb, vec3(0.2126, 0.7152, 0.0722)); c.rgb = mix(vec3(l), c.rgb, doygunluk); c.rgb = (c.rgb - 0.5) * kontrast + 0.5;
+      c.rgb *= mix(1.0, v, guc); c.rgb += (h(vUv * 1000.0) - 0.5) * grain * 0.08; gl_FragColor = c; }`,
+};
+
+const render = {
+  async _addons() {
+    const [{ EffectComposer }, { RenderPass }, { UnrealBloomPass }, { OutputPass }, { ShaderPass }] = await Promise.all([
+      import('three/addons/postprocessing/EffectComposer.js'), import('three/addons/postprocessing/RenderPass.js'),
+      import('three/addons/postprocessing/UnrealBloomPass.js'), import('three/addons/postprocessing/OutputPass.js'),
+      import('three/addons/postprocessing/ShaderPass.js')]);
+    return { EffectComposer, RenderPass, UnrealBloomPass, OutputPass, ShaderPass };
+  },
+  setup(renderer, scene, camera, opts = {}) {
+    const o = Object.assign({ tonlama: 'neutral', pozlama: 1.0, ortam: 0.0, bloom: { guc: 0.35, esik: 0.85, yaricap: 0.4 }, vinyet: 0.3, grain: 0.04, saydam: false }, opts);
+    if (Q.has('nocore')) return { render: () => renderer.render(scene, camera), setSize() { }, dispose() { }, info: { mod: 'kapali' } };
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    if (o.tonlama !== 'koru') { // 'koru' keeps the game's own tone mapping / exposure
+      renderer.toneMapping = TONLAMA[o.tonlama] ?? THREE.NeutralToneMapping;
+      renderer.toneMappingExposure = o.pozlama;
+    }
+    let pmrem = null, envRT = null;
+    let ortamBizim = null;
+    // a game that loads its own environment map later must not inherit our low intensity
+    const ortamDenetle = () => { if (ortamBizim && scene.environment !== ortamBizim && scene.environmentIntensity === o.ortam) { scene.environmentIntensity = 1; ortamBizim = null; } };
+    if (o.ortam > 0) {
+      import('three/addons/environments/RoomEnvironment.js').then(({ RoomEnvironment }) => {
+        pmrem = new THREE.PMREMGenerator(renderer);
+        envRT = pmrem.fromScene(new RoomEnvironment(), 0.04);
+        if (!scene.environment) { scene.environment = envRT.texture; scene.environmentIntensity = o.ortam; }
+        ortamBizim = envRT.texture;
+      }).catch(() => { });
+    }
+    const info = { mod: 'dogrudan', kalite, tonlama: o.tonlama };
+    const fx = { info, composer: null };
+    let css = null;
+    const cssKur = () => { if (css || !(o.vinyet > 0 || o.grain > 0)) return; css = cssKatman(o.vinyet, kalite === 'dusuk' ? 0 : o.grain); const c = renderer.domElement; (c.parentNode || document.body).insertBefore(css, c.nextSibling); info.mod = 'dogrudan+css'; };
+    if (o.saydam || kalite === 'dusuk' || !o.bloom) cssKur();
+    // colour grade: saturation / contrast. Direct mode uses a compositor-side CSS filter (no extra GPU pass);
+    // composer mode does it in the vignette shader instead (see below).
+    const renk = Object.assign({ doygunluk: 1, kontrast: 1 }, o.renk);
+    const cssFiltre = (renk.doygunluk !== 1 || renk.kontrast !== 1) ? `saturate(${renk.doygunluk}) contrast(${renk.kontrast})` : '';
+    if (cssFiltre) renderer.domElement.style.filter = cssFiltre;
+    fx.render = () => { ortamDenetle(); renderer.render(scene, camera); };
+    fx.setSize = () => { };
+    if (!o.saydam && o.bloom && kalite !== 'dusuk') {
+      // composer is created asynchronously; until it is ready, frames render directly
+      render._addons().then(A => {
+        const size = renderer.getSize(new THREE.Vector2());
+        const pr = renderer.getPixelRatio();
+        const rt = new THREE.WebGLRenderTarget(size.x * pr, size.y * pr, { type: THREE.HalfFloatType, samples: kalite === 'yuksek' ? 4 : 2 });
+        const composer = new A.EffectComposer(renderer, rt);
+        composer.addPass(new A.RenderPass(scene, camera));
+        composer.addPass(new A.ShaderPass(NAN_SHADER));
+        const bloom = new A.UnrealBloomPass(new THREE.Vector2(size.x, size.y), o.bloom.guc, o.bloom.yaricap, o.bloom.esik);
+        if (kalite === 'orta') bloom.resolution.set(size.x / 2, size.y / 2);
+        composer.addPass(bloom);
+        composer.addPass(new A.OutputPass());
+        let vin = null;
+        if (o.vinyet > 0 || o.grain > 0 || cssFiltre) {
+          vin = new A.ShaderPass(VINYET_SHADER); vin.uniforms.guc.value = o.vinyet; vin.uniforms.grain.value = o.grain;
+          vin.uniforms.doygunluk.value = renk.doygunluk; vin.uniforms.kontrast.value = renk.kontrast; composer.addPass(vin);
+          renderer.domElement.style.filter = ''; // the shader grades now
+        }
+        fx.composer = composer; info.mod = 'composer';
+        fx.render = () => { ortamDenetle(); if (vin) vin.uniforms.zaman.value = (performance.now() / 1000) % 100; composer.render(); };
+        fx.setSize = (w, h) => { composer.setPixelRatio(renderer.getPixelRatio()); composer.setSize(w, h); };
+      }).catch(e => { info.hata = String(e); cssKur(); }); // e.g. no three/addons/ in the import map: keep the CSS look
+    }
+    fx.dispose = () => { if (css) css.remove(); if (envRT) envRT.dispose(); if (pmrem) pmrem.dispose(); if (fx.composer) fx.composer.dispose(); };
+    return fx;
+  },
+};
+
+/* ---------- shell: loading overlay + shader warm-up ---------- */
+const kabuk = {
+  yukleme({ baslik = '', alt = 'Yükleniyor', renk = '#e0a01c', zemin = '#15120f' } = {}) {
+    if (Q.has('auto') || Q.has('capture')) return { ilerle() { }, bitir() { } };
+    const el = document.createElement('div');
+    el.className = 'arena-core-yukleme';
+    el.setAttribute('role', 'status');
+    el.style.cssText = `position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:${zemin};color:#f1efea;font:600 18px/1.3 system-ui,sans-serif;transition:opacity .45s ease`;
+    el.innerHTML = `<div style="font-size:clamp(28px,6vw,46px);font-weight:800;letter-spacing:.02em">${baslik}</div>` +
+      `<div style="width:min(280px,60vw);height:6px;border-radius:3px;background:rgba(255,255,255,.12);overflow:hidden"><div class="cubuk" style="height:100%;width:4%;background:${renk};transition:width .25s ease"></div></div>` +
+      `<div class="alt" style="opacity:.7;font-size:14px">${alt}</div>`;
+    document.body.appendChild(el);
+    const cubuk = el.querySelector('.cubuk');
+    let bitti = false;
+    const api = {
+      ilerle(p) { if (!bitti) cubuk.style.width = Math.max(4, Math.min(100, p * 100)).toFixed(1) + '%'; },
+      bitir() { if (bitti) return; bitti = true; cubuk.style.width = '100%'; el.style.opacity = '0'; setTimeout(() => el.remove(), 500); },
+    };
+    setTimeout(() => api.bitir(), 12000); // never trap the player behind the overlay
+    return api;
+  },
+  async onceDerle(renderer, scene, camera) {
+    // synchronous compile: compileAsync threw an uncatchable TypeError ('isReady') in one game; compile() is safe and still warms the programs
+    try { renderer.compile(scene, camera); } catch (e) { }
+  },
+};
+
+/* ---------- feel (juice) ---------- */
+const EASE = {
+  lin: t => t, outQuad: t => 1 - (1 - t) * (1 - t), outCubic: t => 1 - Math.pow(1 - t, 3), inOutCubic: t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2,
+  outBack: t => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); },
+  outElastic: t => t === 0 ? 0 : t === 1 ? 1 : Math.pow(2, -10 * t) * Math.sin((t * 10 - .75) * (2 * Math.PI / 3)) + 1,
+};
+const his = (() => {
+  const tweens = new Set();
+  let stopT = 0, olcek = 1, travma = 0;
+  const reduce = () => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches || (window.Arena && Arena.settings && Arena.settings.reducedMotion === true); } catch (e) { return false; } };
+  const api = {
+    EASE,
+    tween(obj, hedef, sure = 0.3, ease = 'outCubic') {
+      const bas = {}; for (const k in hedef) bas[k] = obj[k];
+      const tw = { obj, bas, hedef, sure, t: 0, ease: EASE[ease] || ease, bitince: null };
+      tweens.add(tw); return { then(f) { tw.bitince = f; return this; }, iptal() { tweens.delete(tw); } };
+    },
+    /** call once per frame with real dt; returns the dt the game should use (scaled by hitstop) */
+    guncelle(dt) {
+      for (const tw of tweens) {
+        tw.t = Math.min(1, tw.t + dt / tw.sure); const e = tw.ease(tw.t);
+        for (const k in tw.hedef) tw.obj[k] = tw.bas[k] + (tw.hedef[k] - tw.bas[k]) * e;
+        if (tw.t >= 1) { tweens.delete(tw); if (tw.bitince) tw.bitince(); }
+      }
+      if (stopT > 0) { stopT -= dt; olcek = stopT > 0 ? 0.04 : 1; }
+      travma = Math.max(0, travma - dt * 1.6);
+      return dt * olcek;
+    },
+    /** Sumiro: hit 0.07 s, heavy 0.14 s, time scale 0.04 */
+    hitstop(s = 0.07) { if (!reduce()) stopT = Math.max(stopT, s); },
+    get zamanOlcegi() { return olcek; },
+    /** trauma model: add 0.26 (hit), 0.42 (heavy), 0.55 (damage); read sarsinti.ofset each frame */
+    sarsinti: {
+      ekle(v = 0.26) { if (!reduce()) travma = Math.min(1, travma + v); },
+      ofset(t = performance.now() / 1000, buyukluk = 0.35) {
+        const s = travma * travma * buyukluk;
+        return { x: s * Math.sin(t * 61.3) * Math.cos(t * 17.1), y: s * Math.sin(t * 47.7 + 1.3), rot: s * 0.1 * Math.sin(t * 29.9 + 2.1) };
+      },
+      get travma() { return travma; },
+    },
+    ucanYazi(metin, x, y, { renk = '#fff4c2', boyut = 22, sure = 0.9 } = {}) {
+      const el = document.createElement('div');
+      el.textContent = metin;
+      el.style.cssText = `position:fixed;left:${x}px;top:${y}px;transform:translate(-50%,-50%);pointer-events:none;z-index:50;font:800 ${boyut}px system-ui,sans-serif;color:${renk};text-shadow:0 2px 6px rgba(0,0,0,.6);transition:transform ${sure}s cubic-bezier(.2,.8,.2,1),opacity ${sure}s ease`;
+      document.body.appendChild(el);
+      requestAnimationFrame(() => { el.style.transform = 'translate(-50%,-160%) scale(1.15)'; el.style.opacity = '0'; });
+      setTimeout(() => el.remove(), sure * 1000 + 100);
+    },
+  };
+  return api;
+})();
+
+/* ---------- camera spring ---------- */
+const kamera = {
+  /** critically damped spring step. For numbers pass vel as {v:0}; for Vector3 pass a Vector3 velocity. omega ~ 6..14 */
+  yay(cur, target, omega, dt, vel) {
+    const x = omega * dt, exp = 1 / (1 + x + 0.48 * x * x + 0.235 * x * x * x);
+    if (typeof cur === 'number') {
+      const change = cur - target, temp = (vel.v + omega * change) * dt;
+      vel.v = (vel.v - omega * temp) * exp; return target + (change + temp) * exp;
+    }
+    const change = cur.clone().sub(target), temp = vel.clone().addScaledVector(change, omega).multiplyScalar(dt);
+    vel.sub(temp.clone().multiplyScalar(omega)).multiplyScalar(exp);
+    return cur.copy(target).add(change.add(temp).multiplyScalar(exp));
+  },
+};
+
+/* ---------- ses: audio bus (lazy, gesture-gated, never awaited) ---------- */
+// Nothing happens until the game calls something here: no AudioContext, no listeners, no fetches.
+// The context is created on the first pointerdown/keydown/touchstart after first use (or by ses.baglam() inside a
+// gesture handler) and resume() is never awaited, so ?auto / ?nosave boots cannot stall on autoplay policy.
+// ?capture and ?sessiz never create a context (determinism: a running context follows the wall clock).
+const ses = (() => {
+  const KAPALI = Q.has('capture') || Q.has('sessiz');
+  const BUSLAR = ['muzik', 'sfx', 'ortam'];
+  const ayar = Object.assign({ ana: 1, muzik: 0.8, sfx: 1, ortam: 0.7, kapali: {} }, store.get('arena.core.ses', {}));
+  ayar.kapali = Object.assign({ ana: false, muzik: false, sfx: false, ortam: false }, ayar.kapali);
+  let ctx = null, ana = null, duk = null, gurultu = null, etkin = false, acildi = false, rs = 0x5e5 >>> 0;
+  const bus = {}, kayit = new Map(), son = [], istek = { muzik: null, ortam: null }, calan = { muzik: null, ortam: null };
+  const rnd = () => { rs = (rs + 0x6D2B79F5) >>> 0; let x = rs; x = Math.imul(x ^ (x >>> 15), x | 1); x ^= x + Math.imul(x ^ (x >>> 7), x | 61); return ((x ^ (x >>> 14)) >>> 0) / 4294967296; }; // own PRNG: never consumes the game's Math.random
+  const kitAyar = () => { try { return (window.Arena && Arena.settings) || {}; } catch (e) { return {}; } };
+  const azalt = () => { try { const s = kitAyar(); return s.reducedMotion === true || matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } };
+  const hedef = (k) => {
+    const s = kitAyar();
+    const kitKapali = s.muted === true || s.sound === false; // future kit fields; honoured when present
+    const kitSes = typeof s.volume === 'number' ? Math.max(0, Math.min(1, s.volume)) : 1;
+    if (k === 'ana') return (ayar.kapali.ana || kitKapali) ? 0 : ayar.ana * kitSes;
+    return ayar.kapali[k] ? 0 : ayar[k];
+  };
+  const uygula = () => {
+    if (!ctx) return;
+    const t = ctx.currentTime;
+    ana.gain.setTargetAtTime(hedef('ana'), t, 0.02);
+    for (const k of BUSLAR) bus[k].gain.setTargetAtTime(hedef(k), t, 0.02);
+  };
+  const kaydet = () => store.set('arena.core.ses', ayar);
+  const kilitBirak = () => { for (const n of ['pointerdown', 'keydown', 'touchstart']) window.removeEventListener(n, kilit, true); };
+  // gestures unlock the context until it has run once; after that the game owns suspend/resume (e.g. its pause menu)
+  function kilit() { if (!acildi) baglam(); else kilitBirak(); }
+  function kullan() {
+    if (etkin || KAPALI) return;
+    etkin = true;
+    for (const n of ['pointerdown', 'keydown', 'touchstart']) window.addEventListener(n, kilit, { capture: true, passive: true });
+    try { if (window.Arena && Arena.on) Arena.on('settings', uygula); } catch (e) { }
+  }
+  /** create the context + buses if allowed (call it inside a gesture handler); resume is fired, never awaited */
+  function baglam() {
+    kullan();
+    if (KAPALI) return null;
+    if (!ctx) {
+      try {
+        const C = window.AudioContext || window.webkitAudioContext;
+        if (!C) return null;
+        ctx = new C({ latencyHint: 'interactive' });
+      } catch (e) { ctx = null; return null; }
+      ana = ctx.createGain(); ana.connect(ctx.destination);
+      duk = ctx.createGain(); duk.connect(ana);
+      for (const k of BUSLAR) { bus[k] = ctx.createGain(); bus[k].connect(k === 'muzik' ? duk : ana); }
+      const izle = () => { if (ctx.state === 'running' && !acildi) { acildi = true; kilitBirak(); } };
+      try { ctx.addEventListener('statechange', izle); } catch (e) { }
+      izle();
+      uygula();
+      for (const [ad, k] of kayit) coz(ad, k);
+    }
+    if (ctx.state === 'suspended') { try { ctx.resume().catch(() => { }); } catch (e) { } }
+    return ctx;
+  }
+  const calisiyor = () => !!ctx && ctx.state === 'running';
+  const zamanOf = (z) => (z == null ? ctx.currentTime + 0.001 : z);
+
+  // ---- samples: yukle(ad, url | url[] | AudioBuffer[]) fetches now, decodes once a context exists
+  function coz(ad, k) {
+    if (!ctx) return;
+    k.baytlar.forEach((p, i) => {
+      if (k.tamponlar[i] || k.cozuluyor[i]) return;
+      k.cozuluyor[i] = true;
+      p.then(b => b && ctx.decodeAudioData(b.slice(0))).then(buf => { if (buf) k.tamponlar[i] = buf; }).catch(() => { });
+    });
+  }
+  function yukle(ad, kaynak, { yedek = null } = {}) {
+    kullan();
+    const list = Array.isArray(kaynak) ? kaynak : [kaynak];
+    const k = { tamponlar: [], cozuluyor: [], baytlar: [], yedek };
+    list.forEach((s, i) => {
+      if (typeof AudioBuffer !== 'undefined' && s instanceof AudioBuffer) { k.tamponlar[i] = s; k.baytlar[i] = Promise.resolve(null); }
+      else if (s instanceof ArrayBuffer) k.baytlar[i] = Promise.resolve(s);
+      else k.baytlar[i] = fetch(s).then(r => (r.ok ? r.arrayBuffer() : null)).catch(() => null);
+    });
+    kayit.set(ad, k);
+    if (ctx) coz(ad, k);
+    return Promise.all(k.baytlar).then(() => true);
+  }
+
+  // ---- ducking: the music bus dips under sfx bursts (esik one-shots within 0.2 s) or on demand
+  const ducking = { miktar: 0.55, sure: 0.22, esik: 3 };
+  function duck(miktar = ducking.miktar, sure = ducking.sure) {
+    if (!ctx) return;
+    const t = ctx.currentTime, m = azalt() ? 1 - (1 - miktar) * 0.5 : miktar;
+    duk.gain.cancelScheduledValues(t);
+    duk.gain.setTargetAtTime(m, t, 0.015);
+    duk.gain.setTargetAtTime(1, t + sure, 0.12);
+  }
+  function patlama() {
+    if (!ducking.esik) return;
+    const t = ctx.currentTime;
+    son.push(t); while (son.length && son[0] < t - 0.2) son.shift();
+    if (son.length >= ducking.esik) { son.length = 0; duck(); }
+  }
+
+  // ---- procedural fallbacks (no files needed): tok, ding, whoosh, darbe. opts: { zaman, perde, ses, bus }
+  const cikisOf = (o) => bus[o.bus || 'sfx'] || bus.sfx;
+  function gurultuTamponu() {
+    if (gurultu) return gurultu;
+    const n = Math.floor(ctx.sampleRate * 0.6);
+    gurultu = ctx.createBuffer(1, n, ctx.sampleRate);
+    const d = gurultu.getChannelData(0);
+    for (let i = 0; i < n; i++) d[i] = rnd() * 2 - 1;
+    return gurultu;
+  }
+  function osc(dest, w, type, f0, f1, sure, vol) {
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = type; o.frequency.setValueAtTime(f0, w);
+    if (f1 && f1 !== f0) o.frequency.exponentialRampToValueAtTime(f1, w + sure);
+    g.gain.setValueAtTime(0.0001, w); g.gain.exponentialRampToValueAtTime(Math.max(0.0002, vol), w + 0.004);
+    g.gain.exponentialRampToValueAtTime(0.0001, w + sure);
+    o.connect(g); g.connect(dest); o.start(w); o.stop(w + sure + 0.03);
+  }
+  function gurultuVur(dest, w, sure, vol, tip, f, q = 0.8, f1 = 0) {
+    const s = ctx.createBufferSource(); s.buffer = gurultuTamponu();
+    const flt = ctx.createBiquadFilter(); flt.type = tip; flt.frequency.setValueAtTime(f, w); flt.Q.value = q;
+    if (f1) flt.frequency.exponentialRampToValueAtTime(f1, w + sure);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, w); g.gain.exponentialRampToValueAtTime(Math.max(0.0002, vol), w + Math.min(0.01, sure * 0.3));
+    g.gain.exponentialRampToValueAtTime(0.0001, w + sure);
+    s.connect(flt); flt.connect(g); g.connect(dest);
+    s.start(w, rnd() * 0.3); s.stop(w + sure + 0.02);
+  }
+  const synth = {
+    /** wooden tick / UI tap */
+    tok(o = {}) { if (!calisiyor()) return false; const w = zamanOf(o.zaman), p = o.perde || 1, v = o.ses ?? 1, d = cikisOf(o);
+      osc(d, w, 'triangle', 1100 * p, 520 * p, 0.06, 0.35 * v); gurultuVur(d, w, 0.035, 0.18 * v, 'bandpass', 2400 * p, 1.5); return true; },
+    /** bell-like confirm (two inharmonic partials); o.frekans overrides the 880 Hz base */
+    ding(o = {}) { if (!calisiyor()) return false; const w = zamanOf(o.zaman), f = (o.frekans || 880) * (o.perde || 1), v = o.ses ?? 1, d = cikisOf(o), s = o.sure || 0.35;
+      osc(d, w, 'sine', f, f, s, 0.22 * v); osc(d, w, 'sine', f * 2.76, f * 2.74, s * 0.45, 0.06 * v); osc(d, w, 'triangle', f * 2, f * 2, 0.03, 0.05 * v); return true; },
+    /** air sweep; o.sure seconds, o.yukari false sweeps down */
+    whoosh(o = {}) { if (!calisiyor()) return false; const w = zamanOf(o.zaman), s = o.sure || 0.35, v = (o.ses ?? 1) * (azalt() ? 0.6 : 1), up = o.yukari !== false;
+      gurultuVur(cikisOf(o), w, s, 0.32 * v, 'bandpass', up ? 450 : 3200, 1.2, up ? 3200 : 450); return true; },
+    /** low impact: sub drop + noise burst + click */
+    darbe(o = {}) { if (!calisiyor()) return false; const w = zamanOf(o.zaman), p = o.perde || 1, v = (o.ses ?? 1) * (azalt() ? 0.6 : 1), d = cikisOf(o);
+      osc(d, w, 'sine', 140 * p, 42 * p, 0.38, 0.85 * v); gurultuVur(d, w, 0.09, 0.3 * v, 'lowpass', 900 * p); osc(d, w, 'square', 1800 * p, 900 * p, 0.012, 0.05 * v); return true; },
+  };
+
+  /** play a one-shot: a loaded sample (random variant, pitch/volume spread) or a synth helper of that name.
+   *  opts: { varyant: spread 0..1 (default 0.06), perde: rate, ses: gain, no: variant index, bus, zaman, duck } */
+  function cal(ad, o = {}) {
+    kullan();
+    if (!calisiyor()) return false;
+    const k = kayit.get(ad);
+    const hazir = k ? k.tamponlar.filter(Boolean) : [];
+    const yay = o.varyant ?? 0.06;
+    const perde = (o.perde || 1) * (1 + (rnd() * 2 - 1) * yay);
+    const vol = (o.ses ?? 1) * (1 - rnd() * yay * 2);
+    let ok = false;
+    if (hazir.length) {
+      const buf = hazir[o.no != null ? o.no % hazir.length : Math.floor(rnd() * hazir.length)];
+      const s = ctx.createBufferSource(), g = ctx.createGain();
+      s.buffer = buf; s.playbackRate.value = perde; g.gain.value = vol;
+      s.connect(g); g.connect(cikisOf(o)); s.start(zamanOf(o.zaman)); ok = true;
+    } else {
+      const f = synth[(k && k.yedek) || ad];
+      ok = f ? f(Object.assign({}, o, { perde, ses: vol })) : false;
+    }
+    if (ok && (o.bus || 'sfx') === 'sfx') { if (o.duck) duck(typeof o.duck === 'number' ? o.duck : undefined); else patlama(); }
+    return ok;
+  }
+
+  /** looping bed on the music / ambience bus with crossfade. src: url | AudioBuffer | yukle() name | null (fade out) */
+  async function dongula(busAd, src, { dongu: tekrar = true, gecis = 1.2, ses: v = 1 } = {}) {
+    kullan();
+    if (KAPALI) return false;
+    const benim = istek[busAd] = { src };
+    let buf = null;
+    if (src) {
+      if (typeof AudioBuffer !== 'undefined' && src instanceof AudioBuffer) buf = src;
+      else {
+        if (!kayit.has(src)) await yukle(src, src);
+        const k = kayit.get(src);
+        await Promise.all(k.baytlar);
+        while (!ctx && istek[busAd] === benim) await new Promise(r => setTimeout(r, 250)); // wait for the first gesture
+        if (istek[busAd] !== benim) return false;
+        coz(src, k);
+        for (let i = 0; i < 40 && !k.tamponlar.some(Boolean); i++) await new Promise(r => setTimeout(r, 50));
+        buf = k.tamponlar.find(Boolean) || null;
+      }
+    }
+    if (!ctx || istek[busAd] !== benim) return false;
+    const t = ctx.currentTime, eski = calan[busAd];
+    if (eski) { eski.g.gain.cancelScheduledValues(t); eski.g.gain.setValueAtTime(eski.g.gain.value, t); eski.g.gain.linearRampToValueAtTime(0, t + gecis); try { eski.s.stop(t + gecis + 0.05); } catch (e) { } }
+    calan[busAd] = null;
+    if (!buf) return !src;
+    const s = ctx.createBufferSource(), g = ctx.createGain();
+    s.buffer = buf; s.loop = tekrar;
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + Math.max(0.01, gecis));
+    s.connect(g); g.connect(bus[busAd]); s.start(t);
+    calan[busAd] = { s, g };
+    return true;
+  }
+
+  return {
+    get ctx() { return ctx; },
+    get calisiyor() { return calisiyor(); },
+    get kapali() { return KAPALI; },
+    bus, // { muzik, sfx, ortam } GainNodes once the context exists (connect your own nodes here)
+    get cikis() { return ana; },
+    baglam,
+    /** volume of 'ana' | 'muzik' | 'sfx' | 'ortam' (0..1); with v it sets and persists */
+    duzey(k, v) { kullan(); if (v == null) return ayar[k]; ayar[k] = Math.max(0, Math.min(1, +v || 0)); kaydet(); uygula(); return ayar[k]; },
+    /** mute flag; with m it sets and persists */
+    sustur(k, m) { kullan(); if (m == null) return !!ayar.kapali[k]; ayar.kapali[k] = !!m; kaydet(); uygula(); return ayar.kapali[k]; },
+    yukle, cal, duck, ducking, synth,
+    muzik: (src, o) => dongula('muzik', src, o),
+    ortam: (src, o) => dongula('ortam', src, o),
+  };
+})();
+
+window.ArenaCore = { version: VERSION, kalite, render, kabuk, his, kamera, test, ses };
+/*ARENA-CORE:END*/</script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Nunito+Sans:ital,opsz,wght@0,6..12,400;0,6..12,600;0,6..12,700;0,6..12,800;1,6..12,400&display=swap" rel="stylesheet">
@@ -985,6 +1494,17 @@ h2 {
   border-bottom-style: solid;
 }
 #scr-title .foot { pointer-events: auto; }
+/* Yazı denetimi (2026-11): başlıkta sabit alt bilgi 'Oyna'/'Daily challenge' düğmelerinin ve nasıl oynanır metninin üstüne
+   biniyordu; başlık ekranında alt bilgi panelin altında akar (taşmada üst kesilmesin diye margin:auto ile ortalanır) */
+#scr-title { flex-direction: column; justify-content: flex-start; }
+#scr-title .panel { margin-top: auto; }
+#scr-title .foot { position: static; margin: 14px 0 auto; padding-bottom: 4px; }
+/* Telefonda dört 'nasıl oynanır' kartı ekranı dolduruyor, Oyna düğmesi kaydırmadan görünmüyordu: düğmeler kartların üstüne */
+@media (max-width: 560px), (max-height: 520px) {
+  #scr-title .title-actions { order: 1; }
+  #scr-title .howto-bento { order: 2; }
+  #scr-title .title-meta { order: 3; }
+}
 
 /* Song Select Screen: Imperial Defter Cards */
 .select-panel { max-width: 880px; }
@@ -1350,6 +1870,15 @@ h2 {
   background: linear-gradient(to top, var(--gold-dark), var(--gold-hi));
   box-shadow: 0 0 8px rgba(232, 178, 58, 0.5);
 }
+.hist-fix {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13px;
+  margin-top: 4px;
+}
+.hist-fix button { flex: none; min-height: 40px; padding: 6px 14px; }
 .hist-l {
   display: flex;
   justify-content: space-between;
@@ -1872,6 +2401,10 @@ body.playing #hud, body.playing #spirit, body.playing #layers { display: flex; }
   .brand-svg { width: 28px; height: 28px; }
   .song-meta { flex: 1 1 0; min-width: 0; }
   #h-song { min-width: 0; overflow: hidden; text-overflow: ellipsis; font-size: 13px; }
+  /* Yazı denetimi (2026-11): şarkı adı 'D' diye eziliyor, zorluk rozeti üstüne biniyordu; ad ve rozet alt alta */
+  .song-meta { flex-direction: column; align-items: flex-start; gap: 1px; padding: 2px 8px; }
+  #h-song { max-width: 100%; font-size: 12px; line-height: 1.15; }
+  .song-meta .diff-badge { font-size: 9px; padding: 1px 5px; }
   .stats { order: 3; flex: 1 0 100%; justify-content: space-around; gap: 6px; }
   .stat { flex-direction: row; align-items: baseline; gap: 5px; }
   .stat b { font-size: 15px; }
@@ -2255,6 +2788,10 @@ body.playing #hud, body.playing #spirit, body.playing #layers { display: flex; }
         <span>0 ms</span>
         <span data-i18n="late">geç</span>
       </div>
+      <div id="r-offset" class="hist-fix hidden" role="status">
+        <span id="r-offset-txt"></span>
+        <button id="b-offset-fix" type="button" data-i18n="offsetFix">Düzelt</button>
+      </div>
     </div>
 
     <div class="btns">
@@ -2331,6 +2868,8 @@ const I18N = {
     perfect: 'MÜKEMMEL', good: 'İYİ', miss: 'KAÇTI', brk: 'KOPTU',
     maxCombo: 'En yüksek kombo', perfectN: 'Mükemmel', goodN: 'İyi', missN: 'Kaçan', brkN: 'Kopan', accN: 'İsabet',
     histogram: 'Vuruş zamanlaması (ms)', early: 'erken', late: 'geç',
+    offsetLate: 'Vuruşların ortalama {ms} ms geç.', offsetEarly: 'Vuruşların ortalama {ms} ms erken.', offsetFix: 'Düzelt',
+    offsetFixed: 'Gecikme ayarı {ms} ms oldu (Kalibrasyon ekranından değiştirebilirsin)',
     calibTitle: 'Gecikme kalibrasyonu', calibHelp: 'Metronomun her vuruşuna bir tuş basın (Boşluk, D F J K veya düğme).',
     calibNeedAudio: 'Ses için önce Oyna düğmesine bir kez basın.', calibNone: 'Yeterli vuruş yok, tekrar deneyin.',
     calibDone: 'Ortalama gecikme', tapBtn: 'Vur', reset: 'Sıfırla', calibSaved: 'Kalibrasyon kaydedildi',
@@ -2377,6 +2916,8 @@ const I18N = {
     perfect: 'PERFECT', good: 'GOOD', miss: 'MISS', brk: 'BREAK',
     maxCombo: 'Max combo', perfectN: 'Perfect', goodN: 'Good', missN: 'Missed', brkN: 'Broken holds', accN: 'Accuracy',
     histogram: 'Hit timing (ms)', early: 'early', late: 'late',
+    offsetLate: 'Your hits are {ms} ms late on average.', offsetEarly: 'Your hits are {ms} ms early on average.', offsetFix: 'Fix it',
+    offsetFixed: 'Input offset is now {ms} ms (change it on the Calibration screen)',
     calibTitle: 'Input latency calibration', calibHelp: 'Press a key or the button on every metronome beat (Space, D F J K or the button).',
     calibNeedAudio: 'Press Play once first so audio can run.', calibNone: 'Not enough taps, try again.',
     calibDone: 'Average offset', tapBtn: 'Tap', reset: 'Reset', calibSaved: 'Calibration saved',
@@ -2518,7 +3059,8 @@ function makeChart(s, diff) {
 
 // ----- audio (Web Audio clock) ---------------------------------------------
 const AU = { ctx: null, master: null, music: null, sfx: null, noise: null, nodes: [], lay: [] };
-// CC0 one-shots (Kenney): only UI clicks and the results fanfare. Music and hit sounds stay synthesized.
+// CC0 one-shots (Kenney): UI clicks and the results fanfare here; the miss / break thud goes through ArenaCore.ses
+// (fetchSamples). Music and hit sounds stay synthesized.
 const SAMPLE_FILES = { click: 'assets/sfx/ui-click.mp3', fanfare: 'assets/sfx/results-fanfare.mp3' };
 const SAMPLE_BYTES = {}, SAMPLES = {};
 async function decodeSamples(ctx) {
@@ -2538,16 +3080,25 @@ function playSample(k, gain = 1) {
   track(src);
   return true;
 }
+// arena-core v2.1 ses: the context comes from ArenaCore.ses (made on the first gesture, never awaited) and the
+// game's music / sfx gains feed its buses, so volume, mute and ducking live in one place. Without the core: as before.
+const CORE_SES = window.ArenaCore && ArenaCore.ses;
 function audioInit() {
   if (AU.ctx) return AU.ctx;
   try {
-    const C = window.AudioContext || window.webkitAudioContext;
-    if (!C) return null;
-    const ctx = new C();
+    let ctx;
+    if (CORE_SES) { ctx = CORE_SES.baglam(); if (!ctx) return null; }
+    else {
+      const C = window.AudioContext || window.webkitAudioContext;
+      if (!C) return null;
+      ctx = new C();
+    }
     AU.ctx = ctx;
-    AU.master = ctx.createGain(); AU.master.connect(ctx.destination);
-    AU.music = ctx.createGain(); AU.music.connect(AU.master);
-    AU.sfx = ctx.createGain(); AU.sfx.connect(AU.master);
+    AU.master = ctx.createGain();
+    AU.music = ctx.createGain();
+    AU.sfx = ctx.createGain();
+    if (CORE_SES) { AU.music.connect(CORE_SES.bus.muzik); AU.sfx.connect(CORE_SES.bus.sfx); }
+    else { AU.master.connect(ctx.destination); AU.music.connect(AU.master); AU.sfx.connect(AU.master); }
     AU.lay = [0, 1, 2, 3].map(() => { const g = ctx.createGain(); g.connect(AU.music); return g; });
     const len = Math.floor(ctx.sampleRate * 0.5);
     AU.noise = ctx.createBuffer(1, len, ctx.sampleRate);
@@ -2565,6 +3116,12 @@ async function readyAudio() {
   return ctx.state === 'running' ? ctx : null;
 }
 function applyVolumes() {
+  if (CORE_SES) {
+    // same products as before: master × music (layers) and master × sfx × 0.9; the core persists its own copy
+    CORE_SES.duzey('ana', S.master); CORE_SES.duzey('muzik', S.music); CORE_SES.duzey('sfx', S.sfx * 0.9);
+    CORE_SES.sustur('muzik', !S.musicOn); CORE_SES.sustur('sfx', !S.sfxOn);
+    return;
+  }
   if (!AU.ctx) return;
   AU.master.gain.value = S.master;
   AU.music.gain.value = S.musicOn ? S.music : 0;
@@ -2641,9 +3198,23 @@ function setLayerGains(n, now) {
   });
 }
 function sndBass(w, dur) { tone(AU.music, w, 'sine', 55, 50, dur * 0.95, 0.12); }
-function sndCheer() { if (AU.ctx) noiseHit(AU.sfx, AU.ctx.currentTime + 0.001, 1.1, 0.3, 'bandpass', 1400); }
-function sndHit(perfect) { if (AU.ctx) tone(AU.sfx, AU.ctx.currentTime + 0.001, 'sine', perfect ? 1320 : 880, perfect ? 1320 : 880, 0.08, perfect ? 0.22 : 0.16); }
-function sndMiss() { if (AU.ctx) tone(AU.sfx, AU.ctx.currentTime + 0.001, 'triangle', 150, 60, 0.2, 0.3, { type: 'lowpass', f: 500 }); }
+function sndCheer() {
+  if (!AU.ctx) return;
+  noiseHit(AU.sfx, AU.ctx.currentTime + 0.001, 1.1, 0.3, 'bandpass', 1400);
+  if (CORE_SES) { CORE_SES.synth.whoosh({ sure: 0.6, ses: 0.5 }); CORE_SES.duck(0.6, 0.55); }   // the crowd swells over the band
+}
+// hit / miss: same pitches and start time as before (currentTime + 1 ms); with the core a bell partial and a slight
+// per-hit variation keep a long streak from sounding like one repeated beep
+function sndHit(perfect) {
+  if (!AU.ctx) return;
+  if (CORE_SES && CORE_SES.calisiyor) { CORE_SES.cal('ding', { frekans: perfect ? 1320 : 880, ses: perfect ? 0.95 : 0.7, sure: 0.12, varyant: 0.015 }); return; }
+  tone(AU.sfx, AU.ctx.currentTime + 0.001, 'sine', perfect ? 1320 : 880, perfect ? 1320 : 880, 0.08, perfect ? 0.22 : 0.16);
+}
+function sndMiss() {
+  if (!AU.ctx) return;
+  if (CORE_SES && CORE_SES.calisiyor && CORE_SES.cal('aksak', { ses: 0.55, varyant: 0.08, duck: 0.75 })) return;   // CC0 Kenney thud, synth darbe fallback
+  tone(AU.sfx, AU.ctx.currentTime + 0.001, 'triangle', 150, 60, 0.2, 0.3, { type: 'lowpass', f: 500 });
+}
 function sndClick(w, accent) { tone(AU.sfx, w, 'square', accent ? 1500 : 1000, accent ? 1500 : 1000, 0.05, 0.28, { type: 'bandpass', f: accent ? 1500 : 1000, q: 3 }); }
 function playEvent(e, w) {
   if (e.lane === 0) sndDavul(w, e.acc);
@@ -2966,6 +3537,20 @@ function showResults() {
     const isCenter = idx === 5;
     return `<i class="${isCenter ? 'hist-center' : ''}" style="height:${Math.max(3, Math.round((b / mx) * 100))}%" title="${b}"></i>`;
   }).join('');
+  // A steady early/late bias (phone touch latency, Bluetooth audio) is offered as a one-tap calibration fix.
+  const off = offsetHint(r.hist);
+  G.offsetFix = off;
+  const fixEl = $('#r-offset');
+  if (fixEl) {
+    fixEl.classList.toggle('hidden', !off || G.auto);
+    if (off) setText($('#r-offset-txt'), T(off > 0 ? 'offsetLate' : 'offsetEarly').replace('{ms}', Math.abs(off)));
+  }
+}
+// Median hit error in ms when it is a clear bias (>= 20 hits, |median| >= 35 ms), else 0.
+function offsetHint(hist) {
+  if (!hist || hist.length < 20) return 0;
+  const h = hist.slice().sort((a, b) => a - b), med = h[h.length >> 1];
+  return Math.abs(med) >= 35 ? med : 0;
 }
 function goTitle() {
   stopAll();
@@ -3055,6 +3640,7 @@ function calibTick() {
 
 // ----- three.js world (built in code) --------------------------------------
 let R = null, scene = null, cam = null, sun = null, hemi = null, BEAT_PULSE = 0;
+let FX = null; // arena-core v2 render preset (set in buildThree)
 const C = {};
 const BAND = [];
 const CROWD = [];
@@ -3555,7 +4141,7 @@ function buildThree() {
   const canvas = $('#gl');
   R = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
   R.setPixelRatio(Math.min(window.devicePixelRatio || 1, lowQ() ? 1 : 1.5));
-  if (window.Arena) Arena.perf.attach(R, { max: Math.min(window.devicePixelRatio || 1, lowQ() ? 1 : 1.5) }); // arena-kit: dynamic pixel ratio, same cap
+  if (window.Arena) Arena.perf.attach({ setPixelRatio: r => { R.setPixelRatio(r); if (FX) FX.setSize(window.innerWidth, window.innerHeight); } }, { max: Math.min(window.devicePixelRatio || 1, lowQ() ? 1 : 1.5) }); // arena-kit: dynamic pixel ratio, same cap
   R.shadowMap.enabled = !lowQ();
   R.shadowMap.type = THREE.PCFShadowMap;
   scene = new THREE.Scene();
@@ -3577,6 +4163,9 @@ function buildThree() {
   sc.updateProjectionMatrix();
   sun.shadow.bias = -0.0008;
   scene.add(hemi, sun, sun.target);
+  // arena-core v2 render preset: neutral tone mapping, warm bloom on the torches, lanterns and sparks at dusk, vignette, grade.
+  // ortam 0: the dusk HDRI arrives later on the High tier and the game sets it itself.
+  FX = window.ArenaCore ? ArenaCore.render.setup(R, scene, cam, { tonlama: 'neutral', pozlama: 1.08, ortam: 0, bloom: { guc: 0.45, esik: 0.8, yaricap: 0.45 }, vinyet: 0.3, grain: 0.035, renk: { doygunluk: 1.1, kontrast: 1.06 } }) : null;
   buildFx();
   buildWorld();
   buildBanners();
@@ -3592,6 +4181,7 @@ function resize() {
   if (!R) return;
   const w = window.innerWidth, h = window.innerHeight;
   R.setSize(w, h, false);
+  if (FX) FX.setSize(w, h);
   cam.aspect = w / h;
   const fovHalf = Math.atan(Math.max(6.5, 5.6 / cam.aspect) / 14);
   cam.fov = Math.min(85, Math.max(45, THREE.MathUtils.radToDeg(fovHalf * 2)));
@@ -3652,7 +4242,10 @@ async function loadSky() {
   } catch (e) { /* keep the hemisphere light only */ }
 }
 async function fetchSamples() {
+  if (CORE_SES) CORE_SES.ducking.esik = 0;   // no automatic ducking: hits land on every beat, the march must not pump
   if (!ASSET_ON) return;
+  // miss / break thud: two CC0 Kenney variants, picked at random by ArenaCore.ses (synth darbe until decoded)
+  if (CORE_SES) CORE_SES.yukle('aksak', ['assets/sfx/miss-1.mp3', 'assets/sfx/miss-2.mp3'], { yedek: 'darbe' });
   for (const k of Object.keys(SAMPLE_FILES)) {
     try { const r = await fetch(SAMPLE_FILES[k]); if (r.ok) SAMPLE_BYTES[k] = await r.arrayBuffer(); } catch (e) { /* offline or file:// */ }
   }
@@ -4010,6 +4603,13 @@ function wireUI() {
   $('#b-cal-start').addEventListener('click', calibStart);
   $('#b-cal-tap').addEventListener('click', () => calibTap());
   $('#b-cal-reset').addEventListener('click', () => { S.calib = 0; saveSettings(); setText($('#cal-res'), T('resetDone')); });
+  $('#b-offset-fix').addEventListener('click', () => {
+    if (!G.offsetFix) return;
+    S.calib = Math.round((S.calib + G.offsetFix / 1000) * 1000) / 1000;
+    saveSettings(); G.offsetFix = 0;
+    $('#r-offset').classList.add('hidden');
+    toast(T('offsetFixed').replace('{ms}', Math.round(S.calib * 1000)));
+  });
   $('#b-cal-back').addEventListener('click', () => { CAL.on = false; stopAll(); show('title'); refreshBest(); });
   $('#b-pause').addEventListener('click', pauseGame);
   $('#b-resume').addEventListener('click', resumeGame);
@@ -4122,7 +4722,7 @@ function frame(now) {
   pollPads();
   calibTick();
   updateVisuals(dt);
-  R.render(scene, cam);
+  if (FX) FX.render(); else R.render(scene, cam);
   G.frames++;
   if (G.screen === 'play' || G.screen === 'pause') refreshHud();
   if (FLAG.debug || Q.has('debug')) updateDebug();
@@ -4215,6 +4815,9 @@ if (Q.get('screen') === 'settings') openSettings();
   }
   buildThree();
   G.ready = true;
+  // arena-core v2 test contract: window.__game.read() / step(seconds) for bots, gates and ?capture recordings
+  if (window.ArenaCore) ArenaCore.test.kur({ read: () => ({ fps: G.fps, screen: G.screen, errors: G.errors.slice(), fx: FX && FX.info }), step: s => window.mehterSim(s) });
+  if (window.ArenaCore) ArenaCore.kabuk.onceDerle(R, scene, cam); // shader warm-up (Intel: no parallel compile)
   // assets arrive after the first frame; each one swaps in place when it is ready
   loadAssets();
   loadCobble();
@@ -4229,8 +4832,11 @@ if (Q.get('screen') === 'settings') openSettings();
   const sim = Q.get('sim');
   const song = Math.max(0, Math.min(SONGS.length - 1, Number(Q.get('song') || 0)));
   if (sim !== null || FLAG.auto) {
-    await readyAudio();
-    startSong(song, 'normal', { auto: FLAG.auto, bot: FLAG.auto, clock: sim !== null ? 'virtual' : undefined });
+    // never await audio here: ctx.resume() needs a user gesture and never settles in headless / ?capture runs, which kept
+    // the bot on the title screen. ?sim and ?capture take no audio at all (virtual / frame clock, deterministic); plain
+    // ?auto uses the audio clock only if the context is already running (autoplay allowed), else the wall clock.
+    if (sim === null && !Q.has('capture')) { const c = audioInit(); if (c && c.state !== 'running') c.resume().catch(() => { }); }
+    startSong(song, 'normal', { auto: FLAG.auto, bot: FLAG.auto, clock: sim !== null ? 'virtual' : Q.has('capture') ? 'wall' : undefined });
     if (sim !== null) simulate(Number(sim));
     refreshHud();
     if (FLAG.debug) updateDebug();
