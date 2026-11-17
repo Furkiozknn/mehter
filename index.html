@@ -1457,6 +1457,17 @@ h2 {
   border-bottom-style: solid;
 }
 #scr-title .foot { pointer-events: auto; }
+/* Yazı denetimi (2026-11): başlıkta sabit alt bilgi 'Oyna'/'Daily challenge' düğmelerinin ve nasıl oynanır metninin üstüne
+   biniyordu; başlık ekranında alt bilgi panelin altında akar (taşmada üst kesilmesin diye margin:auto ile ortalanır) */
+#scr-title { flex-direction: column; justify-content: flex-start; }
+#scr-title .panel { margin-top: auto; }
+#scr-title .foot { position: static; margin: 14px 0 auto; padding-bottom: 4px; }
+/* Telefonda dört 'nasıl oynanır' kartı ekranı dolduruyor, Oyna düğmesi kaydırmadan görünmüyordu: düğmeler kartların üstüne */
+@media (max-width: 560px), (max-height: 520px) {
+  #scr-title .title-actions { order: 1; }
+  #scr-title .howto-bento { order: 2; }
+  #scr-title .title-meta { order: 3; }
+}
 
 /* Song Select Screen: Imperial Defter Cards */
 .select-panel { max-width: 880px; }
@@ -2353,6 +2364,10 @@ body.playing #hud, body.playing #spirit, body.playing #layers { display: flex; }
   .brand-svg { width: 28px; height: 28px; }
   .song-meta { flex: 1 1 0; min-width: 0; }
   #h-song { min-width: 0; overflow: hidden; text-overflow: ellipsis; font-size: 13px; }
+  /* Yazı denetimi (2026-11): şarkı adı 'D' diye eziliyor, zorluk rozeti üstüne biniyordu; ad ve rozet alt alta */
+  .song-meta { flex-direction: column; align-items: flex-start; gap: 1px; padding: 2px 8px; }
+  #h-song { max-width: 100%; font-size: 12px; line-height: 1.15; }
+  .song-meta .diff-badge { font-size: 9px; padding: 1px 5px; }
   .stats { order: 3; flex: 1 0 100%; justify-content: space-around; gap: 6px; }
   .stat { flex-direction: row; align-items: baseline; gap: 5px; }
   .stat b { font-size: 15px; }
