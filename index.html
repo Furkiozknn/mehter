@@ -3689,6 +3689,18 @@ function offsetHint(hist) {
   const h = hist.slice().sort((a, b) => a - b), med = h[h.length >> 1];
   return Math.abs(med) >= 35 ? med : 0;
 }
+// Portal ad hooks (G-050). Ads only at the natural break: after a song, when the player leaves the results card.
+// On the game's own site (no portal SDK) afterBreak() runs the action synchronously, exactly as before. The ?auto bot
+// moves on with advanceAuto() -> startSong() and is not affected. One tap = one action. During the ad the kit suspends
+// every AudioContext and only fires resume() at the end; the song actions await readyAudio() (ctx.resume()) before
+// startSong(), so the next song picks the audio clock and its t0 is set from the running context (no drift, no silent
+// wall-clock song). No rewarded hook: the table's "keep the multiplier" would be an ad in the middle of a song.
+let breakBusy = false;
+function afterBreak(f) {
+  if (!(window.Arena && Arena.portal && Arena.portal.name !== 'none')) return f(); // own site: synchronous, as before
+  if (breakBusy) return; breakBusy = true;
+  Arena.portal.midgame().catch(() => false).then(() => { breakBusy = false; if (G.screen === 'results') f(); });
+}
 function goTitle() {
   stopAll();
   G.notes = []; G.lanes = [[], [], [], []]; G.song = null; G.visSong = SONGS[G.sel];
@@ -4752,13 +4764,14 @@ function wireUI() {
   $('#b-resume').addEventListener('click', resumeGame);
   $('#b-restart').addEventListener('click', async () => { await readyAudio(); startSong(G.idx, G.diff, { auto: G.auto, bot: G.bot, song: G.idx < 0 ? G.song : undefined }); });
   $('#b-main').addEventListener('click', goTitle);
-  $('#b-main2').addEventListener('click', goTitle);
-  $('#b-again').addEventListener('click', async () => { await readyAudio(); startSong(G.idx, G.diff, { song: G.idx < 0 ? G.song : undefined }); });
-  $('#b-easy').addEventListener('click', async () => {
+  // results card = the natural break (song over): leaving it may show a portal ad first (afterBreak)
+  $('#b-main2').addEventListener('click', () => afterBreak(goTitle));
+  $('#b-again').addEventListener('click', () => afterBreak(async () => { await readyAudio(); startSong(G.idx, G.diff, { song: G.idx < 0 ? G.song : undefined }); }));
+  $('#b-easy').addEventListener('click', () => afterBreak(async () => {
     if (G.idx < 0) return;
     G.diff = S.diff = 'easy'; saveSettings(); refreshDiffButtons();
     await readyAudio(); startSong(G.idx, 'easy', {});
-  });
+  }));
   // arena-kit: daily challenge, accessibility panel (from Settings: a corner button would sit on the zil lane),
   // share and another game on the results scroll
   $('#b-daily').addEventListener('click', async () => { if (!window.Arena) return; await readyAudio(); startSong(-1, 'normal', { song: dailySong(Arena.daily()) }); });
