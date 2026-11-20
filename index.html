@@ -3,17 +3,24 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Mehter · Claude Game Arena</title>
+<meta name="theme-color" content="#120B1E">
+<title>Mehter · Osmanlı Ritim Yürüyüşü Oyunu</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Ccircle cx='60' cy='60' r='56' fill='%238C1D2F' stroke='%23E8B23A' stroke-width='5'/%3E%3Cpath d='M72 24a38 38 0 1 0 0 72a30 30 0 1 1 0-72z' fill='%23E8B23A'/%3E%3C/svg%3E">
+<link rel="canonical" href="https://furkiozknn.github.io/mehter/">
 <meta name="arena-game" content="mehter">
-<meta name="description" content="A 3D rhythm game with an Ottoman mehter band marching down a square at dusk, redesigned in crimson, gold and deep green: hit davul, kös, zurna and zil notes on the beat across six marches. Plays in the browser.">
+<meta name="description" content="Dört şeritte davul, kös, zurna ve zil: alacakaranlık meydanında yürüyen Osmanlı mehter takımıyla 3D ritim oyunu. Altı marş, üç zorluk; tarayıcıda ücretsiz oynanır.">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Mehter · Ottoman March Rhythm Game">
-<meta property="og:description" content="A 3D rhythm game with an Ottoman mehter band marching down a square at dusk, redesigned in crimson, gold and deep green: hit davul, kös, zurna and zil notes on the beat across six marches. Plays in the browser.">
+<meta property="og:title" content="Mehter · Osmanlı Ritim Yürüyüşü Oyunu">
+<meta property="og:locale" content="tr_TR">
+<meta property="og:description" content="Dört şeritte davul, kös, zurna ve zil: alacakaranlık meydanında yürüyen Osmanlı mehter takımıyla 3D ritim oyunu. Altı marş, üç zorluk; tarayıcıda ücretsiz oynanır.">
 <meta property="og:url" content="https://furkiozknn.github.io/mehter/">
 <meta property="og:image" content="https://furkiozknn.github.io/mehter/docs/card.jpg">
 <meta property="og:image:width" content="960">
 <meta property="og:image:height" content="540">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Mehter · Osmanlı Ritim Yürüyüşü Oyunu">
+<meta name="twitter:description" content="Dört şeritte davul, kös, zurna ve zil: alacakaranlık meydanında yürüyen Osmanlı mehter takımıyla 3D ritim oyunu. Altı marş, üç zorluk; tarayıcıda ücretsiz oynanır.">
+<meta name="twitter:image" content="https://furkiozknn.github.io/mehter/docs/card.jpg">
 <script>/*ARENA-KIT:BEGIN v1.3.2 sha256:ce77e23fab7c*/
 /* ARENA-KIT v1 — shared layer for the 21 Claude Game Arena games.
  *
@@ -2548,6 +2555,24 @@ body.playing #hud, body.playing #spirit, body.playing #layers { display: flex; }
   #layers { top: 96px; }
 }
 
+/* v2.1: sürüm etiketi, Yenilikler penceresi, son marşlar */
+.ver { min-height: 44px; padding: 0 16px; font-size: 13px; background: transparent; border: 1px solid var(--line-gold); color: var(--gold-hi); border-radius: 20px; cursor: pointer; letter-spacing: 0.04em; }
+.ver:hover { background: rgba(232, 178, 58, 0.12); }
+.ver:focus-visible, .foot a:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 2px; }
+.foot a { display: inline-block; padding: 14px 6px; }
+.news-panel { max-width: 560px; width: 100%; }
+.news-list { margin: 8px 0 0; padding: 0 0 0 18px; text-align: left; font-size: 14px; line-height: 1.45; color: var(--parchment); }
+.news-list li { margin: 0 0 7px; }
+.news-list b { color: var(--gold-hi); }
+.news-sub { margin: 14px 0 4px; font-size: 14px; color: var(--gold-hi); letter-spacing: 0.06em; text-align: left; }
+.hist-list { margin: 0; padding: 0; list-style: none; text-align: left; font-size: 13px; color: var(--parchment); }
+.hist-list li { display: flex; gap: 8px; align-items: baseline; padding: 4px 0; border-bottom: 1px dotted rgba(232, 178, 58, 0.25); }
+.hist-list .hl-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hist-list .hl-gr { font-weight: 800; color: var(--gold-hi); min-width: 1.4em; text-align: center; }
+.hist-list .hl-sc { font-variant-numeric: tabular-nums; }
+.hist-list .hl-fc { color: var(--gold-hi); font-size: 11px; font-weight: 800; }
+.hist-empty { color: #b8aacd; font-size: 13px; }
+
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
     animation-duration: 0.001ms !important;
@@ -2747,9 +2772,10 @@ body.playing #hud, body.playing #spirit, body.playing #layers { display: flex; }
       <p class="loading" id="loading">Yükleniyor… 0/1</p>
       <div id="title-best"></div>
       <p id="title-daily" class="muted"></p>
+      <button id="b-news" class="ver" type="button" aria-haspopup="dialog"><span id="ver-txt">v2.1 · Kasım 2026</span></button>
     </div>
   </div>
-  <div class="foot"><a href="https://github.com/Furkiozknn">Claude Game Arena</a> · built by Claude Haiku 5.5</div>
+  <div class="foot"><a id="a-others" href="https://furkiozknn.github.io/" data-i18n="otherGames">Diğer oyunlar</a> · built by Claude Haiku 5.5</div>
 </section>
 
 <!-- SONG SELECT SCREEN: Imperial Defter -->
@@ -2846,6 +2872,20 @@ body.playing #hud, body.playing #spirit, body.playing #layers { display: flex; }
     <div class="btns">
       <button id="b-set-back" class="primary" data-i18n="back">Geri</button>
     </div>
+  </div>
+</section>
+
+<!-- NEWS SCREEN: Yenilikler -->
+<section id="scr-news" class="screen hidden" role="dialog" aria-modal="true" aria-labelledby="news-title">
+  <div class="panel news-panel">
+    <div class="panel-header">
+      <h2 id="news-title" data-i18n="newsTitle">Yenilikler</h2>
+      <p class="ledger-desc" id="news-ver"></p>
+    </div>
+    <ul class="news-list" id="news-list"></ul>
+    <h3 class="news-sub" data-i18n="histTitle">Son marşların</h3>
+    <ol class="hist-list" id="hist-list"></ol>
+    <div class="btns"><button id="b-news-close" class="primary" data-i18n="back">Geri</button></div>
   </div>
 </section>
 
@@ -2988,6 +3028,7 @@ if (!DIFFS.includes(S.diff)) S.diff = Object.keys(loadBest()).length ? 'normal' 
 // ----- strings -------------------------------------------------------------
 const I18N = {
   tr: {
+    newsTitle: 'Yenilikler', histTitle: 'Son marşların', histEmpty: 'Henüz bitirdiğin marş yok.', otherGames: 'Diğer oyunlar', fullCombo: 'TAM KOMBO', awFC: 'Mehter: tam kombo', newsVer: 'Sürüm {v} · {d}',
     subtitle: 'Davul, kös, zurna ve zil bu caddede sizin ritminizle yürür.',
     howto1: 'Notalar vuruş çizgisine doğru gelir. Tam anda D F J K tuşlarına basın ya da şeritlere dokunun.',
     howto1Touch: 'Notalar vuruş çizgisine doğru gelir. Tam anda alttaki dört şeride dokunun.',
@@ -3036,6 +3077,7 @@ const I18N = {
     practiceBadge: 'Practice',
     off: 'Off',
     on: 'On',
+    newsTitle: 'What\u2019s new', histTitle: 'Your last marches', histEmpty: 'No finished march yet.', otherGames: 'More games', fullCombo: 'FULL COMBO', awFC: 'Mehter: full combo', newsVer: 'Version {v} \u00b7 {d}',
     subtitle: 'Davul, kös, zurna and zil march down this avenue to your rhythm.',
     howto1: 'Notes roll toward the hit line. Press D F J K on the beat, or tap the lanes.',
     howto1Touch: 'Notes roll toward the hit line. Tap the four lanes at the bottom on the beat.',
@@ -3374,7 +3416,7 @@ const G = {
 const CAL = { t0: 0, taps: [], end: 0, n: 12, beat: 0.6, on: false };
 
 // ----- screens and HUD -----------------------------------------------------
-const SCREENS = ['title', 'select', 'settings', 'calib', 'pause', 'results'];
+const SCREENS = ['title', 'select', 'settings', 'calib', 'pause', 'results', 'news'];
 function show(name) {
   G.screen = name;
   for (const s of SCREENS) {
@@ -3609,6 +3651,7 @@ function checkFail() {
   if (G.screen === 'play' && G.spirit <= 0 && !G.ended) endSong(true);
 }
 
+const Arena_quiet = () => !!(window.Arena && Arena.quiet);
 function endSong(defeat) {
   G.ended = true;
   const total = Math.max(1, G.notes.length);
@@ -3625,6 +3668,7 @@ function endSong(defeat) {
     record = true;
   }
   G.result = { defeat, acc, grade, record, noFail: G.noFail, score: Math.round(G.score), maxCombo: G.maxCombo, maxLayers: G.maxLayers, cnt: { ...G.cnt }, hist: G.hist.slice(), name: G.song.name[LANG] };
+  G.result.fullCombo = !defeat && G.cnt.miss === 0 && G.cnt.brk === 0 && G.notes.length > 0;
   G.endAt = G.gt + 2.5;
   if (G.auto && G.idx >= SONGS.length - 1) G.autoDone = true;
   // arena-kit: passport badges and the daily streak (the bot never writes to the player's passport)
@@ -3632,8 +3676,10 @@ function endSong(defeat) {
     if (!defeat && grade === 'S') Arena.award('mehter-s', T('awS'));
     if (G.maxLayers >= 4) Arena.award('mehter-4layers', T('awLayers'));
     if (!defeat && G.idx === SONGS.length - 1) Arena.award('mehter-zafer', T('awZafer'));
+    if (G.result.fullCombo) Arena.award('mehter-fc', T('awFC'));
     if (G.daily) { const d = Arena.daily(); if (d.day === G.daily) G.result.streak = d.complete(G.result.score); }
   }
+  if (!G.auto && !G.bot && G.idx >= 0 && !Arena_quiet()) pushHistory({ t: Date.now(), idx: G.idx, diff: G.diff, score: G.result.score, grade, fc: G.result.fullCombo, defeat: !!defeat });
   showResults();
   if (window.Arena && Arena.complete) Arena.complete({ mount: $('#scr-results .results-panel') });   // arena-kit v1.1: mehter/complete + one-tap 👍/👎 (nothing on ?auto)
 }
@@ -3659,6 +3705,7 @@ function showResults() {
     if (r.record) {
       badgeHtml += `<span class="wax-seal-badge"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2l3 6 6 1-4.5 4.5 1 6.5-5.5-3.5L6.5 20l1-6.5L3 9l6-1z"/></svg> ${T('newRecord')}</span>`;
     }
+    if (r.fullCombo) badgeHtml += `<span class="wax-seal-badge">${T('fullCombo')}</span>`;
     if (r.noFail && !r.record) badgeHtml += `<span>${T('noFailResult')}</span>`;
     recEl.innerHTML = badgeHtml;
   }
@@ -4587,6 +4634,8 @@ function applyI18n() {
   refreshSettings();
   refreshBest();
   refreshKeys();
+  if (G.screen === 'news') renderNews();
+  setText($('#ver-txt'), 'v' + VERSION.v + ' · ' + VERSION.date[LANG]);
   if (G.screen === 'play' || G.screen === 'pause') refreshHud();
 }
 function setLang(l) {
@@ -4718,6 +4767,8 @@ function wireUI() {
   document.addEventListener('click', onUiClick, true);
   $('#b-play').addEventListener('click', async () => { await readyAudio(); buildSongCards(); show('select'); refreshDiffButtons(); });
   $('#b-title-set').addEventListener('click', openSettings);
+  $('#b-news').addEventListener('click', openNews);
+  $('#b-news-close').addEventListener('click', closeNews);
   $('#b-pause-set').addEventListener('click', openSettings);
   $('#b-title-cal').addEventListener('click', () => { show('calib'); setText($('#cal-msg'), ''); setText($('#cal-res'), ''); });
   $('#b-title-lang').addEventListener('click', () => setLang(LANG === 'tr' ? 'en' : 'tr'));
@@ -4837,6 +4888,7 @@ function onKey(e) {
     if (G.screen === 'play') pauseGame();
     else if (G.screen === 'pause') resumeGame();
     else if (G.screen === 'settings' && G.returnTo === 'pause') closeSettings();
+    else if (G.screen === 'news') closeNews();
     return;
   }
   if (G.screen === 'calib' && (k === ' ' || S.keys.includes(k))) { e.preventDefault(); calibTap(); return; }
@@ -4949,6 +5001,47 @@ window.mehter = Object.assign(G, {
   },
 });
 window.mehterSim = (sec) => simulate(sec);
+
+// ----- v2.1: sürüm, Yenilikler, son marşlar ---------------------------------
+const VERSION = { v: '2.1', date: { tr: 'Kasım 2026', en: 'November 2026' } };
+const NEWS = {
+  tr: [
+    '<b>Yenilikler penceresi</b> ve sürüm etiketi: ana menüde v2.1 düğmesi.',
+    '<b>Son marşların:</b> bitirdiğin son 8 marşın skoru ve derecesi bu cihazda saklanır.',
+    '<b>Tam kombo:</b> hiç kaçırmadan ve kopmadan bitirince sonuç ekranında mühür ve yeni bir rozet.',
+    '<b>Düzeltme:</b> alt bağlantı GitHub profiline gidiyordu; artık oyunlar sayfasına gidiyor. Sayfa başlığı ve açıklaması Türkçeleşti.',
+  ],
+  en: [
+    '<b>What\u2019s new window</b> and a version tag: the v2.1 button on the main menu.',
+    '<b>Your last marches:</b> score and grade of your last 8 finished marches are kept on this device.',
+    '<b>Full combo:</b> finish without a miss or a broken hold to get a seal on the results card and a new badge.',
+    '<b>Fix:</b> the footer link went to the GitHub profile; it now opens the games page. Page title and description are Turkish.',
+  ],
+};
+const loadHistory = () => { try { const a = JSON.parse(localStorage.getItem('arena.mehter.history') || '[]'); return Array.isArray(a) ? a.filter((x) => x && typeof x.score === 'number').slice(0, 8) : []; } catch (e) { return []; } };
+function pushHistory(h) { const a = loadHistory(); a.unshift(h); persist('arena.mehter.history', a.slice(0, 8)); }
+function renderNews() {
+  setText($('#news-ver'), T('newsVer').replace('{v}', VERSION.v).replace('{d}', VERSION.date[LANG]));
+  $('#news-list').innerHTML = NEWS[LANG].map((x) => `<li>${x}</li>`).join('');
+  const hist = loadHistory();
+  const loc = LANG === 'tr' ? 'tr-TR' : 'en-GB';
+  const el = $('#hist-list');
+  el.textContent = '';
+  if (!hist.length) { const li = document.createElement('li'); li.className = 'hist-empty'; li.textContent = T('histEmpty'); el.appendChild(li); return; }
+  for (const h of hist) {
+    const li = document.createElement('li');
+    const song = SONGS[h.idx];
+    const mk = (cls, txt) => { const sp = document.createElement('span'); sp.className = cls; sp.textContent = txt; li.appendChild(sp); };
+    mk('hl-name', (song ? song.name[LANG] : '?') + ' · ' + T(DIFFS.includes(h.diff) ? h.diff : 'normal'));
+    if (h.fc) mk('hl-fc', T('fullCombo'));
+    mk('hl-gr', h.grade || '–');
+    mk('hl-sc', fmt(h.score));
+    try { mk('hl-dt', new Date(h.t).toLocaleDateString(loc, { day: 'numeric', month: 'short' })); } catch (e) { /* tarih yok */ }
+    el.appendChild(li);
+  }
+}
+function openNews() { show('news'); renderNews(); const b = $('#b-news-close'); if (b) b.focus(); }
+function closeNews() { show('title'); refreshBest(); const b = $('#b-news'); if (b) b.focus(); }
 
 // ----- boot -----------------------------------------------------------------
 wireUI();

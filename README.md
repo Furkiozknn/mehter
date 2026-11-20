@@ -39,6 +39,15 @@
 - **Flawless automated bot testing:** The `?auto` bot plays through all 6 songs; on the final song it hit all 907 notes perfectly for an S grade with 0 JS errors, both procedurally and with optional assets.
 - **Ultra-lean web performance:** Runs at 60–61 fps on Intel UHD 620 graphics at 1280x720 with 29–31 draw calls (60,058–65,832 triangles) from a single `index.html` using Three.js r170, with an optional 1.75 MB CC0 asset pass.
 
+## What's new in v2.1 (November 2026)
+
+The full list is in [CHANGELOG.md](CHANGELOG.md) (Turkish) and in the in-game **Yenilikler** window (the version tag on the main menu).
+
+- **What's new window and version tag** on the main menu.
+- **Your last marches:** the last 8 finished marches (song, difficulty, grade, score) are kept locally on the device.
+- **Full combo:** no miss and no broken hold earns a seal on the results card and a passport badge.
+- Fixes: the footer link now opens the games page; Turkish page title, description and share card; a Turkish 404 page.
+
 ## How to play
 
 > [!TIP]
@@ -154,6 +163,12 @@ python -m http.server 8000
 ```
 
 Then open <http://localhost:8000/>.
+
+Smoke test (needs `playwright-core` and a Chromium; nothing is added to the repository):
+
+```bash
+CHROMIUM=/path/to/chrome node test/duman.mjs
+```
 
 ## Made with Claude Code
 
