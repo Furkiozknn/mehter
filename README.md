@@ -35,22 +35,9 @@
 
 <!-- gameplay gif -->
 
-## Şarkı videosundan / From the song video
+## Şarkı videosu / Song video
 
-<p align="center">
-  <img src="docs/banner.svg" width="100%" alt="Mehter: Ritmi tut, mehter yürüsün. Bordo zemin, altın başlık, kırmızı halıda mehter ve davulcu çocuk.">
-</p>
-
-<table>
-  <tr>
-    <td width="33%"><img src="docs/sarki-01.jpg" alt="Şarkı videosundan: meşaleli sokakta yürüyen mehter takımı ve davulcu çocuk"><br><sub>Başlık: "Turkish is easy… on the beat?"</sub></td>
-    <td width="33%"><img src="docs/sarki-02.jpg" alt="Şarkı videosundan: mehterin yakın planı, 'School? OKUL!' yazısı"><br><sub>"School? OKUL!"</sub></td>
-    <td width="33%"><img src="docs/sarki-03.jpg" alt="Şarkı videosundan: dört şeritli oyun ekranı ve PERFECT yazısı"><br><sub>Oyundan: "Zurna uzunsa tut, bırakma"</sub></td>
-  </tr>
-</table>
-
-**Mehter · Oyun Şarkısı** (39 sn, dikey video): oyunun tanıtım şarkısı; sözler davul, kös, zurna ve zil şeritlerini ve usulleri anlatıyor. Video bu depoda değil; paylaşım videoları deposunda: [social-videos / 2026-11 / Mehter oyun şarkısı](https://github.com/Furkiozknn/social-videos/blob/master/2026-11/2026-11-19-sarki-mehter.mp4).
-*The song video (39 s, vertical) is a playful tune about the four lanes and the usul rhythms; it lives in the public social-videos repository, linked above.* Görsel stil notları: [docs/STIL.md](docs/STIL.md).
+**Mehter · Oyun Şarkısı**: oyunun tanıtım şarkısı videosu, paylaşım videoları deposunda: [social-videos / 2026-11](https://github.com/Furkiozknn/social-videos/blob/master/2026-11/2026-11-19-sarki-mehter.mp4). Videonun görsel stil notları: [docs/STIL.md](docs/STIL.md).
 
 ## Features
 
