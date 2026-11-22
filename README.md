@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://furkiozknn.github.io/mehter/">
-    <img src="docs/card.jpg" width="100%" alt="Mehter: a 3D rhythm march with an Ottoman military band down a parade avenue. Click to play in your browser.">
+    <img src="docs/card-3d.jpg" width="100%" alt="Mehter: a 3D rhythm march with an Ottoman military band down a parade avenue. Click to play in your browser.">
   </a>
 </p>
 
@@ -33,11 +33,20 @@
 
 ## Features
 
+<p align="center">
+  <img src="docs/features.jpg" width="100%" alt="Mehter promo in 3D animated style: a mustached bandleader in a tall red hat, a small boy drummer and the marching band on a sunset square, with four hanging crimson banners listing four lanes and four instruments, six songs in three difficulties, precise audio-clock timing, and one file running at 60 fps.">
+</p>
+
+<details>
+<summary><b>Feature details</b></summary>
+
 - **Four lanes, four instruments:** Davul, kös, zurna and zil on `D` `F` `J` `K` (rebindable) or four touch zones, with long sustain holds required for the zurna.
 - **Six songs across three difficulties:** From Düyek March at 96 BPM to March of Victory at 176 BPM in Easy, Normal and Hard, built from authentic usul rhythm patterns (düyek, sofyan, semai, nevbet, devr and zafer).
 - **Precision audio-clock timing:** Music synthesised and scheduled on the Web Audio API clock, judging hits as Perfect within 45 ms and Good within 110 ms, with score multipliers (x2 at 10, x3 at 25, x4 at 50) and an interactive input calibration tool.
 - **Flawless automated bot testing:** The `?auto` bot plays through all 6 songs; on the final song it hit all 907 notes perfectly for an S grade with 0 JS errors, both procedurally and with optional assets.
 - **Ultra-lean web performance:** Runs at 60–61 fps on Intel UHD 620 graphics at 1280x720 with 29–31 draw calls (60,058–65,832 triangles) from a single `index.html` using Three.js r170, with an optional 1.75 MB CC0 asset pass.
+
+</details>
 
 ## What's new in v2.1 (November 2026)
 
@@ -50,12 +59,21 @@ The full list is in [CHANGELOG.md](CHANGELOG.md) (Turkish) and in the in-game **
 
 ## How to play
 
+<p align="center">
+  <img src="docs/how-to-play.jpg" width="100%" alt="How to play Mehter: a four-lane rhythm field with the steps watch the lanes, hit on the beat and hold zurna notes, keycaps D F J K for davul, kos, zurna and zil, and the other controls, beside the bandleader and boy drummer marching down a torch-lit street at night.">
+</p>
+
+<details>
+<summary><b>Goal and steps</b></summary>
+
 > [!TIP]
 > **Goal:** Hit the notes on the beat and keep the band's spirit above zero until the end of the song. A clean run earns an S grade.
 
 1. **Watch the lanes:** Notes roll towards the gilded hit line in front of the marching band for the davul, kös, zurna and zil.
 2. **Hit on the beat:** Press `D` `F` `J` `K` or tap the lane zones when a note reaches the line: **Perfect** within 45 ms, **Good** within 110 ms, otherwise a miss.
 3. **Hold zurna notes:** Long zurna notes must be held until the tail crosses the line; releasing too early breaks the note.
+
+</details>
 
 <details>
 <summary><b>Rules and scoring</b></summary>
