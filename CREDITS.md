@@ -11,4 +11,14 @@ All third-party assets below are CC0 (public domain). Credit is given anyway.
 | `assets/sky/dusk.hdr` (Cedar Bridge Sunset 2, 1k HDR, High tier only) | [Poly Haven](https://polyhaven.com/a/cedar_bridge_sunset_2) | Dario Barresi | CC0 |
 | `assets/models/band_figure.glb`, `assets/models/band_instruments.glb` | Built for this game in Blender 5.2 from `assets/src/band_figure.py` and `assets/src/band_instruments.py` | Claude Haiku 5.5 (this project) | Same licence as the game (MIT) |
 
+## Stil 3D (23.11.2026): images in the song video's style
+
+Made for this game, based on the Mehter song video (our own characters). No third-party artwork.
+
+| Asset (file) | Tool | Note |
+|---|---|---|
+| `assets/3d/chibi.webp` (sprite atlas: mehterbaşı, davulcu, kösçü, zurnacı, borucu, zilci, minik davulcu, two townsfolk), `assets/3d/poz-*.webp`, `assets/3d/yuz-mehterbasi.webp` | Google Gemini app (Nano Banana), one 3x3 sheet with a song video frame as reference | white background removed and cells cut locally (PIL) |
+| `assets/3d/calgi-davul.webp`, `calgi-kos.webp`, `calgi-zurna.webp`, `calgi-zil.webp` | Google Gemini app (Nano Banana), one 2x2 sheet | cut locally |
+| `assets/3d/arka.webp` (dusk sky, city wall and minarets at the end of the avenue) | Google Gemini app (Nano Banana) | cropped and resized locally |
+
 Poly Haven: textures are CC0. Kenney: sounds are CC0.

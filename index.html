@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#120B1E">
+<meta name="theme-color" content="#1E0A08">
 <title>Mehter · Osmanlı Ritim Yürüyüşü Oyunu</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Ccircle cx='60' cy='60' r='56' fill='%238C1D2F' stroke='%23E8B23A' stroke-width='5'/%3E%3Cpath d='M72 24a38 38 0 1 0 0 72a30 30 0 1 1 0-72z' fill='%23E8B23A'/%3E%3C/svg%3E">
 <link rel="canonical" href="https://furkiozknn.github.io/mehter/">
@@ -1157,9 +1157,9 @@ window.ArenaCore = { version: VERSION, kalite, render, kabuk, his, kamera, test,
    -------------------------------------------------------------------------- */
 :root {
   /* Core 8-color palette */
-  --ink-night: #120B1E;
-  --aubergine: #231438;
-  --aubergine-deep: #170C25;
+  --ink-night: #1E0A08;
+  --aubergine: #4A1A14;
+  --aubergine-deep: #2A0E0A;
   --crimson: #8C1D2F;
   --crimson-hi: #B52A42;
   --gold: #E8B23A;
@@ -1181,8 +1181,8 @@ window.ArenaCore = { version: VERSION, kalite, render, kabuk, his, kamera, test,
   --lane-zil: #2E6B4F;
 
   /* UI tokens */
-  --bg-panel: rgba(35, 20, 56, 0.94);
-  --bg-scrim: rgba(18, 11, 30, 0.78);
+  --bg-panel: rgba(74, 26, 20, 0.94);
+  --bg-scrim: rgba(38, 13, 10, 0.78);
   --line-gold: rgba(232, 178, 58, 0.45);
   --line-gold-bright: rgba(247, 212, 124, 0.85);
   --focus-ring: #F7D47C;
@@ -1210,7 +1210,7 @@ body {
 
 /* Custom themed scrollbars & selection */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: rgba(18, 11, 30, 0.7); border-radius: 4px; }
+::-webkit-scrollbar-track { background: rgba(38, 13, 10, 0.7); border-radius: 4px; }
 ::-webkit-scrollbar-thumb { background: rgba(232, 178, 58, 0.35); border-radius: 4px; border: 1px solid rgba(232, 178, 58, 0.2); }
 ::-webkit-scrollbar-thumb:hover { background: rgba(232, 178, 58, 0.65); }
 ::selection { background: var(--gold); color: var(--ink-night); }
@@ -1233,7 +1233,7 @@ button {
   padding: 10px 18px;
   border-radius: var(--radius-btn);
   border: 1.5px solid var(--line-gold);
-  background: rgba(35, 20, 56, 0.82);
+  background: rgba(74, 26, 20, 0.82);
   cursor: pointer;
   touch-action: manipulation;
   display: inline-flex;
@@ -1245,7 +1245,7 @@ button {
   transition: background 0.18s ease, border-color 0.18s ease, transform 0.12s ease, box-shadow 0.18s ease;
 }
 button:hover {
-  background: rgba(55, 31, 88, 0.95);
+  background: rgba(96, 36, 26, 0.95);
   border-color: var(--gold-hi);
   box-shadow: 0 4px 16px rgba(232, 178, 58, 0.25);
   transform: translateY(-1px);
@@ -1266,7 +1266,7 @@ button:disabled {
 button.primary {
   background: linear-gradient(180deg, var(--gold-hi) 0%, var(--gold) 100%);
   border-color: var(--gold-hi);
-  color: #170C25;
+  color: #2A0E0A;
   font-weight: 800;
   box-shadow: 0 3px 0 var(--gold-dark), 0 6px 20px rgba(232, 178, 58, 0.45);
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
@@ -1302,7 +1302,7 @@ input[type=range] {
 input[type=range]:focus { outline: none; }
 input[type=range]::-webkit-slider-runnable-track {
   height: 8px;
-  background: rgba(18, 11, 30, 0.85);
+  background: rgba(38, 13, 10, 0.85);
   border: 1px solid var(--line-gold);
   border-radius: 4px;
   box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
@@ -1322,7 +1322,7 @@ input[type=range]::-webkit-slider-thumb {
 input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
 input[type=range]::-moz-range-track {
   height: 8px;
-  background: rgba(18, 11, 30, 0.85);
+  background: rgba(38, 13, 10, 0.85);
   border: 1px solid var(--line-gold);
   border-radius: 4px;
 }
@@ -1346,7 +1346,7 @@ input[type=range]::-moz-range-thumb {
   align-items: center;
   justify-content: center;
   padding: 20px;
-  background: radial-gradient(circle at 50% 30%, rgba(35, 20, 56, 0.45) 0%, rgba(18, 11, 30, 0.82) 100%);
+  background: radial-gradient(circle at 50% 30%, rgba(74, 26, 20, 0.45) 0%, rgba(38, 13, 10, 0.82) 100%);
   overflow-y: auto;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
@@ -1354,10 +1354,10 @@ input[type=range]::-moz-range-thumb {
 }
 #scr-title {
   background: radial-gradient(ellipse at 50% 90%, rgba(217, 108, 44, 0.12) 0%, transparent 60%),
-              radial-gradient(ellipse at 50% 20%, rgba(35, 20, 56, 0.5) 0%, rgba(18, 11, 30, 0.85) 100%);
+              radial-gradient(ellipse at 50% 20%, rgba(74, 26, 20, 0.5) 0%, rgba(38, 13, 10, 0.85) 100%);
 }
 #scr-pause {
-  background: rgba(18, 11, 30, 0.76);
+  background: rgba(38, 13, 10, 0.76);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
@@ -1378,7 +1378,7 @@ input[type=range]::-moz-range-thumb {
   border-radius: var(--radius-panel);
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8),
               0 0 0 1px rgba(247, 212, 124, 0.3),
-              inset 0 0 40px rgba(18, 11, 30, 0.6);
+              inset 0 0 40px rgba(38, 13, 10, 0.6);
 }
 /* Inner ornamental hairline */
 .panel::before {
@@ -1405,7 +1405,7 @@ input[type=range]::-moz-range-thumb {
 .panel.wide { max-width: 860px; }
 
 #scr-title .panel {
-  background: rgba(26, 13, 42, 0.7);
+  background: rgba(58, 18, 14, 0.7);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1.5px solid rgba(232, 178, 58, 0.6);
@@ -1496,7 +1496,7 @@ h2 {
 .seg {
   display: flex;
   gap: 6px;
-  background: rgba(18, 11, 30, 0.6);
+  background: rgba(38, 13, 10, 0.6);
   padding: 4px;
   border-radius: 12px;
   border: 1px solid rgba(232, 178, 58, 0.25);
@@ -1512,7 +1512,7 @@ h2 {
 }
 .seg button.on {
   background: linear-gradient(180deg, var(--gold-hi), var(--gold));
-  color: #170C25;
+  color: #2A0E0A;
   font-weight: 800;
   border-color: var(--gold-hi);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
@@ -1531,7 +1531,7 @@ h2 {
   align-items: center;
   gap: 12px;
   padding: 10px 14px;
-  background: rgba(18, 11, 30, 0.55);
+  background: rgba(38, 13, 10, 0.55);
   border: 1px solid rgba(232, 178, 58, 0.25);
   border-radius: 10px;
   text-align: left;
@@ -1603,7 +1603,7 @@ h2 {
   display: inline-block;
   padding: 1px 7px;
   background: var(--gold);
-  color: #170C25;
+  color: #2A0E0A;
   border-radius: 6px;
   font-weight: 800;
 }
@@ -1672,7 +1672,7 @@ h2 {
   padding: 14px;
   border-radius: var(--radius-card);
   border: 1.5px solid rgba(232, 178, 58, 0.3);
-  background: rgba(26, 14, 40, 0.85);
+  background: rgba(58, 18, 14, 0.85);
   cursor: pointer;
   transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
   min-height: 48px;
@@ -1680,13 +1680,13 @@ h2 {
 }
 .card:hover {
   border-color: var(--gold-hi);
-  background: rgba(45, 24, 70, 0.95);
+  background: rgba(84, 30, 22, 0.95);
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5), 0 0 12px rgba(232, 178, 58, 0.2);
 }
 .card.sel {
   border-color: var(--gold-hi);
-  background: linear-gradient(135deg, rgba(55, 29, 86, 0.95), rgba(35, 18, 58, 0.95));
+  background: linear-gradient(135deg, rgba(96, 36, 26, 0.95), rgba(74, 24, 18, 0.95));
   box-shadow: 0 0 0 1px var(--gold-hi), 0 8px 24px rgba(232, 178, 58, 0.35);
 }
 .card-spine {
@@ -1729,7 +1729,7 @@ h2 {
   font-weight: 700;
   color: var(--gold);
   letter-spacing: 0.05em;
-  background: rgba(18, 11, 30, 0.6);
+  background: rgba(38, 13, 10, 0.6);
   padding: 2px 6px;
   border-radius: 4px;
 }
@@ -1778,9 +1778,9 @@ h2 {
   font-weight: 800;
   font-size: 11px;
   background: var(--gold);
-  color: #170C25;
+  color: #2A0E0A;
 }
-.grade-tag.grade-S { background: #E8B23A; color: #170C25; box-shadow: 0 0 8px rgba(232, 178, 58, 0.6); }
+.grade-tag.grade-S { background: #E8B23A; color: #2A0E0A; box-shadow: 0 0 8px rgba(232, 178, 58, 0.6); }
 .grade-tag.grade-A { background: #3E7EA6; color: #FFF; }
 .grade-tag.grade-B { background: #2E6B4F; color: #FFF; }
 .grade-tag.grade-C { background: #8C1D2F; color: #FFF; }
@@ -1796,7 +1796,7 @@ h2 {
 }
 .preview-btn:hover {
   background: var(--gold);
-  color: #170C25;
+  color: #2A0E0A;
 }
 .panel-footer { margin-top: 6px; }
 .start-btn { min-width: 140px; }
@@ -1807,7 +1807,7 @@ h2 {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  background: rgba(18, 11, 30, 0.5);
+  background: rgba(38, 13, 10, 0.5);
   padding: 14px;
   border-radius: 12px;
   border: 1px solid rgba(232, 178, 58, 0.2);
@@ -1848,7 +1848,7 @@ h2 {
   border-radius: 50%;
   background: radial-gradient(circle at 40% 40%, var(--parchment), #CDBB94 70%, #8C754A 100%);
   border: 4px solid var(--gold);
-  box-shadow: 0 0 0 3px #170C25, 0 8px 24px rgba(0, 0, 0, 0.7), 0 0 20px rgba(232, 178, 58, 0.4);
+  box-shadow: 0 0 0 3px #2A0E0A, 0 8px 24px rgba(0, 0, 0, 0.7), 0 0 20px rgba(232, 178, 58, 0.4);
   position: relative;
   display: grid;
   place-items: center;
@@ -1959,7 +1959,7 @@ h2 {
   grid-template-columns: repeat(2, 1fr);
   gap: 8px 16px;
   width: 100%;
-  background: rgba(18, 11, 30, 0.55);
+  background: rgba(38, 13, 10, 0.55);
   padding: 14px 16px;
   border-radius: 12px;
   border: 1px solid rgba(232, 178, 58, 0.25);
@@ -1978,7 +1978,7 @@ h2 {
 
 .hist-box {
   width: 100%;
-  background: rgba(18, 11, 30, 0.55);
+  background: rgba(38, 13, 10, 0.55);
   padding: 12px 16px;
   border-radius: 12px;
   border: 1px solid rgba(232, 178, 58, 0.25);
@@ -2044,7 +2044,7 @@ h2 {
   justify-content: space-between;
   gap: 16px;
   padding: 8px 16px;
-  background: rgba(35, 20, 56, 0.88);
+  background: rgba(74, 26, 20, 0.88);
   border: 1.5px solid var(--gold);
   border-radius: 16px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(247, 212, 124, 0.25);
@@ -2081,7 +2081,7 @@ h2 {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: rgba(18, 11, 30, 0.6);
+  background: rgba(38, 13, 10, 0.6);
   padding: 4px 10px;
   border-radius: 8px;
   border: 1px solid rgba(232, 178, 58, 0.25);
@@ -2099,10 +2099,10 @@ h2 {
   padding: 2px 6px;
   border-radius: 4px;
   background: var(--gold);
-  color: #170C25;
+  color: #2A0E0A;
 }
 .diff-badge[data-diff="easy"] { background: var(--iznik-green-hi); color: #FFF; }
-.diff-badge[data-diff="normal"] { background: var(--gold); color: #170C25; }
+.diff-badge[data-diff="normal"] { background: var(--gold); color: #2A0E0A; }
 .diff-badge[data-diff="hard"] { background: var(--crimson-hi); color: #FFF; }
 
 .stats {
@@ -2151,13 +2151,13 @@ h2 {
   padding: 8px;
   border-radius: 10px;
   border: 1px solid var(--line-gold);
-  background: rgba(18, 11, 30, 0.65);
+  background: rgba(38, 13, 10, 0.65);
   color: var(--parchment);
   display: grid;
   place-items: center;
 }
 .ibtn:hover {
-  background: rgba(55, 31, 88, 0.95);
+  background: rgba(96, 36, 26, 0.95);
   border-color: var(--gold-hi);
   color: #FFF;
 }
@@ -2199,7 +2199,7 @@ h2 {
   flex: 1;
   width: 16px;
   border-radius: 8px;
-  background: rgba(18, 11, 30, 0.85);
+  background: rgba(38, 13, 10, 0.85);
   border: 1.5px solid var(--gold);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.7), inset 0 0 6px rgba(0, 0, 0, 0.8);
   overflow: hidden;
@@ -2275,7 +2275,7 @@ h2 {
   min-width: 0;
   width: 0;
   border-left: 1px solid rgba(232, 178, 58, 0.15);
-  background: linear-gradient(to top, rgba(18, 11, 30, 0.4) 0%, transparent 60%);
+  background: linear-gradient(to top, rgba(38, 13, 10, 0.4) 0%, transparent 60%);
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -2294,7 +2294,7 @@ h2 {
   gap: 6px;
   padding: 8px 14px;
   border-radius: 14px;
-  background: rgba(26, 14, 40, 0.88);
+  background: rgba(58, 18, 14, 0.88);
   border: 1.5px solid var(--line-gold);
   box-shadow: 0 4px 16px rgba(0,0,0,0.5);
   min-width: 64px;
@@ -2321,7 +2321,7 @@ h2 {
   display: inline-block;
   font-size: 18px;
   font-weight: 900;
-  color: #170C25;
+  color: #2A0E0A;
   background: linear-gradient(180deg, var(--gold-hi), var(--gold));
   width: 32px;
   height: 32px;
@@ -2414,7 +2414,7 @@ h2 {
 #toasts div {
   padding: 10px 16px;
   border-radius: 12px;
-  background: rgba(35, 20, 56, 0.95);
+  background: rgba(74, 26, 20, 0.95);
   border: 1.5px solid var(--gold);
   color: var(--parchment);
   text-align: center;
@@ -2436,7 +2436,7 @@ h2 {
   max-width: 60vw;
   max-height: 45vh;
   overflow: auto;
-  background: rgba(18, 11, 30, 0.9);
+  background: rgba(38, 13, 10, 0.9);
   border: 1px solid var(--line-gold);
   color: #A6E3E9;
   font: 11px/1.35 Consolas, monospace;
@@ -2456,7 +2456,7 @@ h2 {
   align-items: center;
   gap: 6px;
   padding: 5px 10px;
-  background: rgba(35, 20, 56, 0.82);
+  background: rgba(74, 26, 20, 0.82);
   border: 1px solid var(--line-gold);
   border-radius: 12px;
   pointer-events: none;
@@ -2477,7 +2477,7 @@ h2 {
   border-radius: 7px;
   border: 1px solid rgba(245, 230, 196, 0.22);
   color: rgba(245, 230, 196, 0.42);
-  background: rgba(18, 11, 30, 0.5);
+  background: rgba(38, 13, 10, 0.5);
   transition: background 0.25s, color 0.25s, transform 0.25s;
 }
 #layers .ly.on { color: #FFF; border-color: var(--gold-hi); transform: translateY(-1px); }
@@ -2580,6 +2580,64 @@ body.playing #hud, body.playing #spirit, body.playing #layers { display: flex; }
     transition-duration: 0.001ms !important;
   }
 }
+
+/* ---- Stil 3D (23.11.2026): warm dusk panels and the song video's chibi figures ---- */
+.panel { background: linear-gradient(180deg, rgba(92, 30, 22, 0.94), rgba(52, 16, 12, 0.95)); border-radius: 22px;
+  box-shadow: 0 18px 44px rgba(20, 6, 2, 0.65), 0 2px 0 rgba(255, 214, 150, 0.18) inset, 0 0 0 1px rgba(247, 212, 124, 0.28); }
+#scr-title .panel { background: linear-gradient(180deg, rgba(96, 32, 22, 0.86), rgba(56, 18, 12, 0.9)); }
+.screen { background: radial-gradient(circle at 50% 30%, rgba(120, 60, 40, 0.25) 0%, rgba(38, 13, 10, 0.72) 100%); }
+#scr-title { background: radial-gradient(ellipse at 50% 90%, rgba(217, 140, 60, 0.18) 0%, transparent 60%), radial-gradient(ellipse at 50% 20%, rgba(90, 40, 40, 0.25) 0%, rgba(38, 13, 10, 0.7) 100%); }
+.howto-card { border-radius: 14px; box-shadow: 0 3px 10px rgba(20, 6, 2, 0.35); }
+.logo-fig { position: relative; border-radius: 50%; overflow: hidden; background: radial-gradient(circle at 50% 38%, #F6D9A0 0%, #C98A4A 62%, #7A2A1A 100%);
+  border: 4px solid var(--gold); box-shadow: 0 6px 18px rgba(20, 6, 2, 0.6), 0 0 0 2px rgba(122, 42, 26, 0.9); }
+.logo-fig img { position: absolute; left: 50%; bottom: -6%; width: 92%; transform: translateX(-46%); }
+.corner-fig { position: absolute; top: 12px; height: 92px; width: auto; pointer-events: none; z-index: 1; filter: drop-shadow(0 6px 6px rgba(20, 6, 2, 0.5)); }
+.corner-l { left: 14px; } .corner-r { right: 14px; }
+.side-fig { display: none; position: fixed; bottom: 4vh; height: min(52vh, 380px); width: auto; pointer-events: none; z-index: 0; filter: drop-shadow(0 14px 14px rgba(20, 6, 2, 0.55)); }
+@media (min-width: 980px) {
+  .side-fig { display: block; }
+  .side-l { right: calc(50% + 332px); }
+  .side-r { left: calc(50% + 336px); height: min(40vh, 290px); }
+  #scr-title .corner-fig { display: none; }
+}
+#scr-title .panel, #scr-title .foot { position: relative; z-index: 1; }
+.tz-img { width: 30px; height: 30px; object-fit: contain; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5)); }
+.pause-crest img { height: 96px; width: auto; display: block; margin: 0 auto; filter: drop-shadow(0 6px 8px rgba(20, 6, 2, 0.6)); }
+.results-crest { width: 100%; max-width: 360px; }
+.res-fig { position: absolute; bottom: -6px; height: 128px; width: auto; pointer-events: none; filter: drop-shadow(0 6px 8px rgba(20, 6, 2, 0.55)); }
+.res-l { left: 0; } .res-r { right: 6px; height: 100px; }
+.select-panel .panel-footer { position: sticky; bottom: -30px; margin: 0 -24px -30px; padding: 12px 24px 16px; z-index: 2;
+  background: linear-gradient(180deg, rgba(52, 16, 12, 0), rgba(52, 16, 12, 0.96) 32%); border-radius: 0 0 22px 22px; }
+@media (max-width: 560px) {
+  .corner-fig { height: 84px; top: 10px; }
+  .corner-l { left: 8px; } .corner-r { right: 8px; }
+  .res-fig { height: 96px; } .res-r { height: 78px; }
+  .tz-img { width: 26px; height: 26px; }
+}
+/* short screens (Grup 1 dersi): every button of every card stays on screen at 1280x720 and 1366x768 */
+@media (max-height: 800px) and (min-width: 561px) {
+  #scr-title .panel { padding: 18px 22px; gap: 10px; max-width: 640px; }
+  #scr-title .logo { width: 74px; height: 74px; }
+  #scr-title h1 { font-size: 46px; }
+  #scr-title .orn { height: 16px; }
+  #scr-title .howto-bento { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  #scr-title .howto-card { font-size: 12px; padding: 7px 10px; line-height: 1.3; }
+  #scr-title .title-actions { gap: 8px; }
+  #scr-title .play-btn { min-height: 46px; }
+  #scr-title .title-meta { margin-top: 0; gap: 2px; }
+  #scr-title .corner-fig { height: 70px; }
+  .results-panel { padding: 18px 20px; gap: 10px; }
+  .results-crest { height: 100px; }
+  .grade { font-size: 78px; }
+  .res-fig { height: 104px; } .res-r { height: 84px; }
+  .select-panel { gap: 10px; padding-top: 20px; }
+}
+/* phone: actions and the version button before the how-to cards */
+@media (max-width: 560px), (max-height: 520px) {
+  #scr-title .title-meta { order: 2; }
+  #scr-title .howto-bento { order: 3; }
+  #scr-title .logo { width: 84px; height: 84px; }
+}
 </style>
 <script data-goatcounter="https://furkiozknn.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </head>
@@ -2591,7 +2649,7 @@ body.playing #hud, body.playing #spirit, body.playing #layers { display: flex; }
   <div class="tz" role="button" aria-label="Lane 1 (D)" data-lane="0">
     <div class="tz-dock">
       <div class="tz-icon-box">
-        <svg class="tz-icon" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="7" rx="8" ry="3.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4 7v9c0 2 3.6 3.5 8 3.5s8-1.5 8-3.5V7" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M6 7l6 9M18 7l-6 9" stroke="currentColor" stroke-width="1.2"/></svg>
+        <img class="tz-img" src="assets/3d/calgi-davul.webp" alt="" aria-hidden="true">
         <span class="tz-name">DAVUL</span>
       </div>
       <span class="key-label">D</span>
@@ -2600,7 +2658,7 @@ body.playing #hud, body.playing #spirit, body.playing #layers { display: flex; }
   <div class="tz" role="button" aria-label="Lane 2 (F)" data-lane="1">
     <div class="tz-dock">
       <div class="tz-icon-box">
-        <svg class="tz-icon" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="8" rx="8.5" ry="3.8" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 8c0 5.5 3.8 11 8.5 11s8.5-5.5 8.5-11" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="8" r="1.8" fill="currentColor"/></svg>
+        <img class="tz-img" src="assets/3d/calgi-kos.webp" alt="" aria-hidden="true">
         <span class="tz-name">KÖS</span>
       </div>
       <span class="key-label">F</span>
@@ -2609,7 +2667,7 @@ body.playing #hud, body.playing #spirit, body.playing #layers { display: flex; }
   <div class="tz" role="button" aria-label="Lane 3 (J)" data-lane="2">
     <div class="tz-dock">
       <div class="tz-icon-box">
-        <svg class="tz-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3l13 13M9 2l13 13" stroke="currentColor" stroke-width="1.5"/><path d="M4 3l4 4-2 2-4-4zM16 15l5 5-2 2-5-5z" fill="currentColor"/><circle cx="11" cy="11" r="1" fill="currentColor"/><circle cx="14" cy="14" r="1" fill="currentColor"/></svg>
+        <img class="tz-img" src="assets/3d/calgi-zurna.webp" alt="" aria-hidden="true">
         <span class="tz-name">ZURNA</span>
       </div>
       <span class="key-label">J</span>
@@ -2618,7 +2676,7 @@ body.playing #hud, body.playing #spirit, body.playing #layers { display: flex; }
   <div class="tz" role="button" aria-label="Lane 4 (K)" data-lane="3">
     <div class="tz-dock">
       <div class="tz-icon-box">
-        <svg class="tz-icon" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="12" rx="8.5" ry="5.5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="2.8" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 9v-4M10 5h4" stroke="currentColor" stroke-width="1.5"/></svg>
+        <img class="tz-img" src="assets/3d/calgi-zil.webp" alt="" aria-hidden="true">
         <span class="tz-name">ZİL</span>
       </div>
       <span class="key-label">K</span>
@@ -2704,24 +2762,13 @@ body.playing #hud, body.playing #spirit, body.playing #layers { display: flex; }
 
 <!-- TITLE SCREEN -->
 <section id="scr-title" class="screen" role="dialog" aria-modal="true" aria-labelledby="t-name">
+  <img class="side-fig side-l" src="assets/3d/poz-mehterbasi.webp" alt="" aria-hidden="true">
+  <img class="side-fig side-r" src="assets/3d/poz-cocuk.webp" alt="" aria-hidden="true">
   <div class="panel center">
+    <img class="corner-fig corner-l" src="assets/3d/poz-davulcu.webp" alt="" aria-hidden="true">
+    <img class="corner-fig corner-r" src="assets/3d/poz-zilci.webp" alt="" aria-hidden="true">
     <div class="crest-box">
-      <svg class="logo" viewBox="0 0 140 140" aria-hidden="true">
-        <defs>
-          <radialGradient id="crest-bg" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stop-color="#3A184D"/>
-            <stop offset="70%" stop-color="#1A0D2A"/>
-            <stop offset="100%" stop-color="#120B1E"/>
-          </radialGradient>
-        </defs>
-        <circle cx="70" cy="70" r="66" fill="#8C1D2F" stroke="#E8B23A" stroke-width="4"/>
-        <circle cx="70" cy="70" r="58" fill="url(#crest-bg)" stroke="#E8B23A" stroke-width="1.5" stroke-dasharray="3 3"/>
-        <path d="M38 38l64 64M102 38L38 102" stroke="#E8B23A" stroke-width="2.5" stroke-linecap="round" opacity="0.5"/>
-        <circle cx="38" cy="38" r="3" fill="#E8B23A" opacity="0.6"/><circle cx="102" cy="38" r="3" fill="#E8B23A" opacity="0.6"/>
-        <path d="M84 28a42 42 0 1 0 0 84a34 34 0 1 1 0-84z" fill="#E8B23A"/>
-        <polygon points="96,54 99,63 108,64 101,70 103,79 96,74 89,79 91,70 84,64 93,63" fill="#F5E6C4"/>
-        <path d="M70 120c-8-6-16-4-20-10m40 10c8-6 16-4 20-10" fill="none" stroke="#E8B23A" stroke-width="1.8" stroke-linecap="round"/>
-      </svg>
+      <div class="logo logo-fig"><img src="assets/3d/yuz-mehterbasi.webp" alt="" aria-hidden="true"></div>
     </div>
     
     <div class="title-head">
@@ -2781,6 +2828,8 @@ body.playing #hud, body.playing #spirit, body.playing #layers { display: flex; }
 <!-- SONG SELECT SCREEN: Imperial Defter -->
 <section id="scr-select" class="screen hidden" role="dialog" aria-modal="true" aria-labelledby="sel-title">
   <div class="panel wide select-panel">
+    <img class="corner-fig corner-l" src="assets/3d/poz-davulcu.webp" alt="" aria-hidden="true">
+    <img class="corner-fig corner-r" src="assets/3d/poz-zilci.webp" alt="" aria-hidden="true">
     <div class="panel-header">
       <svg class="panel-orn" viewBox="0 0 200 20" aria-hidden="true"><path d="M10 10h60M130 10h60" stroke="#E8B23A" stroke-width="1.5"/><circle cx="100" cy="10" r="4" fill="#E8B23A"/><circle cx="90" cy="10" r="2.5" fill="#E8B23A"/><circle cx="110" cy="10" r="2.5" fill="#E8B23A"/></svg>
       <h2 id="sel-title" data-i18n="selectSong">Şarkı seç</h2>
@@ -2917,11 +2966,7 @@ body.playing #hud, body.playing #spirit, body.playing #layers { display: flex; }
 <section id="scr-pause" class="screen hidden" role="dialog" aria-modal="true" aria-labelledby="pause-title">
   <div class="panel center pause-panel">
     <div class="pause-crest">
-      <svg viewBox="0 0 60 60" aria-hidden="true">
-        <circle cx="30" cy="30" r="27" fill="#8C1D2F" stroke="#E8B23A" stroke-width="2"/>
-        <path d="M18 18l24 24M42 18L18 42" stroke="#E8B23A" stroke-width="3" stroke-linecap="round"/>
-        <circle cx="18" cy="18" r="2.5" fill="#E8B23A"/><circle cx="42" cy="18" r="2.5" fill="#E8B23A"/>
-      </svg>
+      <img src="assets/3d/poz-cocuk.webp" alt="" aria-hidden="true">
     </div>
     <h2 id="pause-title" data-i18n="pause">Duraklat</h2>
     <p class="muted" data-i18n="pauseHint">Devam etmek için Devam’a basın</p>
@@ -2947,12 +2992,24 @@ body.playing #hud, body.playing #spirit, body.playing #layers { display: flex; }
         </g>
       </svg>
       <div class="grade" id="r-grade">–</div>
+      <img class="res-fig res-l" src="assets/3d/poz-mehterbasi.webp" alt="" aria-hidden="true">
+      <img class="res-fig res-r" src="assets/3d/poz-cocuk.webp" alt="" aria-hidden="true">
     </div>
     <div id="res-main"></div>
     <h2 id="r-title" class="results-subtitle"></h2>
     
     <div id="r-record" class="seal-record"></div>
     <p id="r-daily" class="muted"></p>
+
+    <div class="btns res-btns">
+      <button id="b-easy" class="primary hidden" data-i18n="tryEasy">Kolay’da dene</button>
+      <button id="b-again" class="primary" data-i18n="playAgain">Tekrar oyna</button>
+      <button id="b-main2" data-i18n="mainMenu">Ana menü</button>
+    </div>
+    <div class="btns res-btns">
+      <button id="b-share" data-i18n="share">Paylaş</button>
+      <button id="b-other" data-i18n="anotherGame">Başka oyun</button>
+    </div>
 
     <div class="stats-grid" id="r-stats"></div>
 
@@ -2970,15 +3027,6 @@ body.playing #hud, body.playing #spirit, body.playing #layers { display: flex; }
       </div>
     </div>
 
-    <div class="btns">
-      <button id="b-easy" class="primary hidden" data-i18n="tryEasy">Kolay’da dene</button>
-      <button id="b-again" class="primary" data-i18n="playAgain">Tekrar oyna</button>
-      <button id="b-main2" data-i18n="mainMenu">Ana menü</button>
-    </div>
-    <div class="btns">
-      <button id="b-share" data-i18n="share">Paylaş</button>
-      <button id="b-other" data-i18n="anotherGame">Başka oyun</button>
-    </div>
   </div>
 </section>
 
@@ -4138,6 +4186,8 @@ function buildWorld() {
     for (const z of [-18, -6, 6]) m.box(x - 0.06, x + 0.06, 0.25, 4.9, z - 0.06, z + 0.06, 0x3b2a1a);
   }
   // a mosque dome closing the far end of the square, and two minarets either side of the houses
+  // (stil 3D: with assets the dusk backdrop image shows them, so the boxes are only the ?noassets fallback)
+  if (!ASSET_ON) {
   m.box(-5, 5, 0, 3, -56, -49, 0xF1E3C6);
   m.box(-4, 4, 3, 4.2, -55.6, -49.4, 0x5d7266);
   m.box(-3, 3, 4.2, 5.2, -55.2, -49.8, 0x5d7266);
@@ -4151,6 +4201,7 @@ function buildWorld() {
     m.box(x - 0.5, x + 0.5, 11, 12.4, z - 0.5, z + 0.5, 0xF1E3C6);
     m.box(x - 0.55, x + 0.55, 12.4, 12.8, z - 0.55, z + 0.55, 0xD4AF37);
     m.box(x - 0.1, x + 0.1, 12.8, 14.6, z - 0.1, z + 0.1, 0xD4AF37);
+  }
   }
   C.world = new THREE.Mesh(m.geo(), new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true, side: THREE.DoubleSide }));
   C.world.receiveShadow = !lowQ();
@@ -4311,10 +4362,16 @@ function buildBand() {
 }
 
 function buildNotes() {
-  C.notes = new THREE.InstancedMesh(new THREE.BoxGeometry(0.82, 0.14, 0.36), lamb(0xffffff), 720);
+  const NOTE_MAT = () => new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.42, metalness: 0.12, emissive: 0x2a1406 });
+  const noteGeo = new THREE.CylinderGeometry(0.41, 0.41, 0.17, 28);
+  noteGeo.scale(1, 1, 0.48);
+  C.notes = new THREE.InstancedMesh(noteGeo, NOTE_MAT(), 720);
   C.notes.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   C.notes.count = 0;
-  C.holds = new THREE.InstancedMesh(new THREE.BoxGeometry(0.42, 0.08, 1), lamb(0xffffff), 180);
+  const holdGeo = new THREE.CylinderGeometry(0.17, 0.17, 1, 14);
+  holdGeo.rotateX(Math.PI / 2);
+  holdGeo.scale(1, 0.55, 1);
+  C.holds = new THREE.InstancedMesh(holdGeo, NOTE_MAT(), 180);
   C.holds.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   C.holds.count = 0;
   C.glow = new THREE.InstancedMesh(new THREE.BoxGeometry(0.94, 0.03, 1.2), lamb(0xffffff), 4);
@@ -4437,6 +4494,127 @@ async function loadSky() {
     G.assets.sky = true;
   } catch (e) { /* keep the hemisphere light only */ }
 }
+// ----- stil 3D (23.11.2026): the song video's chibi band, crowd and dusk backdrop -----
+// assets/3d/chibi.webp is a 3x3 atlas (cell 320 px, feet at the cell bottom), cut from a Gemini sheet made after the
+// song video: 0 mehterbaşı, 1 davul, 2 kös, 3 zurna, 4 boru, 5 zil, 6 minik davulcu, 7 kadın, 8 adam.
+// The sprites face the camera; the old procedural band and crowd stay as the fallback (and for ?noassets runs).
+const CHIBI_W = [0.506, 0.556, 0.731, 0.494, 0.756, 0.388, 0.475, 0.697, 0.725];   // figure width / cell height
+const CHIBI_CELL = { lead: 0, davul: 1, kos: 2, zurna: 3, boru: 4, cevgen: 5 };
+const SPR = { on: false };
+function spriteMesh(tex, n) {
+  const geo = new THREE.PlaneGeometry(1, 1);
+  geo.translate(0, 0.5, 0);
+  const cell = new THREE.InstancedBufferAttribute(new Float32Array(n * 2), 2);
+  geo.setAttribute('aCell', cell);
+  const mat = new THREE.MeshBasicMaterial({ map: tex, alphaTest: 0.45, side: THREE.DoubleSide });
+  mat.onBeforeCompile = (sh) => {
+    sh.vertexShader = 'attribute vec2 aCell;\n' + sh.vertexShader.replace('#include <uv_vertex>', '#include <uv_vertex>\n  vMapUv = (vMapUv + aCell) / 3.0;');
+  };
+  const m = new THREE.InstancedMesh(geo, mat, n);
+  m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  m.frustumCulled = false;
+  for (let i = 0; i < n; i++) m.setColorAt(i, TMP.col.setHex(0xffffff));
+  scene.add(m);
+  return { m, cell, n };
+}
+function setCell(s, i, k) { s.cell.setXY(i, k % 3, 2 - Math.floor(k / 3)); }
+// one sprite: feet at (x, y, z), turned to the camera, rolled by `roll`
+function putSprite(mesh, i, x, y, z, w, h, roll) {
+  SPR.e.set(0, Math.atan2(cam.position.x - x, cam.position.z - z), roll, 'YXZ');
+  TMP.q.setFromEuler(SPR.e);
+  TMP.p.set(x, y, z);
+  TMP.s.set(w, h, 1);
+  TMP.m.compose(TMP.p, TMP.q, TMP.s);
+  mesh.setMatrixAt(i, TMP.m);
+}
+async function loadChibi() {
+  if (!ASSET_ON) return;
+  try {
+    const tex = await new THREE.TextureLoader().loadAsync('assets/3d/chibi.webp');
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = 4;
+    SPR.e = new THREE.Euler();
+    SPR.band = spriteMesh(tex, BAND.length);
+    BAND.forEach((m, i) => setCell(SPR.band, i, m.lead ? CHIBI_CELL.lead : CHIBI_CELL[m.kind]));
+    SPR.band.cell.needsUpdate = true;
+    let seed = 41;
+    const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+    SPR.crowd = spriteMesh(tex, CROWD.length);
+    CROWD.forEach((c, i) => {
+      const r = rnd();
+      c.cell = r < 0.12 ? 6 : r < 0.56 ? 7 : 8;
+      c.flip = rnd() < 0.5 ? -1 : 1;
+      c.tint = 0.82 + rnd() * 0.18;
+      setCell(SPR.crowd, i, c.cell);
+    });
+    SPR.crowd.cell.needsUpdate = true;
+    // soft round shadow under every band member
+    const shGeo = new THREE.PlaneGeometry(1, 1);
+    shGeo.rotateX(-Math.PI / 2);
+    SPR.shadow = new THREE.InstancedMesh(shGeo, new THREE.MeshBasicMaterial({ map: PTS.tex, color: 0x1a0a04, transparent: true, opacity: 0.55, depthWrite: false }), BAND.length);
+    SPR.shadow.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    SPR.shadow.frustumCulled = false;
+    scene.add(SPR.shadow);
+    for (const k of ['body', 'head', 'fez', 'sash', 'davul', 'kos', 'zurna', 'boru', 'staff', 'ring', 'stick', 'cBody', 'cHead', 'cArm']) C[k].visible = false;
+    SPR.on = true;
+    G.assets.chibi = true;
+  } catch (e) { /* keep the procedural band */ }
+}
+// the band and the crowd as sprites; positions come from updateBand (same march, same layers, same flashes)
+function updateSprites(beat) {
+  if (!SPR.on) return;
+  const phone = cam.aspect < 0.8;
+  const k = phone ? 1.4 : 1;            // on a phone the far band is small: draw it bigger, the march is unchanged
+  const tint = 1 - 0.42 * G.dark;
+  SPR.band.m.material.color.setScalar(tint);
+  SPR.crowd.m.material.color.setScalar(tint * 0.96);
+  const S = BAND_SCALE, OZ = BAND_Z * (S - 1);
+  for (let i = 0; i < BAND.length; i++) {
+    const m = BAND[i];
+    const cellK = m.lead ? 0 : CHIBI_CELL[m.kind];
+    const fam = m.kind === 'boru' ? null : m.kind;
+    const f = fam ? (G.instFlash[fam] || 0) * (1 - (m._out || 0)) : 0;
+    const h = (m.lead ? 4.6 : 3.0) * k * (1 + f * 0.08) * (1 - 0.1 * (m._out || 0));
+    const w = h * CHIBI_W[cellK];
+    const x = (m._x ?? m.x) * S, z = (m._z ?? m.z) * S + OZ;
+    const step = Math.sin(beat * Math.PI + m.ph) * 0.05 * (1 - (m._out || 0));
+    putSprite(SPR.band.m, i, x, (m._hop || 0) * S, z, w, h, step + (m._sway || 0) * 0.35);
+    const g = (1 - 0.5 * (m._out || 0)) * (1 + 0.35 * f);
+    SPR.band.m.setColorAt(i, TMP.col.setRGB(g, g, g));
+    TMP.e.set(0, 0, 0); TMP.q.setFromEuler(TMP.e);
+    TMP.p.set(x, 0.07, z + 0.05); TMP.s.set(w * 1.15, 1, h * 0.22);
+    TMP.m.compose(TMP.p, TMP.q, TMP.s);
+    SPR.shadow.setMatrixAt(i, TMP.m);
+  }
+  SPR.band.m.instanceMatrix.needsUpdate = true;
+  SPR.band.m.instanceColor.needsUpdate = true;
+  SPR.shadow.instanceMatrix.needsUpdate = true;
+  const kc = phone ? 1.25 : 1;
+  for (let j = 0; j < CROWD.length; j++) {
+    const c = CROWD[j];
+    const jump = G.cheer * Math.max(0, Math.sin(beat * Math.PI * 2 + c.ph)) * 0.32;
+    const h = c.h * (c.cell === 6 ? 1.35 : 1.6) * kc;
+    putSprite(SPR.crowd.m, j, c.x, jump, c.z, h * CHIBI_W[c.cell] * c.flip, h, Math.sin(beat * Math.PI + c.ph) * 0.04);
+    SPR.crowd.m.setColorAt(j, TMP.col.setScalar(c.tint));
+  }
+  SPR.crowd.m.instanceMatrix.needsUpdate = true;
+  SPR.crowd.m.instanceColor.needsUpdate = true;
+}
+// dusk backdrop at the far end of the avenue (sky, clouds, city wall and minarets, after the song video)
+async function loadArka() {
+  if (!ASSET_ON) return;
+  try {
+    const tex = await new THREE.TextureLoader().loadAsync('assets/3d/arka.webp');
+    tex.colorSpace = THREE.SRGBColorSpace;
+    const W = 170, H = W * tex.image.height / tex.image.width;
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(W, H), new THREE.MeshBasicMaterial({ map: tex, fog: false, depthWrite: false }));
+    mesh.position.set(0, H / 2 - 4, -66);
+    mesh.renderOrder = -1;
+    scene.add(mesh);
+    C.arka = mesh;
+    G.assets.arka = true;
+  } catch (e) { /* keep the plain dusk sky */ }
+}
 async function fetchSamples() {
   if (CORE_SES) CORE_SES.ducking.esik = 0;   // no automatic ducking: hits land on every beat, the march must not pump
   if (!ASSET_ON) return;
@@ -4478,6 +4656,7 @@ function updateBand(beat, dt) {
     const hop = bob * (m.lead ? 0.08 : 0.05) * e;
     const sway = turn * 0.08 * (m.row % 2 ? 1 : -1) * e + m.sr * out + Math.sin(G.idleT * 0.7 + m.ph) * 0.15 * out;
     const slump = 1 - 0.12 * out;   // out-of-step members droop
+    m._x = mx + stumble * 0.25; m._z = mz; m._hop = hop; m._sway = sway; m._out = out;   // for the chibi sprites
     paint(C.body, i, out > 0.01 ? TMP.col.setHex(m.coat).multiplyScalar(1 - 0.55 * out).getHex() : m.coat);
     put(C.body, i, mx, 0.45 * slump + hop, mz, 1, slump, 1, sway, 0);
     put(C.head, i, mx + stumble * 0.25, (1.05 - 0.13 * out) + hop, mz, 1, 1, 1, sway);
@@ -4583,6 +4762,7 @@ function updateSky(dt, target) {
   if (G.assets.sky) scene.environmentIntensity = 0.55 - 0.4 * G.dark;   // the HDRI fades with the dusk, like the sun
   C.flameMat.emissiveIntensity = 0.25 + 1.4 * G.dark + 0.6 * BEAT_PULSE;
   C.glowMat.opacity = 0.05 + 0.35 * G.dark;
+  if (C.arka) C.arka.material.color.setScalar(1 - 0.55 * G.dark);
 }
 function updateWorld(dt, t, beat) {
   for (let i = 0; i < C.torchN; i++) {
@@ -4934,6 +5114,7 @@ function updateVisuals(dt) {
   BEAT_PULSE = calm() ? 0 : Math.pow(1 - (vb.beat - Math.floor(vb.beat)), 3);   // 1 on the beat, decays to 0 before the next; reduce motion: no light pulse
   updateSky(dt, visualDark());
   updateBand(vb.beat, dt);
+  updateSprites(vb.beat);
   G.cheer += ((G.combo >= 10 ? Math.min(1, G.combo / 40) : 0.15) - G.cheer) * Math.min(1, dt * 2);
   updateNotes();
   updateWorld(dt, vb.t, vb.beat);
@@ -5065,6 +5246,8 @@ if (Q.get('screen') === 'settings') openSettings();
   loadAssets();
   loadCobble();
   loadSky();
+  loadChibi();
+  loadArka();
   fetchSamples();
   $('#b-play').disabled = false;
   $('#b-daily').disabled = !window.Arena;
