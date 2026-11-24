@@ -637,6 +637,45 @@
   };
 })(typeof window !== 'undefined' ? window : globalThis);
 /*ARENA-KIT:END*/</script>
+<script>
+/* GL-GUARD: WebGL unavailable / three.js CDN unreachable -> clear TR+EN message instead of a stuck loading screen */
+(function () {
+  var T = {
+    gl: ['WebGL kullanılamıyor. Tarayıcında donanım hızlandırmayı aç ya da başka bir tarayıcı dene.', 'WebGL is unavailable. Enable hardware acceleration in your browser or try another browser.'],
+    net: ['Three.js yüklenemedi. İnternet bağlantını kontrol edip sayfayı yenile.', 'Three.js could not be loaded. Check your connection and reload the page.']
+  };
+  var st = document.createElement('style');
+  st.textContent = '.glfail{margin:10px 0;padding:10px 12px;border-radius:12px;border:1px solid rgba(214,84,60,.65);background:rgba(214,84,60,.16);color:inherit;font-size:13px;line-height:1.4;text-align:left}.glfail p{margin:0 0 4px}.glfail p+p{margin:0;font-size:12px;opacity:.82}.glfail-fixed{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:9999;width:min(92vw,420px);background:#2a1410;color:#f7e9e2;box-shadow:0 8px 30px rgba(0,0,0,.5)}';
+  document.head.appendChild(st);
+  var box = null, kind = '';
+  function show(k) {
+    if (kind === 'gl' && k !== 'gl') return;
+    kind = k; if (k === 'gl') window.__glFailed = true;
+    var pb = document.querySelector('#b-play'); if (pb) pb.disabled = true;
+    var tr = /^tr/i.test(navigator.language || ''), m = T[k];
+    if (!box) {
+      box = document.createElement('div'); box.className = 'glfail'; box.setAttribute('role', 'alert');
+      var host = document.querySelector('#loading');
+      if (host && host.getClientRects().length) { if (host.childElementCount) host.parentNode.insertBefore(box, host); else { host.textContent = ''; host.parentNode.insertBefore(box, host.nextSibling); } }
+      else { box.className += ' glfail-fixed'; document.body.appendChild(box); }
+    }
+    box.textContent = '';
+    [tr ? m[0] : m[1], tr ? m[1] : m[0]].forEach(function (s) { var p = document.createElement('p'); p.textContent = s; box.appendChild(p); });
+  }
+  window.__glFatal = show;
+  window.__glClear = function () { if (box && kind === 'net') { box.remove(); box = null; kind = ''; } };
+  // inert stand-in for the renderer when WebGL cannot start, so the menu code below still runs
+  window.__glStub = function (canvas) {
+    var p = new Proxy(function () {}, {
+      get: function (t, k) { return k === 'domElement' ? canvas : k === Symbol.toPrimitive ? function () { return 0; } : k === 'then' ? undefined : p; },
+      set: function () { return true; }, apply: function () { return p; }, construct: function () { return p; }
+    });
+    return p;
+  };
+  setTimeout(function () { if (!window.__three) show('net'); }, 15000);
+})();
+</script>
+
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"},"integrity":{"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js":"sha384-GY5FqjttLCFRt/McQbyaVdCk2O1IQtOeX8Py6NfD89BIAsIyJFRl4UgSXrk2vXAk","https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/loaders/GLTFLoader.js":"sha384-Lq1Wl94so5JCKGDvezrdVMJhdeKQkwb8iwRo59QrPPd61CnrCJZLxYmFlQ8ZuOKR","https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/loaders/RGBELoader.js":"sha384-df8Ij6+muzecLENB3U9Z40GSfTjNV/TbniF7LQdZiYn4nHS5Javsoo5xFTWG0EJE","https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/utils/BufferGeometryUtils.js":"sha384-wOjwauvHlJO7K6APr7FmMGH2nupQa3Ndzas9bJZhsAMOK055efJud8ns4aYmASKv"}}</script>
 <script type="module">/*ARENA-CORE:BEGIN v2.1.1 sha256:476baa52ff6a*/
 /* ARENA-CORE v2 — shared visual / feel / test layer for the Claude Game Arena games (Furki Ozkan).
@@ -3034,7 +3073,7 @@ body.playing #hud, body.playing #spirit, body.playing #layers { display: flex; }
 // ---------------------------------------------------------------------------
 // Mehter: 3D rhythm march. Single file. Three.js r170 (CDN) + Web Audio.
 // ---------------------------------------------------------------------------
-let THREE = null;
+let THREE = null, glFail = false;
 
 // ----- query flags and settings -------------------------------------------
 const $ = (s) => document.querySelector(s);
@@ -4392,7 +4431,8 @@ function buildFx() {
 
 function buildThree() {
   const canvas = $('#gl');
-  R = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+  try { R = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' }); }
+  catch (e) { R = null; glFail = true; window.__glFatal('gl'); return; } // no WebGL: the title menu stays readable, Play stays off
   R.setPixelRatio(Math.min(window.devicePixelRatio || 1, lowQ() ? 1 : 1.5));
   if (window.Arena) Arena.perf.attach({ setPixelRatio: r => { R.setPixelRatio(r); if (FX) FX.setSize(window.innerWidth, window.innerHeight); } }, { max: Math.min(window.devicePixelRatio || 1, lowQ() ? 1 : 1.5) }); // arena-kit: dynamic pixel ratio, same cap
   R.shadowMap.enabled = !lowQ();
@@ -4808,7 +4848,7 @@ function applyI18n() {
   for (const el of $$('[data-i18n-title]')) el.setAttribute('title', T(el.dataset.i18nTitle));
   setText($('#b-lang-h'), LANG === 'tr' ? 'TR' : 'EN');
   setText($('#b-title-lang'), LANG === 'tr' ? 'TR / EN' : 'EN / TR');
-  if (!G.ready) setText($('#loading'), T('loading'));
+  if (!G.ready && !glFail) setText($('#loading'), T('loading'));
   buildSongCards();
   refreshDiffButtons();
   refreshSettings();
@@ -5232,12 +5272,14 @@ if (Q.get('screen') === 'settings') openSettings();
 (async () => {
   try {
     THREE = await import('three');
+    window.__three = true; if (window.__glClear) window.__glClear();
   } catch (e) {
-    setText($('#loading'), T('loadFail'));
+    if (window.__glFatal) window.__glFatal('net'); else setText($('#loading'), T('loadFail'));
     G.errors.push('three import failed');
     return;
   }
   buildThree();
+  if (glFail) return;
   G.ready = true;
   // arena-core v2 test contract: window.__game.read() / step(seconds) for bots, gates and ?capture recordings
   if (window.ArenaCore) ArenaCore.test.kur({ read: () => ({ fps: G.fps, screen: G.screen, errors: G.errors.slice(), fx: FX && FX.info }), step: s => window.mehterSim(s) });
